@@ -15,4 +15,9 @@ If you don't have Spyder download from [here](https://www.spyder-ide.org/).
 >Register for an account on [GitHub](https://github.com/), and download GitHub desktop [here](https://desktop.github.com/).  
 
 When you have it working on your PC, the next step is to clone the Zadok_Lab repository.  
-Do it by click on the green button Code > Open in GitHub Desktop. 
+Click the green button Code > Open in GitHub Desktop.  
+
+
+## Code together
++ Every time something has changed, you can see the change and in GitHub desktop pull origin.
++ When you change something you can commit to main and push to the repository.
