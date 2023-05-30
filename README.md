@@ -2,7 +2,7 @@
 ## 
 
 In order to code with python and create gds files we are working with python.  
-Download Anaconda from [here]((https://www.anaconda.com/))  
+Download Anaconda from [here]([url](https://www.anaconda.com/))   
 After installation, open "Anaconda Prompt" terminal (similar to cmd - just write it in the search bar).  
 In this terminal type: `conda install -c conda-forge gdspy`  
 this will install the gds library we are using.  
