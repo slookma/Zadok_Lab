@@ -10,6 +10,8 @@
 After installation, open "Anaconda Prompt" terminal (similar to cmd - just write it in the search bar).  
 In this terminal type: `conda install -c conda-forge gdspy` - this will install the gds library we are using.  
 After the installation is finished, open **Spyder** enviorment (you should have it if you installed Anaconda).  
-If you don't have Spyder download from [here](https://www.spyder-ide.org/)  
+If you don't have Spyder download from [here](https://www.spyder-ide.org/).  
 
-Register for an account on [GitHub](https://github.com/), and download GitHub desktop.
+>Register for an account on [GitHub](https://github.com/), and download GitHub desktop [here](https://desktop.github.com/).  
+
+When 
