@@ -15,4 +15,4 @@ If you don't have Spyder download from [here](https://www.spyder-ide.org/).
 >Register for an account on [GitHub](https://github.com/), and download GitHub desktop [here](https://desktop.github.com/).  
 
 When you have it working on your PC, the next step is to clone the Zadok_Lab repository.  
-Do it by pressing the green button #228B22 on the top right 
+Do it by pressing the green button `rgb(34, 139, 34)` on the top right 
