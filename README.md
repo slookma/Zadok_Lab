@@ -1,5 +1,6 @@
 # Zadok_Lab
-# Matan Slook - slookma
+// Matan Slook - slookma
+
 In order to code with python and create gds files we are working with python.
 Download Anaconda from: https://www.anaconda.com/
 After installation, open "Anaconda Prompt" terminal (similar to cmd - just write it in the search bar).
