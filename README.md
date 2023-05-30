@@ -1,7 +1,7 @@
 # Zadok_Lab repository  
 ## The basics
-+In order to create gds files easily we code with python.  
-+We use git for updates and unified versions of the code we write to manage and follow it.  
++ In order to create gds files easily we code with python.  
++ We use git for updates and unified versions of the code we write to manage and follow it.  
 
 
 ## Downloading stuff
