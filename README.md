@@ -21,3 +21,14 @@ Click the green button Code > Open in GitHub Desktop.
 ## Code together
 + Every time something has changed, you can see the change and in GitHub desktop `pull origin`.
 + When you change something you can `commit to main` and `push origin` to the repository.
+
+
+```html
+<div class="note-box" style="background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 10px;">
+    This is a colored note box!
+</div>
+
+  
+  
+  
+  
