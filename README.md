@@ -19,5 +19,5 @@ Click the green button Code > Open in GitHub Desktop.
 
 
 ## Code together
-+ Every time something has changed, you can see the change and in GitHub desktop pull origin.
++ Every time something has changed, you can see the change and in GitHub desktop `pull origin`.
 + When you change something you can `commit to main` and `push origin` to the repository.
