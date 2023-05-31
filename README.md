@@ -6,7 +6,7 @@
 
 ## Downloading stuff
 ```markdown
-**Note:** Fiber guys - if you are not planning to code with python, skip to the 
+Fiber guys - if you are not planning to code with python, skip to GitHub regestration part.
 
 ```
 >Download Anaconda from [here](https://www.anaconda.com/)  
@@ -24,14 +24,6 @@ Click the green button Code > Open in GitHub Desktop.
 
 ## Code together
 + Every time something has changed, you can see the change and in GitHub desktop `pull origin`.
-+ When you change something you can `commit to main` and `push origin` to the repository.
-
-
-
-
-
-cfdfdf
-  
-  
++ When you change something you can `commit to main` and `push origin` to the repository.  
   
   
