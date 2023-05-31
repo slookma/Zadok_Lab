@@ -1,0 +1,11 @@
+function attenuate (s,n)
+switch n
+    case 'on'
+        set(s,'dataterminalready','on')
+        pause(0.5)
+    case 'off'
+        set(s,'dataterminalready','off')
+        pause(0.5)
+    otherwise
+        disp ('Shutter did not move')
+end

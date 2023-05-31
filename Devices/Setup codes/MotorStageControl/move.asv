@@ -1,0 +1,10 @@
+function move(s,len) %Move in microns. Smallest move is 0.01um
+n=micron2ustep(len); 
+
+x=['1pr',int2str(n)];
+fprintf(s,x)
+
+pause(n/1000)  %1mm=3sec 
+
+
+end
