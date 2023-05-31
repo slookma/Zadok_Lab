@@ -5,6 +5,10 @@
 
 
 ## Downloading stuff
+```markdown
+**Note:** Fiber guys - if you are not planning to code with python, skip to the 
+
+```
 >Download Anaconda from [here](https://www.anaconda.com/)  
 
 After installation, open "Anaconda Prompt" terminal (similar to cmd - just write it in the search bar).  
@@ -23,11 +27,10 @@ Click the green button Code > Open in GitHub Desktop.
 + When you change something you can `commit to main` and `push origin` to the repository.
 
 
-```html
-<div class="note-box" style="background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 10px;">
-    This is a colored note box!
-</div>
 
+
+
+cfdfdf
   
   
   
