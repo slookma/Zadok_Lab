@@ -9,7 +9,7 @@ import gdspy
 
 overwrite = 0 # 1 - Overwrite GDS, 0 - Don't overwrite
 lib = gdspy.GdsLibrary()
-cell = lib.new_cell('HUJI_MZI')
+cell = lib.new_cell('HUJI_couplers')
 
 # Layers:
 ld_Si          = {"layer": 50,    "datatype": 0}
@@ -24,7 +24,7 @@ L_half              = Lc-Lend   # length for a 50:50 coupler
 gapSafe             = 30        # distance between neighboring devices
 
 
-
+# create U-shape
 
 
 
@@ -102,17 +102,6 @@ gapSafe             = 30        # distance between neighboring devices
 # path3.turn(bend_radius, "r", **ld_NWG)
 # path3.segment(x_run_start, **ld_NWG)
 # path3.segment(taper_len, final_width=final_taper_width, **ld_NWG)
-
-
-
-cell.add(path1)
-cell.add(path2)
-cell.add(path3)
-cell.add(path4)
-
-
-
-
 
 
 
