@@ -4,7 +4,7 @@ import numpy as np
 
 # gds starting
 lib = gdspy.GdsLibrary()
-cell = lib.new_cell('mzi_1')
+cell = lib.new_cell('sbend_func')
 # S bend parameters
 L_sbend = 80.0
 H_sbend = 40.0
