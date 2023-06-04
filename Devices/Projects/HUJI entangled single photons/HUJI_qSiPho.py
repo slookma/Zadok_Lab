@@ -1,117 +1,86 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue May 30 15:00:43 2023
+Created on Fri Jun  2 18:22:29 2023
 
 @author: slookma
 """
 
-import gdspy
-
-overwrite = 0 # 1 - Overwrite GDS, 0 - Don't overwrite
-lib = gdspy.GdsLibrary()
-cell = lib.new_cell('HUJI_couplers')
-
-# Layers:
-ld_Si          = {"layer": 50,    "datatype": 0}
-
-# Parameters:
-width               = 0.7       # 700 nm width
-gap                 = 0.3       # 300 nm gap
-radius              = 50        # bend of transition regions
-Lend                = 10.4      # transition regions 
-Lc                  = 32        # full power transfer distance
-L_half              = Lc-Lend   # length for a 50:50 coupler
-gapSafe             = 30        # distance between neighboring devices
+import nazca as nd
+# import numpy
+# import gdspy
 
 
-# create U-shape
+WG_width = 0.7
+Gap = 1-WG_width
+WG_radius = 100
+bus1 = 10
+bus2 = 100
+# Lc = 10
+Lc = [18,19,20,21,22]
+GC_gap = 127
+ld = 55 #10
 
 
 
+def coupler(Width,gap,Length,Radius,positionX,positionY,busLength1,busLength2):
+    """
+    Directional Coupler.
+    width           : width of the waveguides
+    gap             : gap between the center of the waveguides
+    Length          : length the waveguide travel together
+    Radius         : radius of the circle of the transition regions
+    position        : coupler position (feed point)
+    busLength1,2    : length of the bus before/after the coupler
+    """
+    with nd.Cell(name='Directional Coupler') as dc:
+        elm1 = nd.strt(length=busLength1,width=Width,layer=ld).put(positionX,positionY)
+        nd.bend(angle=90,radius=Radius,width=Width,layer=ld).put()
+        nd.strt(length=75,width=Width,layer=ld).put()
+        nd.bend(angle=-90,radius=Radius,width=Width,layer=ld).put()
+        nd.strt(length=Length,width=Width,layer=ld).put()
+        nd.bend(angle=-90,radius=Radius,width=Width,layer=ld).put()
+        elm2 = nd.strt(length=busLength2,width=Width,layer=ld).put()    
+                
+        positionY += 4*float(Radius)+float(Width+gap)+150
+        elm3 = nd.strt(length=busLength1,width=Width,layer=ld).put(positionX,positionY)
+        nd.bend(angle=-90,radius=Radius,width=Width,layer=ld).put()
+        nd.strt(length=75,width=Width,layer=ld).put()
+        nd.bend(angle=90,radius=Radius,width=Width,layer=ld).put()
+        nd.strt(length=Length,width=Width,layer=ld).put()
+        nd.bend(angle=90,radius=Radius,width=Width,layer=ld).put()
+        elm4 = nd.strt(length=busLength2,width=Width,layer=ld).put()
+        
+        nd.Pin('a0', pin=elm1.pin['a0']).put()
+        nd.Pin('b0', pin=elm2.pin['b0']).put()
+        nd.Pin('a1', pin=elm3.pin['a0']).put()
+        nd.Pin('b1', pin=elm4.pin['b0']).put()
+        
+    return dc
 
-# x_run_start = (15*bend_radius + 2*Lc) * idx_row
-# x_run_end   = (15*bend_radius + 2*Lc) * (2 - idx_row)
-# ###########################################################################
-# # Start path1 (bottom track)
-# path1 = gdspy.Path(width, (taper_len, -idx_row*2*safety_gap - idx_col*(4*bend_radius + 3*coup_gap + 5*safety_gap)))
-# x_start = path1.x
-# y_start = path1.y
-# path1.segment(x_run_start, "+x", **ld_NWG)
-# path1.segment(2*bend_radius, **ld_NWG)
-# # "Bump" for coupler
-# path1.turn(bend_radius, "l", **ld_NWG)
-# path1.turn(bend_radius, "r", **ld_NWG)
-# path1.segment(Lc, **ld_NWG)
-# x_coup1_bottom = path1.x
-# y_coup1_bottom = path1.y
-# path1.turn(bend_radius, "r", **ld_NWG)
-# path1.turn(bend_radius, "l", **ld_NWG)
-# # "Bump" for extra length
-# path1.turn(bend_radius, "l", **ld_NWG)
-# path1.turn(bend_radius, "r", **ld_NWG)
-# x_middle = path1.x
-# y_middle = path1.y
-# path1.turn(bend_radius, "r", **ld_NWG)
-# path1.turn(bend_radius, "l", **ld_NWG)
-# # "Bump" for coupler
-# path1.turn(bend_radius, "l", **ld_NWG)
-# path1.turn(bend_radius, "r", **ld_NWG)
-# path1.segment(Lc, **ld_NWG)
-# x_coup2_bottom = path1.x
-# y_coup2_bottom = path1.y
-# path1.turn(bend_radius, "r", **ld_NWG)
-# path1.turn(bend_radius, "l", **ld_NWG)
-# # S shape
-# path1.turn(bend_radius, "l", **ld_NWG)
-# path1.segment(2*bend_radius + coup_gap - safety_gap, **ld_NWG)
-# path1.turn(bend_radius, "r", **ld_NWG)
-# path1.segment(x_run_end, **ld_NWG)
-# x_end = path1.x
-# path1.segment(chip_size - x_end - taper_len, **ld_NWG)
-# path1.segment(taper_len, final_width=final_taper_width, **ld_NWG)
-# path4 = gdspy.Path(width, (x_start, y_start))
-# path4.segment(taper_len, "-x", final_width=final_taper_width, **ld_NWG)
+def shit(X,Y,Lc):
+    # from here I'm building the block
+    with nd.Cell(name='SHIT') as kak:
+        cp1 = coupler(WG_width,Gap,Lc,50,X,Y,bus1,bus2).put()
+    
+        nd.bend(angle=-90,radius=WG_radius,width=WG_width,layer=ld).put(cp1.pin['b0'])
+        nd.sinebend(width=WG_width,distance=400+bus1+Lc+(250-GC_gap+Gap+WG_width)/2,offset=GC_gap-125-(250-GC_gap+Gap+WG_width)/2,layer=ld).put()
+    
+        nd.bend(angle=90,radius=WG_radius,width=WG_width,layer=ld).put(cp1.pin['b1'])
+        nd.sinebend(width=WG_width,distance=400+bus1+Lc+(250-GC_gap+Gap+WG_width)/2,offset=-GC_gap+125+(250-GC_gap+Gap+WG_width)/2,layer=ld).put()
+    
+        nd.bend(angle=-90,radius=50,width=WG_width,layer=ld).put(cp1.pin['a0'])
+        nd.bend(angle=90,radius=(250-GC_gap+Gap+WG_width)/2,width=WG_width,layer=ld).put()
+        nd.strt(length=300,width=WG_width,layer=ld).put()
+    
+        nd.bend(angle=90,radius=50,width=WG_width,layer=ld).put(cp1.pin['a1'])
+        nd.bend(angle=-90,radius=(250-GC_gap+Gap+WG_width)/2,width=WG_width,layer=ld).put()
+        nd.strt(length=300,width=WG_width,layer=ld).put()
+    
+    return kak
 
-# ###########################################################################
-# # Start path2 + path3 (top track)
-# path2 = gdspy.Path(width, (x_coup1_bottom, y_coup1_bottom + width + coup_gap))
-# # Right half of the coupler "bump"
-# path2.turn(bend_radius, "l", **ld_NWG)
-# path2.turn(bend_radius, "r", **ld_NWG)
-# # Straight section where bottom has "bump"
-# path2.segment(4*bend_radius, **ld_NWG)
-# # "Bump" for coupler
-# path2.turn(bend_radius, "r", **ld_NWG)
-# path2.turn(bend_radius, "l", **ld_NWG)
-# path2.segment(Lc, **ld_NWG)
-# path2.turn(bend_radius, "l", **ld_NWG)
-# path2.turn(bend_radius, "r", **ld_NWG)
-# # X run while bottom does S shape
-# path2.segment(2*bend_radius, **ld_NWG)
-# path2.segment(x_run_end, **ld_NWG)
-# x_end = path2.x
-# path2.segment(chip_size - x_end - taper_len, **ld_NWG)
-# path2.segment(taper_len, final_width=final_taper_width, **ld_NWG)
-
-# # Back to first coupler, going left
-# path3 = gdspy.Path(width, (x_coup1_bottom, y_coup1_bottom + width + coup_gap))
-# path3.segment(Lc, "-x", **ld_NWG)
-# path3.turn(bend_radius, "r", **ld_NWG)
-# path3.turn(bend_radius, "ll", **ld_NWG)
-# path3.segment(2*bend_radius + coup_gap - safety_gap, **ld_NWG)
-# path3.turn(bend_radius, "r", **ld_NWG)
-# path3.segment(x_run_start, **ld_NWG)
-# path3.segment(taper_len, final_width=final_taper_width, **ld_NWG)
-
-
-
-
-cell.add(path1)                             # this part actually adds the polygon
-
-gdspy.LayoutViewer(lib)
-if overwrite == 1:
-    lib.write_gds("HUJI_qSiPho.gds")
+for i in range(len(Lc)):
+    shit(0,0,Lc[i]).put(0,i*127*5)
     
 
-gdspy.current_library = gdspy.GdsLibrary()  # this line is to restart the console after every run
-
+# do another export in a different layer and file to substract
+nd.export_gds(filename="coupler_sweep.gds")
