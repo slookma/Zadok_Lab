@@ -10,14 +10,14 @@ import nazca as nd
 # import gdspy
 
 
-WG_width = 0.7
+WG_width = 3
 Gap = 1-WG_width
 WG_radius = 100
 bus1 = 10
 bus2 = 100
 Lc = [22,22.1,22.2,22.3,22.4,22.5]
 GC_gap = 127
-ld = 55 #10
+ld = 250 #55
 
 
 
@@ -81,13 +81,15 @@ def shit(X,Y,Lc):
 for i in range(len(Lc)):
     shit(0,0,Lc[i]).put(0,i*GC_gap*6)
     nd.strt(length=300,width=WG_width,layer=ld).put(-(350+(250-GC_gap+Gap+WG_width)/2),i*GC_gap*6-2*GC_gap+50+(250-GC_gap+Gap+WG_width)/2)
-    nd.bend(angle=-180,radius=50,width=WG_width,layer=ld).put()
+    nd.bend(angle=-180,radius=GC_gap/2,width=WG_width,layer=ld).put()
     nd.strt(length=300,width=WG_width,layer=ld).put()
     f = nd.Font('cousine')
     f.text('L = '+str(Lc[i])+' um',layer=ld).put(3*WG_radius,i*GC_gap*6,90)   
-nd.strt(length=300,width=WG_width,layer=ld).put(-(350+(250-GC_gap+Gap+WG_width)/2),i*GC_gap*7-2*GC_gap+150+(250-GC_gap+Gap+WG_width)/2)
-nd.bend(angle=-180,radius=50,width=WG_width,layer=ld).put()
+    
+nd.strt(length=300,width=WG_width,layer=ld).put(-(350+(250-GC_gap+Gap+WG_width)/2),-142+GC_gap*len(Lc)*6)
+nd.bend(angle=-180,radius=GC_gap/2,width=WG_width,layer=ld).put()
 nd.strt(length=300,width=WG_width,layer=ld).put()
+f.text('Gap = '+str(GC_gap)+' um',layer=ld).put(-(250+(250-GC_gap+Gap+WG_width)/4),-GC_gap*3)   
 
 # do another export in a different layer and file to substract
 nd.export_gds(filename="coupler_sweep.gds")
