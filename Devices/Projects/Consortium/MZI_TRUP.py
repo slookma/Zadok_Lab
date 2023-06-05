@@ -74,9 +74,7 @@ top_cell =lib.new_cell('TOP')
 
 
 
-def sbendPath(wgsbend,L=100,H=50,info = ld_NWG):
-# the formula for cosine-shaped s-bend is: y(x) = H/2 * [1- cos(xpi/L)]
-# the formula for sine-shaped s-bend is: y(x) = xH/L - H/(2pi) * sin(x2*pi/L)
+def sbendPath(wgsbend,L=100,H=50):
     def sbend(t):
         y = H/2 * (1- np.cos(t*np.pi))
         x =L*t

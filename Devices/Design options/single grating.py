@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jun  1 16:21:14 2023
+Created on Thu Jun  1 17:21:18 2023
 
-@author: benamis9
+@author: matan
 """
 
 import numpy
@@ -21,7 +21,7 @@ def grating(
     focus_distance=-1,
     focus_width=-1,
     tolerance=0.001,
-    layer=0,
+    layer=50,
     datatype=0,
 ):
     """
@@ -104,3 +104,32 @@ def grating(
         return p.rotate(numpy.pi, position)
     else:
         return p
+
+
+
+lib = gdspy.GdsLibrary()
+cell = lib.new_cell('HUJI_couplers')
+
+cell.add(grating(            
+            0.626,
+            28,
+            0.5,
+            19,
+            (0, 0),
+            "-y",
+            1.55,
+            numpy.sin(numpy.pi * 8 / 180),
+            21.5,
+            0.7,
+            tolerance=0.001,
+            )
+    )
+
+
+
+
+gdspy.LayoutViewer(lib)
+lib.write_gds("photonics.gds")
+
+# Enable running on the same kernel
+gdspy.current_library = gdspy.GdsLibrary()

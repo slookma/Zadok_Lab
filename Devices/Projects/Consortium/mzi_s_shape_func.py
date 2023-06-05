@@ -1,11 +1,18 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Mon May 29 13:41:32 2023
+
+@author: sunaraf
+"""
+
 import gdspy
 import numpy as np
 
 # gds starting
 lib = gdspy.GdsLibrary()
-cell = lib.new_cell('s_coupler')
+cell = lib.new_cell('mzi_1')
 # S bend parameters
-L_sbend = 80.0
+L_sbend = 110.0
 H_sbend = 40.0
 # dis between WG when coupling
 coupling_dis = 0.3
@@ -71,11 +78,51 @@ def s_coupler(cell, path_top, path_bot, coupling_length):
     ## create paths
 
     path_top = sbendPathM(path_top)
-    path_top.segment(coupling_length)
+    path_top.segment(coupling_length, **layer_wg)
     path_top = sbendPath(path_top)
 
     path_bot = sbendPath(path_bot)
-    path_bot.segment(coupling_length)
+    path_bot.segment(coupling_length, **layer_wg)
     path_bot = sbendPathM(path_bot)
 
     return [path_bot, path_top]
+
+def mzi(cell, mzi1_top, mzi1_bot, coupling_length, coupling_dis=0.3, wg_dis=30, wg_width=1 , Hsbend=40, taper=0.3, size=5000):
+    """
+
+    :param cell:cell
+    :param taper: 0.3
+    :param mzi1_top: top WG
+    :param mzi1_bot: bottom WG
+    :param size: size of chip
+    :return:x place at end of mzi
+    """
+
+    # path dis fix
+    y_fix = mzi1_top.y - mzi1_bot.y
+    if y_fix - (2 * H_sbend + coupling_dis + wg_width) < 0:
+        mzi1_top = sbendPath(mzi1_top, 3 * ((2 * H_sbend + coupling_dis + wg_width) - y_fix),
+                             (2 * H_sbend + coupling_dis + wg_width) - y_fix)
+    x_fix = mzi1_top.x - mzi1_bot.x
+    if x_fix < 0:
+        mzi1_top.segment(-x_fix, **layer_wg)
+    else:
+        mzi1_bot.segment(x_fix, **layer_wg)
+
+    ## MZI
+    # coupler
+    coupler1 = s_coupler(cell, mzi1_top, mzi1_bot, coupling_length)
+    # length difrence
+    mzi1_bot.segment(2*L_sbend, **layer_wg)
+    mzi1_top = sbendPathM(coupler1[1])
+    mzi1_top = sbendPath(coupler1[1])
+    # coupler 2
+    coupler2 = s_coupler(cell, mzi1_top, mzi1_bot, coupling_length)
+    # move paths to top - same distance as input
+    mzi1_bot = sbendPath(mzi1_bot, 3*(2*Hsbend-wg_dis+wg_width+coupling_dis), 2*Hsbend-y_fix+wg_width+coupling_dis )
+    mzi1_top.segment(3*(2*Hsbend-wg_dis+wg_width+coupling_dis), **layer_wg)
+    # return paths if wanted
+    return mzi1_top, mzi1_bot
+
+
+lib.write_gds('mzi2.gds')

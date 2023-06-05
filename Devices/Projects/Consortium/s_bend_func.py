@@ -1,9 +1,10 @@
+
 import gdspy
 import numpy as np
 
 # gds starting
 lib = gdspy.GdsLibrary()
-cell = lib.new_cell('s_coupler')
+cell = lib.new_cell('sbend_func')
 # S bend parameters
 L_sbend = 80.0
 H_sbend = 40.0
@@ -53,29 +54,3 @@ def sbendPathM(wgsbend, L=L_sbend, H=H_sbend, layer_1=layer_wg):
 
     wgsbend.parametric(sbend, dtsbend, number_of_evaluations=100, **layer_1)
     return wgsbend
-
-def s_coupler(cell, path_top, path_bot, coupling_length):
-    """
-
-    IMPORTENT - THE DISTANCE OF PATHS NEEDS TO BE (2 * H_sbend + coupling_dis + wg_width)
-
-    :param cell:cell we are writing on
-    :param path_top: the path of the top WG
-    :param path_bot: the path of the bot WG
-    :param coupling_length: as it sounds
-    :return: [path_bot, path_top]
-    """
-    # import
-    import gdspy
-    import numpy as np
-    ## create paths
-
-    path_top = sbendPathM(path_top)
-    path_top.segment(coupling_length)
-    path_top = sbendPath(path_top)
-
-    path_bot = sbendPath(path_bot)
-    path_bot.segment(coupling_length)
-    path_bot = sbendPathM(path_bot)
-
-    return [path_bot, path_top]
