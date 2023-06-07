@@ -8,7 +8,6 @@ Created on Wed May 24 22:51:00 2023
 
 # Units: um
 
-import numpy
 import gdspy
 import math
 
@@ -175,4 +174,6 @@ if add_heater == 1:
 
 gdspy.LayoutViewer(lib)
 if overwrite == 1:
-    lib.write_gds("MZI.gds")
+    lib.write_gds("text_Inbar.gds")
+    
+gdspy.current_library = gdspy.GdsLibrary()
