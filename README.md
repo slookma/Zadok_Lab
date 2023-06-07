@@ -13,6 +13,7 @@ Fiber guys - if you are not planning to code with python, skip to GitHub regestr
 
 After installation, open "Anaconda Prompt" terminal (similar to cmd - just write it in the search bar).  
 In this terminal type: `conda install -c conda-forge gdspy` - this will install the gds library we are using.  
+You can also use the library called **nazca** by following the installation guide [here](https://nazca-design.org/installation/).  
 After the installation is finished, open **Spyder** enviorment (you should have it if you installed Anaconda).  
 If you don't have Spyder download from [here](https://www.spyder-ide.org/).  
 
@@ -25,5 +26,6 @@ Click the green button **Code** > Open in GitHub Desktop.
 ## Code together
 + Every time something has changed, you can see the change and in GitHub desktop `pull origin`.
 + When you change something you can `commit to main` and `push origin` to the repository.  
++ Whenever you are starting to use this repository, mail your GitHub username to slookma@biu.ac.il for push permissions. 
   
   
