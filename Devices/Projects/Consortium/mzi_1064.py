@@ -144,12 +144,12 @@ coupling_length=0
 start_x = 0
 start_y = -100
 j = 0
-MZI_size = 900
+MZI_size = 1000
 
-CL = [0,6,8,10,11.85,14, 18, 20, 24, 26, 28,29,32,34,36,50,56,59]
+CL = [0,5,10,15,20,25.30,35, 40, 45, 50, 55, 60,70,80,90,100,110,110,120]
 for i in range(len(CL)):
     # starting point
-    if j==5:
+    if j==4:
         j = 0
         start_y = start_y - 50
 
@@ -172,3 +172,5 @@ for i in range(len(CL)):
     start_y = start_y-1*wg_dis
     j += 1
 lib.write_gds('mzi1064.gds')
+
+gdspy.current_library = gdspy.GdsLibrary()
