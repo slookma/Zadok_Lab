@@ -42,6 +42,7 @@ def sbendPath(wgsbend, L=L_sbend, H=H_sbend, layer_1=layer_wg):
     wgsbend.parametric(sbend, dtsbend, number_of_evaluations=100, **layer_1)
     return wgsbend
 
+
 def sbendPathM(wgsbend, L=L_sbend, H=H_sbend, layer_1=layer_wg):
     # the formula for cosine-shaped s-bend is: y(x) = H/2 * [1- cos(xpi/L)]
     # the formula for sine-shaped s-bend is: y(x) = xH/L - H/(2pi) * sin(x2*pi/L)
@@ -61,6 +62,7 @@ def sbendPathM(wgsbend, L=L_sbend, H=H_sbend, layer_1=layer_wg):
     wgsbend.parametric(sbend, dtsbend, number_of_evaluations=100, **layer_1)
     return wgsbend
 
+
 def s_coupler(cell, path_top, path_bot, coupling_length):
     """
 
@@ -75,7 +77,6 @@ def s_coupler(cell, path_top, path_bot, coupling_length):
     # import
     import gdspy
     import numpy as np
-    ## create paths
 
     path_top = sbendPathM(path_top)
     path_top.segment(coupling_length, **layer_wg)
@@ -87,42 +88,68 @@ def s_coupler(cell, path_top, path_bot, coupling_length):
 
     return [path_bot, path_top]
 
-def mzi(cell, mzi1_top, mzi1_bot, coupling_length, coupling_dis=0.3, wg_dis=30, wg_width=1 , Hsbend=40, taper=0.3, size=5000):
+
+def fix_x(path1, path2):
+    dx = path1.x - path2.x
+    if dx < 0:
+        path1.segment(abs(dx), **layer_wg)
+    else:
+        path2.segment(abs(dx), **layer_wg)
+
+
+def fix_y(path1, path2, wanted_dis):
+    # figure top and bottom
+    if path1.y > path2.y:
+        top_path = path1
+        bot_path = path2
+    else:
+        top_path = path2
+        bot_path = path1
+    # fix placing using s shape
+    dy = abs(top_path.y - bot_path.y)
+    fix = abs(dy - wanted_dis)
+    if dy < wanted_dis:
+        bot_path = sbendPathM(bot_path, 3 * fix, fix)
+    else:
+        bot_path = sbendPath(bot_path, 3 * fix, fix)
+    top_path.segment(3 * fix, **layer_wg)
+
+    return [top_path, bot_path]
+
+
+def fix_dis(path1, path2, wanted_dis):
+    fix_x(path1, path2)
+    return fix_y(path1, path2, wanted_dis)
+
+
+def mzi(cell, path1, path2, coupling_length,
+        coupling_dis=0.3, wg_dis=30, wg_width=1 , Hsbend=40, taper=0.3, size=5000):
     """
 
     :param cell:cell
     :param taper: 0.3
-    :param mzi1_top: top WG
-    :param mzi1_bot: bottom WG
+    :param path1 / 2 the WG coming in
     :param size: size of chip
     :return:x place at end of mzi
     """
-
     # path dis fix
-    y_fix = mzi1_top.y - mzi1_bot.y
-    if y_fix - (2 * H_sbend + coupling_dis + wg_width) < 0:
-        mzi1_top = sbendPath(mzi1_top, 3 * ((2 * H_sbend + coupling_dis + wg_width) - y_fix),
-                             (2 * H_sbend + coupling_dis + wg_width) - y_fix)
-    x_fix = mzi1_top.x - mzi1_bot.x
-    if x_fix < 0:
-        mzi1_top.segment(-x_fix, **layer_wg)
-    else:
-        mzi1_bot.segment(x_fix, **layer_wg)
-
+    dy = abs(path1.y - path2.y)
+    paths = fix_dis(path1, path2, 2 * H_sbend + coupling_dis + wg_width)
     ## MZI
     # coupler
-    coupler1 = s_coupler(cell, mzi1_top, mzi1_bot, coupling_length)
-    # length difrence
-    mzi1_bot.segment(2*L_sbend, **layer_wg)
-    mzi1_top = sbendPathM(coupler1[1])
-    mzi1_top = sbendPath(coupler1[1])
+    coupler1 = s_coupler(cell, paths[0], paths[1], coupling_length)
+    # length difference
+    paths[1].segment(2*L_sbend, **layer_wg)
+    paths[0] = sbendPathM(coupler1[1])
+    paths[0] = sbendPath(coupler1[1])
     # coupler 2
-    coupler2 = s_coupler(cell, mzi1_top, mzi1_bot, coupling_length)
+    coupler2 = s_coupler(cell, paths[0], paths[1], coupling_length)
     # move paths to top - same distance as input
-    mzi1_bot = sbendPath(mzi1_bot, 3*(2*Hsbend-wg_dis+wg_width+coupling_dis), 2*Hsbend-y_fix+wg_width+coupling_dis )
-    mzi1_top.segment(3*(2*Hsbend-wg_dis+wg_width+coupling_dis), **layer_wg)
+    paths[1] = sbendPath(paths[1], 3*(2*Hsbend-wg_dis+wg_width+coupling_dis),
+                         2*Hsbend-dy+wg_width+coupling_dis)
+    paths[0].segment(3*(2*Hsbend-wg_dis+wg_width+coupling_dis), **layer_wg)
     # return paths if wanted
-    return mzi1_top, mzi1_bot
+    return paths[0], paths[1]
 
 
 lib.write_gds('mzi2.gds')
