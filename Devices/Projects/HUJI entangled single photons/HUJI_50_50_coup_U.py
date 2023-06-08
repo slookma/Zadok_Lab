@@ -26,8 +26,8 @@ x_run_start         = 300
 chip_size           = 10000
 U_pitch_start       = 120
 U_pitch_stop        = 130
-Lc_start            = 25
-Lc_stop             = 35
+Lc_start            = 15
+Lc_stop             = 25
 max_bend_radius     = U_pitch_stop / 2
 tot_width           = 7*max_bend_radius + Lc_stop + x_run_start - coup_gap + W_gc + xGap
 U_pitch_vec         = np.linspace(U_pitch_start, U_pitch_stop, math.floor((chip_size - 1000) / tot_width))
@@ -90,8 +90,6 @@ for idx_U in range(len(U_pitch_vec)):
             path4.segment(x_run_start, "+x")
             path4.turn(bend_radius, "ll")
             path4.segment(x_run_start)
-        
-        
         
         txt = gdspy.Text(f"Lc = {Lc:{2}.{4}} um", txtSize*0.7, position=(txtPosX + 2*bend_radius, txtPosY + 4*bend_radius), angle=3*np.pi/2)
         cell.add(path1)
