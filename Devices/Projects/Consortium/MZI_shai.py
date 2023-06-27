@@ -174,6 +174,6 @@ if add_heater == 1:
 
 gdspy.LayoutViewer(lib)
 if overwrite == 1:
-    lib.write_gds("text_Inbar.gds")
+    lib.write_gds("MZI_Shai.gds")
     
 gdspy.current_library = gdspy.GdsLibrary()
