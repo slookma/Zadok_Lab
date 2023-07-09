@@ -48,8 +48,8 @@ if verbose
     figure
     plot(Wavelength, Loss_norm)
     grid on
-    xlabel('Wavelength[nm]')
-    ylabel('Normalaized Insertion Loss[dB]')
+    xlabel('Wavelength [nm]')
+    ylabel('Normalaized Insertion Loss [dB]')
     xlim([Wavelength(1) Wavelength(end)])
 end
 
