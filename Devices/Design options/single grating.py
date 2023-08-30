@@ -118,7 +118,7 @@ cell.add(grating(
             (0, 0),
             "-y",
             1.55,
-            numpy.sin(numpy.pi * 8 / 180),
+            numpy.sin(numpy.pi * 10 / 180),
             21.5,
             0.7,
             tolerance=0.001,
