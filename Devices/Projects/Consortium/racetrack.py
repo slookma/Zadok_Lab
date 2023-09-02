@@ -29,7 +29,7 @@ import math
 # gdspy.LayoutViewer()
 
 
-overwrite = 0 # 1 - Overwrite GDS, 0 - Don't overwrite
+overwrite = 1 # 1 - Overwrite GDS, 0 - Don't overwrite
 
 # Layers:
 ld_NWG          = {"layer": 174,    "datatype": 0}
@@ -125,5 +125,5 @@ for i in dev_num:
     # path1 = gdspy.Path(1,(0,ybus-350))
     path1 = gdspy.Path(1,(0,y-300))
 gdspy.LayoutViewer(lib)
-if overwrite == 1:
-    lib.write_gds('racetrack.gds')
+#if overwrite == 1:
+lib.write_gds('racetrack.gds')
