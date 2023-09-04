@@ -1,7 +1,6 @@
 import gdspy
 import numpy
 
-
 # gds starting
 lib = gdspy.GdsLibrary()
 
@@ -18,19 +17,25 @@ def composite_mzi(cell_top, path1, path2, radios_turn, path1_seg: list, path1_le
                   layer={"layer": 0, "datatype": 0}):
     # 1. Initialize the paths
     top_path, bot_path = initialize(path1, path2, path1_seg)
-
+    top_path_w = 2*top_path.w
+    bot_path_w = 2*bot_path.w
     # 2. Coupler 1
-    coupler(top_path, bot_path, radios_turn, path1_seg, path1_length, path2_seg, path2_length, dx, core=core, layer=layer)
+    coupler(top_path, bot_path, radios_turn, path1_seg, path1_length, path2_seg, path2_length, dx, core=core,
+            layer=layer)
 
     # 3. Add text
     add_text(cell_top, top_path, text, layer=layer)
 
     # 4. Optical distance of paths
-    rotate_paths(top_path, radios_turn, [4 * radios_turn], layer=layer)
-    rotate_paths(bot_path, radios_turn, ['l', 'rr', 'l'], layer=layer)
-
+    rotate_paths(top_path, radios_turn, [2 * radios_turn], layer=layer)
+    rotate_paths(bot_path, radios_turn, ['l', 'r'], layer=layer)
+    top_path.segment(1, final_width=top_path_w, **layer)
+    bot_path.segment(1, final_width=bot_path_w, **layer)
+    rotate_paths(top_path, radios_turn, [2 * radios_turn], layer=layer)
+    rotate_paths(bot_path, radios_turn, ['r', 'l'], layer=layer)
     # 5. Coupler 2 (same as Coupler 1)
-    coupler(top_path, bot_path, radios_turn, path1_seg, path1_length, path2_seg, path2_length, dx, core=core, layer=layer)
+    coupler(top_path, bot_path, radios_turn, path1_seg, path1_length, path2_seg, path2_length, dx, core=core,
+            layer=layer)
 
 
 def initialize(path1, path2, path1_seg: list):
@@ -58,8 +63,8 @@ def coupler(top_path, bot_path, radios_turn, path1_seg: list, path1_length: list
     if path2_seg:
         change_width(bot_path, path2_seg, path2_length, dx, layer=layer)
     else:
-        bot_path.segment(1, final_width=0.4+dx, **layer).segment(top_path.x - bot_path.x-1, **layer).\
-            segment(1, final_width=0.7+dx, **layer)
+        bot_path.segment(1, **layer).segment(top_path.x - bot_path.x - 1, **layer). \
+            segment(1, **layer)
     if top_path.x != bot_path.x:
         raise TypeError("Wave guides in offset")
 
@@ -85,20 +90,20 @@ def rotate_paths(path, radios_turn, rotations, layer={"layer": 0, "datatype": 0}
 
 def change_width(path, path_seg, path_length, dx=0, core=True, layer={"layer": 0, "datatype": 0}):
     # Add taper at the start
-    if core:
-        path.segment(1, final_width=0.4+dx, **layer)
-    else:
-        path.segment(1, **layer)
+    # if core:
+    #     path.segment(1, final_width=0.4+dx, **layer)
+    # else:
+    #     path.segment(1, **layer)
 
     # Change the width of the path segments based on the given lengths
-    for i in range(len(path_seg)):
-        path.segment(1, final_width=path_seg[i]+dx, **layer).segment(path_length[i], **layer)
+    for t in range(len(path_seg)):
+        path.segment(1, final_width=path_seg[t] + dx, **layer).segment(path_length[t], **layer)
 
     # Add taper at the end
-    if core:
-        path.segment(1, final_width=0.7+dx, **layer)
-    else:
-        path.segment(1, **layer)
+    # if core:
+    #     path.segment(1, final_width=0.7+dx, **layer)
+    # else:
+    #     path.segment(1, **layer)
 
 
 def grating(path, dx, start_width, end_width, taper_length, num_cycles,
@@ -124,17 +129,18 @@ def grating(path, dx, start_width, end_width, taper_length, num_cycles,
         for i in range(num_cycles):
             path.x += fill_part
             path.segment(cycle_size - fill_part, **layer)
-    else: #for clad
+    else:  # for clad
         path.segment(cycle_size * num_cycles, **layer)
     # taper
     path.segment(17.5, **layer).segment(taper_length, final_width=start_width + dx, **layer)
 
-def create_core_clad(cell, x, y, turning_radios, coupling_dis, wg_width, taper_end_width, taper_length,
+
+def create_core_clad(cell, x, y, turning_radios, coupling_dis, wg_width_1, wg_width_2, taper_end_width, taper_length,
                      cycle_amount, cycle_period, fill_part, composite_width1, composite_length1,
                      composite_width2=None, composite_length2=None, text=None, core=True):
     # create paths
-    path1 = gdspy.Path(wg_width, (x, y))
-    path2 = gdspy.Path(wg_width, (x, y - 4 * turning_radios - coupling_dis - wg_width))
+    path1 = gdspy.Path(wg_width_1, (x, y))
+    path2 = gdspy.Path(wg_width_2, (x, y - 4 * turning_radios - coupling_dis - (wg_width_1 + wg_width_2) / 2))
 
     if core:
         dx = 0
@@ -142,27 +148,28 @@ def create_core_clad(cell, x, y, turning_radios, coupling_dis, wg_width, taper_e
         dx = 5
 
     # grating couplers "in" for paths
-    grating(path1, dx, wg_width, taper_end_width, taper_length, cycle_amount, cycle_period, fill_part, core=core)
-    grating(path2, dx, wg_width, taper_end_width, taper_length, cycle_amount, cycle_period, fill_part, core=core)
+    grating(path1, dx, wg_width_1, taper_end_width, taper_length, cycle_amount, cycle_period, fill_part, core=core)
+    grating(path2, dx, wg_width_2, taper_end_width, taper_length, cycle_amount, cycle_period, fill_part, core=core)
 
     # create MZI
     composite_mzi(cell, path1, path2, turning_radios, composite_width1,
                   composite_length1, composite_width2, composite_length2, text=text, dx=dx, core=core)
 
     # grating couplers "out" for paths
-    grating(path1, dx, wg_width, taper_end_width, taper_length, cycle_amount, cycle_period, fill_part, core=core)
-    grating(path2, dx, wg_width, taper_end_width, taper_length, cycle_amount, cycle_period, fill_part, core=core)
+    grating(path1, dx, wg_width_1, taper_end_width, taper_length, cycle_amount, cycle_period, fill_part, core=core)
+    grating(path2, dx, wg_width_2, taper_end_width, taper_length, cycle_amount, cycle_period, fill_part, core=core)
 
     # return paths
     return path1, path2
 
 
-def whole_design(cell_core, cell_clad, cell_design, x, y, turning_radios, coupling_dis, wg_width,
+def whole_design(cell_core, cell_clad, cell_design, x, y, turning_radios, coupling_dis, wg_width_1, wg_width_2,
                  taper_end_width, taper_length, cycle_amount, cycle_period, fill_part,
                  composite_width1, composite_length1, composite_width2=None, composite_length2=None,
                  text=None):
     # Create core
-    path1_core, path2_core = create_core_clad(cell_design, x, y, turning_radios, coupling_dis, wg_width, taper_end_width,
+    path1_core, path2_core = create_core_clad(cell_design, x, y, turning_radios, coupling_dis, wg_width_1, wg_width_2,
+                                              taper_end_width,
                                               taper_length, cycle_amount, cycle_period, fill_part,
                                               composite_width1, composite_length1, composite_width2,
                                               composite_length2, text, core=True)
@@ -170,7 +177,8 @@ def whole_design(cell_core, cell_clad, cell_design, x, y, turning_radios, coupli
     cell_core.add(path1_core).add(path2_core)
 
     # Create clad
-    path1_clad, path2_clad = create_core_clad(cell_design, x, y, turning_radios, coupling_dis, wg_width, taper_end_width,
+    path1_clad, path2_clad = create_core_clad(cell_design, x, y, turning_radios, coupling_dis, wg_width_1, wg_width_1,
+                                              taper_end_width,
                                               taper_length, cycle_amount, cycle_period, fill_part,
                                               composite_width1, composite_length1, composite_width2,
                                               composite_length2, core=False)
@@ -183,22 +191,27 @@ def whole_design(cell_core, cell_clad, cell_design, x, y, turning_radios, coupli
 
 
 # example
-path1_w = [0.4, 0.5, 0.3, 0.7, 0.5]
-path1_l = [10, 10, 20, 50, 10]
-path2_w = [2, 1, 0.5, 1, 2]
-path2_l = [10, 10, 20, 50, 10]
+path1_w = [0.675, 0.665, 0.815]
+path1_l = [4.67, 39.75, 13.215]
+path2_w = [0.815, 0.615, 0.655]
+path2_l = [4.67, 39.75, 13.215]
 cell1 = lib.new_cell('core')
 cell2 = lib.new_cell('clad')
 cell3 = lib.new_cell('not')
 x = 0
 y = 0
+counter = 0
+offset = [-0.04, -0.03, -0.02, -0.01, 0, 0.01, 0.02, 0.03, 0.04]
 
-for i in range(5):
-    for j in range(5):
-        whole_design(cell1, cell2, cell3, x, y, 100, 0.3, 0.7, 10, 115, 32, 0.6, 0.28, path1_w,
-                     path1_l, text=str(i) + ',' + str(j))
-        x = 2500*i
-        y = 600*j
-
+for i in range(3):
+    for j in range(3):
+        path1_w_offset = [element + offset[counter] for element in path1_w]
+        path2_w_offset = [element + offset[counter] for element in path2_w]
+        whole_design(cell1, cell2, cell3, x, y, 100, 1-((0.675 + offset[counter])/2+(0.815 + offset[counter])/2), 0.675 + offset[counter], 0.815 + offset[counter], 10, 115, 32, 0.6, 0.28, path1_w_offset,
+                     path1_l, path2_w_offset, path2_l, text=str(counter))
+        y = -600 * (j + 1)
+        counter += 1
+    y = 0
+    x = 2500 * (i+1)
 
 lib.write_gds('TA_check.gds')
