@@ -205,44 +205,47 @@ y = 0
 counter = 0
 offset = [-0.04, -0.03, -0.02, -0.01, 0, 0.01, 0.02, 0.03, 0.04]
 
+# # design
 # for i in range(3):
 #     for j in range(3):
 #         path1_w_offset = [element + offset[counter] for element in path1_w]
 #         path2_w_offset = [element + offset[counter] for element in path2_w]
-#         whole_design(cell1, cell2, cell3, x, y, 100, 1-((0.675 + offset[counter])/2+(0.815 + offset[counter])/2), 0.675 + offset[counter], 0.815 + offset[counter], 10, 115, 32, 0.6, 0.28, path1_w_offset,
+#         whole_design(cell1, cell2, cell3, x, y, 50, 1-((0.675 + offset[counter])/2+(0.815 + offset[counter])/2), 0.675 + offset[counter], 0.815 + offset[counter], 10, 115, 32, 0.6, 0.28, path1_w_offset,
 #                      path1_l, path2_w_offset, path2_l, text=str(counter))
 #         y = -600 * (j + 1)
 #         counter += 1
+#     x = 1800 * (i+1)
 #     y = 0
-#     x = 2500 * (i+1)
 
+# # ref
 # counter = 0
-# x = 2500
 # for i in range(3):
 #     for j in range(3):
 #         path1_w_offset = [element + offset[counter] for element in path1_w_ref]
 #         path2_w_offset = [element + offset[counter] for element in path1_w_ref]
 #         whole_design(cell1, cell2, cell3, x, y,
-#                      100, 1-((0.7 + offset[counter])/2+(0.7 + offset[counter])/2),
+#                      50, 1-((0.7 + offset[counter])/2+(0.7 + offset[counter])/2),
 #                      0.7 + offset[counter], 0.7 + offset[counter], 10, 115, 32, 0.6, 0.28, path1_w_offset,
 #                      path1_l, path2_w_offset, path2_l, text=str(counter))
 #         y = -600 * (j + 1)
 #         counter += 1
 #     y = 0
-#     x = 2500 + 2500 * (i+1)
+#     x = 1800 * (i+1)
 
+# ref 600 700
 counter = 0
-x = 2500
 for i in range(3):
     for j in range(3):
         path1_w_offset = [element + offset[counter] for element in path1_w_ref_2]
         path2_w_offset = [element + offset[counter] for element in path1_w_ref]
         whole_design(cell1, cell2, cell3, x, y,
-                     100, 1-((0.6 + offset[counter])/2+(0.7 + offset[counter])/2),
+                     50, 1-((0.6 + offset[counter])/2+(0.7 + offset[counter])/2),
                      0.6 + offset[counter], 0.7 + offset[counter], 10, 115, 32, 0.6, 0.28, path1_w_offset,
                      path1_l, path2_w_offset, path2_l, text=str(counter))
         y = -600 * (j + 1)
         counter += 1
     y = 0
-    x = 2500 + 2500 * (i+1)
+    x = 1800 * (i+1)
+
+
 lib.write_gds('TA_check.gds')
