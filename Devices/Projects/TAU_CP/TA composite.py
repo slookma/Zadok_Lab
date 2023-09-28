@@ -1,15 +1,72 @@
+"""
+code summery:
+1. import - GDSpy and numpy
+2. gds specifications
+3. parameters of the design
+4. what to write to GDS - CP, ref1, ref2 -
+    specifications when they are writen - a while loop
+    at the end of the code
+5. functions (logical order):
+    a. whole_design - creates the core and the clad by calling create_core_clad
+        twice and doing a boolian operation
+    b. create_core_clad - creates core are clad - by request.
+        calls the grating and composite_mzi to create the couplers and mzi
+    c. grating - writes a grating coupler
+    d. composite_mzi - calls:
+        initialize - to define top/bottom path
+        coupler - to create the couplers
+        rotate paths - to make the optical distance diffrence
+        add text - to write what number coupler we are writing
+    e. initialize - defines the top and bottom paths, and makes sure we have a list for the composite section
+                raises an error otherwise.
+    f. coupler - writes a coupler calls:
+        rotate paths - to rotate paths to place
+        change widths - to change the width according to the composite needs
+    g. rotate paths - nice function that rotates paths as needed
+    h. add text - adds a number of text to know what coupler we are using
+    i. change widths - a loop that changes the widths according to the design
+"""
+
 import gdspy
 import numpy
 
+# # gds specifications
 # gds starting
 lib = gdspy.GdsLibrary()
-
-# dis between WG when coupling
-coupling_dis = 0.3
-# width of WG
-wg_width = 1
 # layer
 layer_wg = {"layer": 174, "datatype": 0}
+# cell
+cell1 = lib.new_cell('core')
+cell2 = lib.new_cell('clad')
+cell3 = lib.new_cell('not')
+
+# # parameters
+# path1 composite - sections widths and lengths
+path1_w = [0.675, 0.665, 0.815]
+path1_l = [4.67, 39.75, 13.215]
+# path2 composite - sections widths and lengths
+path2_w = [0.815, 0.615, 0.655]
+path2_l = [4.67, 39.75, 13.215]
+# ref1 and ref2 path widths
+path1_w_ref = [0.7, 0.7, 0.7]
+path1_w_ref_2 = [0.6, 0.6, 0.6]
+# turning radios
+turning_radios = 50
+# coupler specifications
+taper_end_width = 10
+taper_length = 115
+cycle_amount = 32
+cycle_period = 0.6
+fill_part = 0.28
+# path starting point
+x = 0
+y = 0
+counter = 0
+offset = [-0.04 + 0.01 * i for i in range(9)]
+# # what to write
+CP = True
+ref_700 = False
+ref_700_600 = True
 
 
 def composite_mzi(cell_top, path1, path2, radios_turn, path1_seg: list, path1_length: list,
@@ -189,67 +246,69 @@ def whole_design(cell_core, cell_clad, cell_design, x, y, turning_radios, coupli
     inv = gdspy.boolean(cell_clad, cell_core, 'not')
     cell_design.add(inv)
 
-
-# example
-path1_w = [0.675, 0.665, 0.815]
-path1_w_ref = [0.7, 0.7, 0.7]
-path1_w_ref_2 = [0.6, 0.6, 0.6]
-path1_l = [4.67, 39.75, 13.215]
-path2_w = [0.815, 0.615, 0.655]
-path2_l = [4.67, 39.75, 13.215]
-cell1 = lib.new_cell('core')
-cell2 = lib.new_cell('clad')
-cell3 = lib.new_cell('not')
-x = 0
-y = 0
-counter = 0
-offset = [-0.04, -0.03, -0.02, -0.01, 0, 0.01, 0.02, 0.03, 0.04]
-
-# design
-for i in range(3):
-    for j in range(3):
-        path1_w_offset = [element + offset[counter] for element in path1_w]
-        path2_w_offset = [element + offset[counter] for element in path2_w]
-        whole_design(cell1, cell2, cell3, x, y, 50, 1-((0.675 + offset[counter])/2+(0.815 + offset[counter])/2), 0.675 + offset[counter], 0.815 + offset[counter], 10, 115, 32, 0.6, 0.28, path1_w_offset,
-                     path1_l, path2_w_offset, path2_l, text=str(counter))
-        y = y-600
-        counter += 1
-    x = 1800 * (i+1)
-    y = 0
+# # design
+while CP:
+    for i in range(3):
+        for j in range(3):
+            path1_w_offset = [element + offset[counter] for element in path1_w]
+            path2_w_offset = [element + offset[counter] for element in path2_w]
+            wg_1_width = 0.675 + offset[counter]
+            wg_2_width = 0.815 + offset[counter]
+            wg_dis = 1 - ((wg_1_width) / 2 + (wg_2_width) / 2)
+            whole_design(cell1, cell2, cell3, x, y,
+                         turning_radios, wg_dis, wg_1_width, wg_2_width, taper_end_width, taper_length,
+                         cycle_amount, cycle_period, fill_part, path1_w_offset,
+                         path1_l, path2_w_offset, path2_l, text=str(counter + 1))
+            y = y-600
+            counter += 1
+        x = 1800 * (i+1)
+        y = 0
+    CP = False
 
 # # ref
-counter = 0
-x = 0
-y = -2000
-for i in range(3):
-    for j in range(3):
-        path1_w_offset = [element + offset[counter] for element in path1_w_ref]
-        path2_w_offset = [element + offset[counter] for element in path1_w_ref]
-        whole_design(cell1, cell2, cell3, x, y,
-                     50, 1-((0.7 + offset[counter])/2+(0.7 + offset[counter])/2),
-                     0.7 + offset[counter], 0.7 + offset[counter], 10, 115, 32, 0.6, 0.28, path1_w_offset,
-                     path1_l, path2_w_offset, path2_l, text=str(counter))
-        y = y - 600
-        counter += 1
+while ref_700:
+# parameter changes
+    counter = 0
+    x = 0
     y = -2000
-    x = 1800 * (i+1)
+    for i in range(3):
+        for j in range(3):
+            path1_w_offset = [element + offset[counter] for element in path1_w_ref]
+            path2_w_offset = [element + offset[counter] for element in path1_w_ref]
+            wg_1_width = 0.7 + offset[counter]
+            wg_2_width = 0.7 + offset[counter]
+            wg_dis = 1-((wg_1_width)/2+(wg_2_width)/2)
+            whole_design(cell1, cell2, cell3, x, y,
+                         turning_radios, wg_dis,wg_1_width, wg_2_width, taper_end_width, taper_length,
+                         cycle_amount, cycle_period, fill_part, path1_w_offset,
+                         path1_l, path2_w_offset, path2_l, text=str(counter+1))
+            y = y - 600
+            counter += 1
+        y = -2000
+        x = 1800 * (i+1)
+    ref_700 = False
 
-# # ref 600 700
-counter = 0
-x = 0
-y = -4000
-for i in range(3):
-    for j in range(3):
-        path1_w_offset = [element + offset[counter] for element in path1_w_ref_2]
-        path2_w_offset = [element + offset[counter] for element in path1_w_ref]
-        whole_design(cell1, cell2, cell3, x, y,
-                     50, 1-((0.6 + offset[counter])/2+(0.7 + offset[counter])/2),
-                     0.6 + offset[counter], 0.7 + offset[counter], 10, 115, 32, 0.6, 0.28, path1_w_offset,
-                     path1_l, path2_w_offset, path2_l, text=str(counter))
-        y = y - 600
-        counter += 1
+
+# # # ref 600 700
+while ref_700_600:
+    counter = 0
+    x = 0
     y = -4000
-    x = 1800 * (i+1)
-
+    for i in range(3):
+        for j in range(3):
+            path1_w_offset = [element + offset[counter] for element in path1_w_ref_2]
+            path2_w_offset = [element + offset[counter] for element in path1_w_ref]
+            wg_1_width = 0.6 + offset[counter]
+            wg_2_width = 0.7 + offset[counter]
+            wg_dis = 1-(wg_1_width / 2 + wg_2_width / 2)
+            whole_design(cell1, cell2, cell3, x, y,
+                         turning_radios, wg_dis,wg_1_width, wg_2_width, taper_end_width, taper_length,
+                         cycle_amount, cycle_period, fill_part, path1_w_offset,
+                         path1_l, path2_w_offset, path2_l, text=str(counter+1))
+            y = y - 600
+            counter += 1
+        y = -4000
+        x = 1800 * (i+1)
+    ref_700_600 = False
 
 lib.write_gds('TA_check.gds')
