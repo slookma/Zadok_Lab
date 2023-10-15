@@ -293,3 +293,5 @@ for idx in range (4):
 gdspy.LayoutViewer(lib)
 if overwrite == 1:
     lib.write_gds("elliptical.gds")
+
+gdspy.current_library = gdspy.GdsLibrary()
