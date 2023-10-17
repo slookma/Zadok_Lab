@@ -41,12 +41,14 @@ run_x_start         = 2*bend_radius + safety_gap
 vertical_50_coup    = safety_gap/2 + ring_radius - bend_radius
 vertical_out_coup   = 2 * bend_radius + coup_gap
 Lc_50_coup          = 10
-Lc_D3_vec           = [4.95, 14.15, 10.75, 19.95]
-Lc_D4_vec           = [9.65, 18.85, 6.81, 15.9]
+# Lc_D3_vec           = [4.95, 14.15, 10.75, 19.95]
+# Lc_D4_vec           = [9.65, 18.85, 6.81, 15.9]
+Lc_D3_vec           = [4.95,  6,  7,  8,  9, 10, 11, 12, 14.15]
+Lc_D4_vec           = [9.65, 11, 12, 13, 14, 15, 16, 17, 18.85]
 run_x_through_coup  = 7 * bend_radius + Lc_50_coup
 right_end           = 5000 - taper_len
 
-for idx in range (4):
+for idx in range(len(Lc_D3_vec)):
     # Sweep parameters
     Lc_D3 = Lc_D3_vec[idx]
     Lc_D4 = Lc_D4_vec[idx]
