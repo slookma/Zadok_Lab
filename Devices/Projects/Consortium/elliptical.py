@@ -281,7 +281,7 @@ for idx in range(len(Lc_D3_vec)):
     path10.turn(ring_radius, "rr", **ld_NWG)
     path10.segment(Lc_D3, **ld_NWG)
     
-    path14 = gdspy.Path(width*2, (x_ring1_top + ring_radius, y_ring1_top - ring_radius + coup_gap + width))
+    path14 = gdspy.Path(width*2, (x_ring1_top + ring_radius, y_ring1_top - ring_radius - coup_gap - width))
     path14.segment(0, '-y', **ld_TNR)
     path14.turn(ring_radius, "r", **ld_TNR)
     path14.segment(Lc_D3, **ld_TNR)
@@ -295,7 +295,7 @@ for idx in range(len(Lc_D3_vec)):
     path11.turn(ring_radius, "rr", **ld_NWG)
     path11.segment(Lc_D4, **ld_NWG)
     
-    path15 = gdspy.Path(width*2, (x_ring2_top + ring_radius, y_ring2_top - ring_radius + coup_gap + width))
+    path15 = gdspy.Path(width*2, (x_ring2_top + ring_radius, y_ring2_top - ring_radius - coup_gap - width))
     path15.segment(0, '-y', **ld_TNR)
     path15.turn(ring_radius, "r", **ld_TNR)
     path15.segment(Lc_D3, **ld_TNR)
