@@ -10,7 +10,7 @@ This is a temporary script file.
 import numpy
 import gdspy
 
-overwrite = 0 # 1 - Overwrite GDS, 0 - Don't overwrite
+overwrite = 1 # 1 - Overwrite GDS, 0 - Don't overwrite
 lib = gdspy.GdsLibrary()
 cell = lib.new_cell('Elliptical_Filter')
 
@@ -46,7 +46,7 @@ Lc_50_coup          = 10
 Lc_D3_vec           = [4.95,  6,  7,  8,  9, 10, 11, 12, 14.15]
 Lc_D4_vec           = [9.65, 11, 12, 13, 14, 15, 16, 17, 18.85]
 run_x_through_coup  = 7 * bend_radius + Lc_50_coup
-right_end           = 5000 - taper_len
+right_end           = 5000 - taper_len - 10 - 10
 
 for idx in range(len(Lc_D3_vec)):
     # Sweep parameters
