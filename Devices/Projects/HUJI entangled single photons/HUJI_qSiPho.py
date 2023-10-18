@@ -10,12 +10,15 @@ import nazca as nd
 # import gdspy
 
 
-WG_width = 3
+WG_width = 0.7
 Gap = 1-WG_width
 WG_radius = 100
 bus1 = 10
 bus2 = 100
-Lc = [22,22.1,22.2,22.3,22.4,22.5]
+#Lc = [22,22.1,22.2,22.3,22.4,22.5]
+#Lc1 = [8.9,9,9.06,9.1,9.2,9.3]
+Lc = [40.9,41,41.06,41.1,41.2,41.3]
+
 GC_gap = 127
 ld = 250 #55
 
