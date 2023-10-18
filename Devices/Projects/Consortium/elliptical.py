@@ -41,12 +41,14 @@ run_x_start         = 2*bend_radius + safety_gap
 vertical_50_coup    = safety_gap/2 + ring_radius - bend_radius
 vertical_out_coup   = 2 * bend_radius + coup_gap
 Lc_50_coup          = 10
-Lc_D3_vec           = [4.95, 14.15, 10.75, 19.95]
-Lc_D4_vec           = [9.65, 18.85, 6.81, 15.9]
+# Lc_D3_vec           = [4.95, 14.15, 10.75, 19.95]
+# Lc_D4_vec           = [9.65, 18.85, 6.81, 15.9]
+Lc_D3_vec           = [4.95,  6,  7,  8,  9, 10, 11, 12, 14.15]
+Lc_D4_vec           = [9.65, 11, 12, 13, 14, 15, 16, 17, 18.85]
 run_x_through_coup  = 7 * bend_radius + Lc_50_coup
-right_end           = 5000 - taper_len
+right_end           = 5000 - taper_len - 10 - 10
 
-for idx in range (4):
+for idx in range(len(Lc_D3_vec)):
     # Sweep parameters
     Lc_D3 = Lc_D3_vec[idx]
     Lc_D4 = Lc_D4_vec[idx]
@@ -244,37 +246,60 @@ for idx in range (4):
     
     
     #######################################################################
-    # Start path8 (ring1 bottom)
+    # Start path8 (ring1 bottom) - NWG + TNR cover
     path8 = gdspy.Path(width, (x_ring1_bottom, y_ring1_bottom + coup_gap + width))
     path8.turn(ring_radius, "ll", **ld_NWG)
     path8.segment(Lc_D3, **ld_NWG)
     path8.turn(ring_radius, "ll", **ld_NWG)
     path8.segment(Lc_D3, **ld_NWG)
     
+    path12 = gdspy.Path(width*2, (x_ring1_bottom + ring_radius, y_ring1_bottom + ring_radius + coup_gap + width))
+    path12.segment(0, '+y', **ld_TNR)
+    path12.turn(ring_radius, "l", **ld_TNR)
+    path12.segment(Lc_D3, **ld_TNR)
+    path12.turn(ring_radius, "l", **ld_TNR)
+    
     #######################################################################
-    # Start path9 (ring2 bottom)
+    # Start path9 (ring2 bottom) - NWG + TNR cover
     path9 = gdspy.Path(width, (x_ring2_bottom, y_ring2_bottom + coup_gap + width))
     path9.turn(ring_radius, "ll", **ld_NWG)
     path9.segment(Lc_D4, **ld_NWG)
     path9.turn(ring_radius, "ll", **ld_NWG)
     path9.segment(Lc_D4, **ld_NWG)
     
+    path13 = gdspy.Path(width*2, (x_ring2_bottom + ring_radius, y_ring2_bottom + ring_radius + coup_gap + width))
+    path13.segment(0, '+y', **ld_TNR)
+    path13.turn(ring_radius, "l", **ld_TNR)
+    path13.segment(Lc_D3, **ld_TNR)
+    path13.turn(ring_radius, "l", **ld_TNR)
     
     #######################################################################
-    # Start path10 (ring1 top)
+    # Start path10 (ring1 top) - NWG + TNR cover
     path10 = gdspy.Path(width, (x_ring1_top, y_ring1_top - coup_gap - width))
     path10.turn(ring_radius, "rr", **ld_NWG)
     path10.segment(Lc_D3, **ld_NWG)
     path10.turn(ring_radius, "rr", **ld_NWG)
     path10.segment(Lc_D3, **ld_NWG)
     
+    path14 = gdspy.Path(width*2, (x_ring1_top + ring_radius, y_ring1_top - ring_radius - coup_gap - width))
+    path14.segment(0, '-y', **ld_TNR)
+    path14.turn(ring_radius, "r", **ld_TNR)
+    path14.segment(Lc_D3, **ld_TNR)
+    path14.turn(ring_radius, "r", **ld_TNR)
+    
     #######################################################################
-    # Start path11 (ring2 top)
+    # Start path11 (ring2 top) - NWG + TNR cover
     path11 = gdspy.Path(width, (x_ring2_top, y_ring2_top - coup_gap - width))
     path11.turn(ring_radius, "rr", **ld_NWG)
     path11.segment(Lc_D4, **ld_NWG)
     path11.turn(ring_radius, "rr", **ld_NWG)
     path11.segment(Lc_D4, **ld_NWG)
+    
+    path15 = gdspy.Path(width*2, (x_ring2_top + ring_radius, y_ring2_top - ring_radius - coup_gap - width))
+    path15.segment(0, '-y', **ld_TNR)
+    path15.turn(ring_radius, "r", **ld_TNR)
+    path15.segment(Lc_D3, **ld_TNR)
+    path15.turn(ring_radius, "r", **ld_TNR)
     
     
     cell.add(path1)
@@ -288,6 +313,10 @@ for idx in range (4):
     cell.add(path9)
     cell.add(path10)
     cell.add(path11)
+    cell.add(path12)
+    cell.add(path13)
+    cell.add(path14)
+    cell.add(path15)
     cell.add(start_taper)
 
 gdspy.LayoutViewer(lib)
