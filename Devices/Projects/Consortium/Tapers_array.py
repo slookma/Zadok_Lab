@@ -30,7 +30,7 @@ ld_dataExtend   = {"layer": 118,    "datatype": 134}
 
 # Parameters:
 width                   = 1
-taper_len               = 200
+taper_len               = 190
 N_tapers                = 50
 s_bend_width            = 30
 tapers_spacing          = 10
