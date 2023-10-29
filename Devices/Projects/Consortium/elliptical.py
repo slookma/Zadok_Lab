@@ -9,10 +9,11 @@ This is a temporary script file.
 
 import numpy
 import gdspy
+from via_array import via_array
 
 overwrite = 0 # 1 - Overwrite GDS, 0 - Don't overwrite
 lib = gdspy.GdsLibrary()
-cell = lib.new_cell('Elliptical_Filter')
+cell = lib.new_cell('Elliptical_Filter2')
 
 
 # Layers:
@@ -23,10 +24,10 @@ ld_GC           = {"layer": 118,    "datatype": 121}
 ld_SUS          = {"layer": 195,    "datatype": 0}
 ld_VG1          = {"layer": 192,    "datatype": 0}
 ld_TNR          = {"layer": 26,     "datatype": 0}
+ld_Contact      = {"layer": 7,      "datatype": 0}
 ld_VIA1         = {"layer": 17,     "datatype": 0}
-ld_VIA2         = {"layer": 27,     "datatype": 0}
-ld_METAL1       = {"layer": 18,     "datatype": 0}
-ld_METAL2       = {"layer": 28,     "datatype": 0}
+ld_METAL1       = {"layer": 8,      "datatype": 0}
+ld_METAL2       = {"layer": 18,     "datatype": 0}
 ld_dataExtend   = {"layer": 118,    "datatype": 134}
 
 # Parameters:
@@ -46,7 +47,7 @@ vertical_out_coup   = 2 * bend_radius + coup_gap
 Lc_50_coup          = 10
 side_M2             = 100
 side_silox          = 80
-pad_shift_const     = 200
+pad_shift_const     = 127
 TNR_tail            = 20
 # Lc_D3_vec           = [4.95, 14.15, 10.75, 19.95]
 # Lc_D4_vec           = [9.65, 18.85, 6.81, 15.9]
@@ -56,6 +57,7 @@ Lc_D3_vec           = [4.95,  6.5,  7.5,  9.0, 10.0, 11.5, 12.5, 14.15]
 Lc_D4_vec           = [9.65, 11.0, 12.5, 13.5, 15.0, 16.0, 17.5, 18.85]
 run_x_through_coup  = 7 * bend_radius + Lc_50_coup
 right_end           = 5000 - taper_len - 10 - 10
+
 
 for idx in range(len(Lc_D3_vec)):
     # Sweep parameters
@@ -104,6 +106,8 @@ for idx in range(len(Lc_D3_vec)):
     path1.turn(bend_radius, "l", **ld_NWG)
     path1.turn(bend_radius, "rr", **ld_NWG)
     path1.segment(vertical_out_coup, **ld_NWG)
+    MZI_TNR_cover_x = path1.x
+    MZI_TNR_cover_y = path1.y
     path1.turn(bend_radius, "l", **ld_NWG)
     # Run through ring in the other arm
     path1.segment(run_x_through_ring2, **ld_NWG)
@@ -126,8 +130,6 @@ for idx in range(len(Lc_D3_vec)):
     path1.segment(vertical_50_coup, **ld_NWG)
     # Turn to create S shape
     path1.turn(bend_radius, "ll", **ld_NWG)
-    MZI_TNR_cover_x = path1.x
-    MZI_TNR_cover_y = path1.y
     path1.segment(2*bend_radius + coup_gap + 2*vertical_50_coup - safety_gap, **ld_NWG)
     path1.turn(bend_radius, "r", **ld_NWG)
     # Continue a bit to align all
@@ -357,105 +359,139 @@ for idx in range(len(Lc_D3_vec)):
     #######################################################################
     # Metalic pads
     if idx == 0:
-        x_rect1 = x_ring2_bottom + 8.5*bend_radius + safety_gap + Lc_50_coup
+        x_rect1 = x_ring1_bottom + 4*bend_radius
     
-    y_rect1 = y_ring2_bottom - 2*bend_radius
+    y_rect1 = y_ring1_bottom + 0*ring_radius
     offset = (side_M2 - side_silox)/2
+    
+    for pad_col_idx in range(6):
+        pad_shift = pad_col_idx * pad_shift_const
+        rect1 = gdspy.Rectangle((x_rect1 + pad_shift         , y_rect1         ), (x_rect1 + pad_shift + side_M2            , y_rect1 + side_M2            ), **ld_METAL2)
+        rect2 = gdspy.Rectangle((x_rect1 + pad_shift + offset, y_rect1 + offset), (x_rect1 + pad_shift + offset + side_silox, y_rect1 + offset + side_silox), **ld_Silox)
         
-    for pad_row_idx in range(2):
-        pad_shift_y = pad_row_idx * pad_shift_const
-        for pad_col_idx in range(5):
-            pad_shift = pad_col_idx * pad_shift_const
-            rect1 = gdspy.Rectangle((x_rect1 + pad_shift         , y_rect1 + pad_shift_y         ), (x_rect1 + pad_shift + side_M2            , y_rect1 + pad_shift_y + side_M2            ), **ld_METAL2)
-            rect2 = gdspy.Rectangle((x_rect1 + pad_shift + offset, y_rect1 + pad_shift_y + offset), (x_rect1 + pad_shift + offset + side_silox, y_rect1 + pad_shift_y + offset + side_silox), **ld_Silox)
-            
-            cell.add(rect1)
-            cell.add(rect2)
+        cell.add(rect1)
+        cell.add(rect2)
     
     #######################################################################
-    # Metals 1 + 2 lines
+    # Metals 1 + 2 lines + Vias
+    
+    # Vias parameters
+    via1_type    = "Contact"
+    rows1        = 4
+    columns1     = 4
+    via1_side    = 0.26
+    via1_spacing = 0.26
+    side_gap1    = 0.5
+    
+    via2_type    = "VIA1"
+    rows2        = 4
+    columns2     = 4
+    via2_side    = 0.5
+    via2_spacing = 0.5
+    side_gap2    = 0.5
+    
+    via1_width  = round(columns1*via1_side + (columns1 - 1)*via1_spacing + 2*side_gap1, 3)
+    via1_height = round(rows1   *via1_side + (rows1 - 1)   *via1_spacing + 2*side_gap1, 3)
+    via2_width  = round(columns2*via2_side + (columns2 - 1)*via2_spacing + 2*side_gap2, 3)
+    via2_height = round(rows2   *via2_side + (rows2 - 1)   *via2_spacing + 2*side_gap2, 3)
+    # via_array(cell, via_type, via_locX, via_locY, rows, columns, via_side, via_spacing, side_gap)
+    
+    
+    
     # # Ring 1 bottom
-    path24 = gdspy.Path(width_M1, (x_ring1_bottom_TNR1 - width_M1/2 - width + TNR_tail, y_ring1_bottom_TNR1))
-    path24.segment(130, '+y', **ld_METAL1)
-    path25 = gdspy.Path(width_M2, (path24.x - width_M1/2, path24.y - width_M2/2))
-    path25.segment(x_rect1 - path24.x + 3*pad_shift_const + 0.5*side_M2 - width_M2/2, '+x', **ld_METAL2)
-    path25.turn(width_M2/2, 'r', **ld_METAL2)
-    path25.segment(120, **ld_METAL2)
+    path24 = gdspy.Path(width_M1, (x_ring1_bottom_TNR1 - width_M1/2 - width_TNR/2 + TNR_tail, y_ring1_bottom_TNR1 + width_TNR))
+    path24.segment(160, '-y', **ld_METAL1)
+    via_array(cell, via1_type, x_ring1_bottom_TNR1 - width_M1/2 - width_TNR/2 + TNR_tail - via1_width/2, y_ring1_bottom_TNR1 + width_TNR - via1_height, rows1, columns1, via1_side, via1_spacing, side_gap1)
+    path25 = gdspy.Path(width_M2, (path24.x - width_M1/2, path24.y + width_M2/2))
+    path25.segment(x_rect1 - path24.x + 1*pad_shift_const + 0.5*side_M2 - width_M2/2 + width_M1/2, '+x', **ld_METAL2)
+    path25.turn(width_M2/2, 'l', **ld_METAL2)
+    path25.segment(100, **ld_METAL2)
+    via_array(cell, via2_type, path24.x - width_M1/2, path24.y + width_M2/2 - via2_height/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
     
     path26 = gdspy.Path(width_M1, (x_ring1_bottom_TNR2 + width_M1/2 + width - TNR_tail, y_ring1_bottom_TNR2))
-    path26.segment(160, '+y', **ld_METAL1)
+    path26.segment(y_rect1 + side_M2 + 120 - y_ring1_bottom_TNR2, '+y', **ld_METAL1)
+    via_array(cell, via1_type, x_ring1_bottom_TNR2 + width_M1/2 + width_TNR/2 - TNR_tail - via1_width/2, y_ring1_bottom_TNR2, rows1, columns1, via1_side, via1_spacing, side_gap1)
     path27 = gdspy.Path(width_M2, (path26.x - width_M1/2, path26.y - width_M2/2))
-    path27.segment(x_rect1 - path26.x + 4*pad_shift_const + 0.5*side_M2 - width_M2/2, '+x', **ld_METAL2)
+    path27.segment(x_rect1 - path26.x + 0*pad_shift_const + 0.5*side_M2 - width_M2/2, '+x', **ld_METAL2)
     path27.turn(width_M2/2, 'r', **ld_METAL2)
-    path27.segment(150, **ld_METAL2)
+    path27.segment(120, **ld_METAL2)
+    via_array(cell, via2_type, path26.x - width_M1/2, path26.y - width_M2/2 - via2_height/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
     
     # # Ring 2 bottom
-    path28 = gdspy.Path(width_M1, (x_ring2_bottom_TNR1 - width_M1/2 - width + TNR_tail, y_ring2_bottom_TNR1))
-    path28.segment(70, '+y', **ld_METAL1)
-    path29 = gdspy.Path(width_M2, (path28.x - width_M1/2, path28.y - width_M2/2))
-    path29.segment(x_rect1 - path28.x + 1*pad_shift_const + 0.5*side_M2 - width_M2/2, '+x', **ld_METAL2)
+    path28 = gdspy.Path(width_M1, (x_ring2_bottom_TNR1 - width_M1/2 - width_TNR/2 + TNR_tail, y_ring2_bottom_TNR1 + width_TNR))
+    path28.segment(270, '-y', **ld_METAL1)
+    via_array(cell, via1_type, x_ring2_bottom_TNR1 - width_M1/2 - width_TNR/2 + TNR_tail - via1_width/2, y_ring2_bottom_TNR1 + width_TNR - via1_height, rows1, columns1, via1_side, via1_spacing, side_gap1)
+    path29 = gdspy.Path(width_M2, (path28.x + width_M1/2, path28.y + width_M2/2))
+    path29.segment(-(x_rect1 - path28.x + 3*pad_shift_const + 0.5*side_M2 + width_M2/2 - width_M1/2), '-x', **ld_METAL2)
     path29.turn(width_M2/2, 'r', **ld_METAL2)
-    path29.segment(60, **ld_METAL2)
+    path29.segment(210, **ld_METAL2)
+    via_array(cell, via2_type, path28.x - width_M1/2, path28.y + width_M2/2 - via2_height/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
     
     path30 = gdspy.Path(width_M1, (x_ring2_bottom_TNR2 + width_M1/2 + width - TNR_tail, y_ring2_bottom_TNR2))
-    path30.segment(100, '+y', **ld_METAL1)
-    path31 = gdspy.Path(width_M2, (path30.x - width_M1/2, path30.y - width_M2/2))
-    path31.segment(x_rect1 - path30.x + 2*pad_shift_const + 0.5*side_M2 - width_M2/2, '+x', **ld_METAL2)
-    path31.turn(width_M2/2, 'r', **ld_METAL2)
-    path31.segment(90, **ld_METAL2)
-    
+    path30.segment(y_rect1 + side_M2 + 120 - y_ring2_bottom_TNR2, '+y', **ld_METAL1)
+    via_array(cell, via1_type, x_ring2_bottom_TNR2 + width_M1/2 + width_TNR/2 - TNR_tail - via1_width/2, y_ring2_bottom_TNR2, rows1, columns1, via1_side, via1_spacing, side_gap1)
+    path31 = gdspy.Path(width_M2, (path30.x + width_M1/2, path30.y - width_M2/2))
+    path31.segment(-(x_rect1 - path30.x + 0*pad_shift_const + 0.5*side_M2 - width_M2/2), '-x', **ld_METAL2)
+    via_array(cell, via2_type, path30.x - width_M1/2, path30.y - width_M2/2 - via2_height/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
     
     # # Ring 1 top
     path32 = gdspy.Path(width_M1, (x_ring1_top_TNR1 - width_M1/2 - width + TNR_tail, y_ring1_top_TNR1))
-    path32.segment(160, '-y', **ld_METAL1)
+    path32.segment(100, '-y', **ld_METAL1)
+    via_array(cell, via1_type, x_ring1_top_TNR1 - width_M1/2 - width_TNR/2 + TNR_tail - via1_width/2, y_ring1_top_TNR1 - via1_height, rows1, columns1, via1_side, via1_spacing, side_gap1)
     path33 = gdspy.Path(width_M2, (path32.x - width_M1/2, path32.y + width_M2/2))
-    path33.segment(x_rect1 - path32.x + 3*pad_shift_const + 0.5*side_M2 - width_M2/2, '+x', **ld_METAL2)
+    path33.segment(x_rect1 - path32.x + 2*pad_shift_const + 0.5*side_M2 - width_M2/2 + width_M1/2, '+x', **ld_METAL2)
     path33.turn(width_M2/2, 'l', **ld_METAL2)
-    path33.segment(70, **ld_METAL2)
+    path33.segment(150, **ld_METAL2)
+    via_array(cell, via2_type, path32.x - width_M1/2, path32.y + width_M2/2 - via2_height/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
     
-    path34 = gdspy.Path(width_M1, (x_ring1_top_TNR2 + width_M1/2 + width - TNR_tail, y_ring1_top_TNR2))
-    path34.segment(190, '-y', **ld_METAL1)
-    path35 = gdspy.Path(width_M2, (path34.x - width_M1/2, path34.y + width_M2/2))
-    path35.segment(x_rect1 - path34.x + 4*pad_shift_const + 0.5*side_M2 - width_M2/2, '+x', **ld_METAL2)
-    path35.turn(width_M2/2, 'l', **ld_METAL2)
-    path35.segment(100, **ld_METAL2)
+    path34 = gdspy.Path(width_M1, (x_ring1_top_TNR2 + width_M1/2 + width - TNR_tail, y_ring1_top_TNR2 - width_TNR))
+    path34.segment(y_rect1 + side_M2 + 120 - y_ring1_top_TNR2 + width_TNR, '+y', **ld_METAL1)
+    via_array(cell, via1_type, x_ring1_top_TNR2 + width_M1/2 + width_TNR/2 - TNR_tail - via1_width/2, y_ring1_top_TNR2 - width_TNR, rows1, columns1, via1_side, via1_spacing, side_gap1)
+    path35 = gdspy.Path(width_M2, (path34.x - width_M1/2, path34.y - width_M2/2))
+    path35.segment(x_rect1 - path34.x + 0*pad_shift_const + 0.5*side_M2, '+x', **ld_METAL2)
+    via_array(cell, via2_type, path34.x - width_M1/2, path34.y - width_M2/2 - via2_height/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
     
     # # Ring 2 top
-    path36 = gdspy.Path(width_M1, (x_ring2_top_TNR1 - width_M1/2 - width + TNR_tail, y_ring2_top_TNR1 - width_TNR))
-    path36.segment(20, '+y', **ld_METAL1)
-    path37 = gdspy.Path(width_M2, (path36.x - width_M1/2, path36.y - width_M2/2))
-    path37.segment(x_rect1 - path36.x + 1*pad_shift_const + 0.5*side_M2 - width_M2/2, '+x', **ld_METAL2)
+    path36 = gdspy.Path(width_M1, (x_ring2_top_TNR1 - width_M1/2 - width + TNR_tail, y_ring2_top_TNR1))
+    path36.segment(80, '-y', **ld_METAL1)
+    via_array(cell, via1_type, x_ring2_top_TNR1 - width_M1/2 - width_TNR/2 + TNR_tail - via1_width/2, y_ring2_top_TNR1 - via1_height, rows1, columns1, via1_side, via1_spacing, side_gap1)
+    path37 = gdspy.Path(width_M2, (path36.x + width_M1/2, path36.y + width_M2/2))
+    path37.segment(-(x_rect1 - path36.x + 4*pad_shift_const + 0.5*side_M2 + width_M2/2 - width_M1/2), '-x', **ld_METAL2)
     path37.turn(width_M2/2, 'r', **ld_METAL2)
-    path37.segment(50, **ld_METAL2)
+    path37.segment(130, **ld_METAL2)
+    via_array(cell, via2_type, path36.x - width_M1/2, path36.y + width_M2/2 - via2_height/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
     
     path38 = gdspy.Path(width_M1, (x_ring2_top_TNR2 + width_M1/2 + width - TNR_tail, y_ring2_top_TNR2 - width_TNR))
-    path38.segment(50, '+y', **ld_METAL1)
-    path39 = gdspy.Path(width_M2, (path38.x - width_M1/2, path38.y - width_M2/2))
-    path39.segment(x_rect1 - path38.x + 2*pad_shift_const + 0.5*side_M2 - width_M2/2, '+x', **ld_METAL2)
-    path39.turn(width_M2/2, 'r', **ld_METAL2)
-    path39.segment(80, **ld_METAL2)
-    
+    path38.segment(y_rect1 + side_M2 + 120 - y_ring2_top_TNR2 + width_TNR, '+y', **ld_METAL1)
+    via_array(cell, via1_type, x_ring2_top_TNR2 + width_M1/2 + width_TNR/2 - TNR_tail - via1_width/2, y_ring2_top_TNR2 - width_TNR, rows1, columns1, via1_side, via1_spacing, side_gap1)
+    path39 = gdspy.Path(width_M2, (path38.x + width_M1/2, path38.y - width_M2/2))
+    path39.segment(-(x_rect1 - path38.x + 0*pad_shift_const + 0.5*side_M2 - width_M2/2), '-x', **ld_METAL2)
+    via_array(cell, via2_type, path38.x - width_M1/2, path38.y - width_M2/2 - via2_height/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
     
     #######################################################################
     # Create TNR cover on MZI arm
-    TNR_path_MZI = gdspy.Path(width_TNR, (MZI_TNR_cover_x + TNR_tail, MZI_TNR_cover_y))
-    TNR_path_MZI.segment(TNR_tail - width_TNR/2, '-x', **ld_TNR)
-    TNR_path_MZI.turn(width_TNR/2, 'r', **ld_TNR)
-    TNR_path_MZI.segment(2*bend_radius + coup_gap + 2*vertical_50_coup - safety_gap, '+y', **ld_TNR)
+    TNR_path_MZI = gdspy.Path(width_TNR, (MZI_TNR_cover_x - TNR_tail, MZI_TNR_cover_y))
+    TNR_path_MZI.segment(TNR_tail - width_TNR/2, '+x', **ld_TNR)
+    TNR_path_MZI.turn(width_TNR/2, 'l', **ld_TNR)
+    TNR_path_MZI.segment(vertical_out_coup, '+y', **ld_TNR)
     TNR_path_MZI.turn(width_TNR/2, 'r', **ld_TNR)
     TNR_path_MZI.segment(TNR_tail - width_TNR/2, '+x', **ld_TNR)
     MZI_TNR_cover_end_x = TNR_path_MZI.x
     MZI_TNR_cover_end_y = TNR_path_MZI.y
     
-    M1_path_MZI1 = gdspy.Path(width_M1, (MZI_TNR_cover_x + TNR_tail - width_M1/2, MZI_TNR_cover_y + width_TNR/2))
-    M1_path_MZI1.segment(MZI_TNR_cover_y - y_rect1 - side_M2/2 + width_M2/2, '-y', **ld_METAL1)
-    M2_path_MZI1 = gdspy.Path(width_M2, (M1_path_MZI1.x - width_M1/2, M1_path_MZI1.y + width_M2/2))
-    M2_path_MZI1.segment(180, '+x', **ld_METAL2)
+    M1_path_MZI1 = gdspy.Path(width_M1, (MZI_TNR_cover_x - TNR_tail + width_M1/2, MZI_TNR_cover_y - width_TNR/2))
+    M1_path_MZI1.segment(-(MZI_TNR_cover_y - y_rect1 - side_M2/2 - width_M2/2), '+y', **ld_METAL1)
+    via_array(cell, via1_type, MZI_TNR_cover_x - TNR_tail + width_M1/2 - via1_width/2, MZI_TNR_cover_y - width_TNR/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
+    M2_path_MZI1 = gdspy.Path(width_M2, (M1_path_MZI1.x + width_M1/2, M1_path_MZI1.y - width_M2/2))
+    M2_path_MZI1.segment(-(x_rect1 - M1_path_MZI1.x + 5*pad_shift_const + 0.5*side_M2), '-x', **ld_METAL2)
+    via_array(cell, via2_type, M1_path_MZI1.x + width_M1/2 - via2_width, M1_path_MZI1.y - width_M2/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
     
-    M1_path_MZI2 = gdspy.Path(width_M1, (MZI_TNR_cover_end_x - width_M1/2, MZI_TNR_cover_end_y + width_TNR/2))
-    M1_path_MZI2.segment(MZI_TNR_cover_end_y - y_rect1 - pad_shift_const - side_M2/2 + width_M2/2, '-y', **ld_METAL1)
-    M2_path_MZI2 = gdspy.Path(width_M2, (M1_path_MZI2.x - width_M1/2, M1_path_MZI2.y + width_M2/2))
-    M2_path_MZI2.segment(180, '+x', **ld_METAL2)
+    M1_path_MZI2 = gdspy.Path(width_M1, (MZI_TNR_cover_end_x - width_M1/2, MZI_TNR_cover_end_y - width_TNR/2))
+    M1_path_MZI2.segment(y_rect1 + side_M2 + 120 - MZI_TNR_cover_end_y + width_TNR/2, '+y', **ld_METAL1)
+    via_array(cell, via1_type, MZI_TNR_cover_end_x - width_M1/2 - via1_width/2, MZI_TNR_cover_end_y - width_TNR/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
+    M2_path_MZI2 = gdspy.Path(width_M2, (M1_path_MZI2.x + width_M1/2, M1_path_MZI2.y - width_M2/2))
+    M2_path_MZI2.segment(-(x_rect1 - M1_path_MZI2.x + 5*pad_shift_const + 0.5*side_M2), '-x', **ld_METAL2)
+    via_array(cell, via2_type, M1_path_MZI2.x + width_M1/2 - via2_width, M1_path_MZI2.y - width_M2/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
     
     #######################################################################
     # Add all paths
@@ -507,6 +543,11 @@ for idx in range(len(Lc_D3_vec)):
 
 gdspy.LayoutViewer(lib)
 if overwrite == 1:
-    lib.write_gds("elliptical.gds")
+    lib.write_gds("elliptical2.gds")
 
 gdspy.current_library = gdspy.GdsLibrary()
+
+
+
+
+#/data/tower/ph18/HOTCODE/amslibs/cds_oa/cdslibs/ph18/devices/devices_ph18mx/ph18.layermap
