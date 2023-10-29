@@ -13,7 +13,7 @@ from via_array import via_array
 
 overwrite = 0 # 1 - Overwrite GDS, 0 - Don't overwrite
 lib = gdspy.GdsLibrary()
-cell = lib.new_cell('Elliptical_Filter2')
+cell = lib.new_cell('Elliptical_Filter')
 
 
 # Layers:
@@ -543,7 +543,7 @@ for idx in range(len(Lc_D3_vec)):
 
 gdspy.LayoutViewer(lib)
 if overwrite == 1:
-    lib.write_gds("elliptical2.gds")
+    lib.write_gds("elliptical.gds")
 
 gdspy.current_library = gdspy.GdsLibrary()
 
