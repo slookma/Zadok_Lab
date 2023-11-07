@@ -378,13 +378,13 @@ for idx in range(len(Lc_D3_vec)):
     # Vias parameters
     via1_type    = "Contact"
     rows1        = 4
-    columns1     = 4
+    columns1     = 8
     via1_side    = 0.26
     via1_spacing = 0.26
     side_gap1    = 0.5
     
     via2_type    = "VIA1"
-    rows2        = 4
+    rows2        = 19
     columns2     = 4
     via2_side    = 0.5
     via2_spacing = 0.5

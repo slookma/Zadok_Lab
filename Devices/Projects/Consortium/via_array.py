@@ -35,8 +35,8 @@ def via_array(cell, via_type, via_locX, via_locY, rows, columns, via_side, via_s
         bottom_rect = gdspy.Rectangle((via_locX, via_locY), (via_locX + columns*via_side + (columns - 1)*via_spacing + 2*side_gap, via_locY + rows*via_side + (rows - 1)*via_spacing + 2*side_gap), **ld_TNR)
         top_rect    = gdspy.Rectangle((via_locX, via_locY), (via_locX + columns*via_side + (columns - 1)*via_spacing + 2*side_gap, via_locY + rows*via_side + (rows - 1)*via_spacing + 2*side_gap), **ld_METAL1)
     elif via_type == "VIA1":
-        bottom_rect = gdspy.Rectangle((via_locX, via_locY), (via_locX + columns*via_side + (columns - 1)*via_spacing + 2*side_gap, via_locY + columns*via_side + (columns - 1)*via_spacing + 2*side_gap), **ld_METAL1)
-        top_rect    = gdspy.Rectangle((via_locX, via_locY), (via_locX + columns*via_side + (columns - 1)*via_spacing + 2*side_gap, via_locY + columns*via_side + (columns - 1)*via_spacing + 2*side_gap), **ld_METAL2)
+        bottom_rect = gdspy.Rectangle((via_locX, via_locY), (via_locX + columns*via_side + (columns - 1)*via_spacing + 2*side_gap, via_locY + rows*via_side + (rows - 1)*via_spacing + 2*side_gap), **ld_METAL1)
+        top_rect    = gdspy.Rectangle((via_locX, via_locY), (via_locX + columns*via_side + (columns - 1)*via_spacing + 2*side_gap, via_locY + rows*via_side + (rows - 1)*via_spacing + 2*side_gap), **ld_METAL2)
     
     cell.add(bottom_rect)
     cell.add(top_rect)
