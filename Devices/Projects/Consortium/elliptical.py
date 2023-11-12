@@ -484,14 +484,14 @@ for idx in range(len(Lc_D3_vec)):
     via_array(cell, via1_type, MZI_TNR_cover_x - TNR_tail + width_M1/2 - via1_width/2, MZI_TNR_cover_y - width_TNR/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
     M2_path_MZI1 = gdspy.Path(width_M2, (M1_path_MZI1.x + width_M1/2, M1_path_MZI1.y - width_M2/2))
     M2_path_MZI1.segment(-(x_rect1 - M1_path_MZI1.x + 5*pad_shift_const + 0.5*side_M2), '-x', **ld_METAL2)
-    via_array(cell, via2_type, M1_path_MZI1.x + width_M1/2 - via2_width, M1_path_MZI1.y - width_M2/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
+    via_array(cell, via2_type, M1_path_MZI1.x + width_M1/2 - via2_width, M1_path_MZI1.y - width_M2, rows2, columns2, via2_side, via2_spacing, side_gap2)
     
     M1_path_MZI2 = gdspy.Path(width_M1, (MZI_TNR_cover_end_x - width_M1/2, MZI_TNR_cover_end_y - width_TNR/2))
     M1_path_MZI2.segment(y_rect1 + side_M2 + 120 - MZI_TNR_cover_end_y + width_TNR/2, '+y', **ld_METAL1)
     via_array(cell, via1_type, MZI_TNR_cover_end_x - width_M1/2 - via1_width/2, MZI_TNR_cover_end_y - width_TNR/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
     M2_path_MZI2 = gdspy.Path(width_M2, (M1_path_MZI2.x + width_M1/2, M1_path_MZI2.y - width_M2/2))
     M2_path_MZI2.segment(-(x_rect1 - M1_path_MZI2.x + 5*pad_shift_const + 0.5*side_M2), '-x', **ld_METAL2)
-    via_array(cell, via2_type, M1_path_MZI2.x + width_M1/2 - via2_width, M1_path_MZI2.y - width_M2/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
+    via_array(cell, via2_type, M1_path_MZI2.x + width_M1/2 - via2_width, M1_path_MZI2.y - width_M2, rows2, columns2, via2_side, via2_spacing, side_gap2)
     
     #######################################################################
     # Add all paths
