@@ -7,9 +7,12 @@ Created on Sat Mar 9 19:04:20 2024
 
 import nazca as nd
 # this part is for the composite part
-flag = 1 # if composite 1 if normal 0
+flag = 0 # if composite 1 if normal 0
+flag2 = 1 # 1 if I want to make the wider mask
+
+
 taper = 1
-W = [
+W= [
       [0.7,0.60,0.83],
       [0.7,0.62,0.85],
       [0.7,0.64,0.87],
@@ -18,17 +21,27 @@ W = [
       [0.7,0.70,0.93],
       [0.7,0.72,0.95]
       ]
-# W = [0.7,0.66,0.89]
+
+if flag2 == 1:
+    W = [[round(cell + 3, 2) for cell in row] for row in W] # add 3 um to the width for the subtraction
+    WG_width = 3
+else:
+    WG_width = 0.7
+    
+    
 L = [1,24.39,21.83]
 
 cycles = 10
 
-WG_width = 0.7
+
 Gap = 1-WG_width
 WG_radius = 100
 bus1 = 10
 bus2 = 100
-Lc = [8.9,9,9.06,9.1,9.2,9.3,9.4] # Lc is 31.6 um - might be 20 um
+#Lc = [8.5,8.7,8.9,9.06,9.1,9.3,9.5] 
+# Lc = [8.9,9,9.06,9.1,9.2,9.3,9.4] # Lc is 31.6 um - might be 20 um
+Lc = [462.2,462.2,462.2,462.2,462.2,462.2,462.2]
+# Lc = [cell + 46*cycles for cell in Lc]
 GC_gap = 127
 ld = 250 #55  layer numberr
 
