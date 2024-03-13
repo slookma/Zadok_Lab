@@ -7,7 +7,7 @@ Created on Sat Mar 9 19:04:20 2024
 
 import nazca as nd
 # this part is for the composite part
-flag = 0 # if composite 1 if normal 0
+flag = 1 # if composite 1 if normal 0
 flag2 = 1 # 1 if I want to make the wider mask
 
 
@@ -23,7 +23,7 @@ W= [
       ]
 
 if flag2 == 1:
-    W = [[round(cell + 3, 2) for cell in row] for row in W] # add 3 um to the width for the subtraction
+    W = [[round(cell + 2) for cell in row] for row in W] # add 3 um to the width for the subtraction
     WG_width = 3
 else:
     WG_width = 0.7
@@ -34,16 +34,16 @@ L = [1,24.39,21.83]
 cycles = 10
 
 
-Gap = 1-WG_width
+Gap = round(1-WG_width,2)
 WG_radius = 100
 bus1 = 10
 bus2 = 100
-#Lc = [8.5,8.7,8.9,9.06,9.1,9.3,9.5] 
+# Lc = [8.5,8.7,8.9,9.06,9.1,9.3,9.5] 
 # Lc = [8.9,9,9.06,9.1,9.2,9.3,9.4] # Lc is 31.6 um - might be 20 um
 Lc = [462.2,462.2,462.2,462.2,462.2,462.2,462.2]
 # Lc = [cell + 46*cycles for cell in Lc]
 GC_gap = 127
-ld = 250 #55  layer numberr
+ld = 55 #250  layer numberr
 
 
 
@@ -104,12 +104,11 @@ def normal_coupler(X,Y,Lc):
     return uniform_coupler
 
 
-def compositecoupler(Width,gap,Length,Radius,positionX,positionY,busLength1,busLength2,W):
+def compositecoupler(Width,gap,Radius,positionX,positionY,busLength1,busLength2,W):
     """
     Directional Coupler.
     width           : width of the waveguides
     gap             : gap between the center of the waveguides
-    Length          : length the waveguide travel together
     Radius         : radius of the circle of the transition regions
     position        : coupler position (feed point)
     busLength1,2    : length of the bus before/after the coupler
@@ -152,15 +151,16 @@ def compositecoupler(Width,gap,Length,Radius,positionX,positionY,busLength1,busL
         
     return cp
 
-def composite(X,Y,Lc,W):
+def composite(X,Y,W):
     # from here I'm building the block
     with nd.Cell(name='CP') as composite_coupler:
-        cp1 = compositecoupler(WG_width,Gap,Lc,50,X,Y,bus1,bus2,W).put()
+        cp1 = compositecoupler(WG_width,Gap,50,X,Y,bus1,bus2,W).put()
         nd.bend(angle=-90,radius=WG_radius,width=WG_width,layer=ld).put(cp1.pin['b0'])
-        nd.sinebend(width=WG_width,distance=(sum(L))*cycles+L[0]+W[2]+400+bus1+Lc+(250-GC_gap+Gap+WG_width)/2,offset=GC_gap-125-(250-GC_gap+Gap+WG_width)/2,layer=ld).put()
+        nd.sinebend(width=WG_width,distance=(sum(L))*cycles+L[0]+2*bus1+(1050-GC_gap+Gap+WG_width)/2,offset=GC_gap-(500-GC_gap+Gap+WG_width)/2,layer=ld).put()
+
     
         nd.bend(angle=90,radius=WG_radius,width=WG_width,layer=ld).put(cp1.pin['b1'])
-        nd.sinebend(width=WG_width,distance=(sum(L))*cycles+L[0]+W[2]+400+bus1+Lc+(250-GC_gap+Gap+WG_width)/2,offset=-GC_gap+125+(250-GC_gap+Gap+WG_width)/2,layer=ld).put()
+        nd.sinebend(width=WG_width,distance=(sum(L))*cycles+L[0]+2*bus1+(1050-GC_gap+Gap+WG_width)/2,offset=-GC_gap+(500-GC_gap+Gap+WG_width)/2,layer=ld).put()
     
         nd.bend(angle=-90,radius=50,width=WG_width,layer=ld).put(cp1.pin['a0'])
         nd.bend(angle=90,radius=(250-GC_gap+Gap+WG_width)/2,width=WG_width,layer=ld).put()
@@ -178,7 +178,7 @@ def composite(X,Y,Lc,W):
 for i in range(len(Lc)):
     # these are the coplers
     if flag == 1:
-        composite(0,0,Lc[i],W[i]).put(0,i*GC_gap*6)
+        composite(0,0,W[i]).put(0,i*GC_gap*6)
     else:
         normal_coupler(0,0,Lc[i]).put(0,i*GC_gap*6)
     
@@ -190,8 +190,8 @@ for i in range(len(Lc)):
     # this part is for the text on the sides
     f = nd.Font('cousine')
     if flag == 1:
-        f.text('W1 = '+str(W[i][1])+' um',layer=ld).put(sum(L)*cycles+bus1+4*WG_radius+Lc[i],i*GC_gap*6,90)
-        f.text('W2 = '+str(W[i][2])+' um',layer=ld).put(sum(L)*cycles+bus1+5*WG_radius+Lc[i],i*GC_gap*6,90)
+        f.text('W1 = '+str(W[i][1])+' um',layer=ld).put(sum(L)*cycles+bus1+1*WG_radius+Lc[i],i*GC_gap*6,90)
+        f.text('W2 = '+str(W[i][2])+' um',layer=ld).put(sum(L)*cycles+bus1+2*WG_radius+Lc[i],i*GC_gap*6,90)
     else:
         f.text('L = '+str(Lc[i])+' um',layer=ld).put(bus1+3*WG_radius+Lc[i],i*GC_gap*6,90)   
         
@@ -205,7 +205,7 @@ nd.bend(angle=-180,radius=GC_gap/2,width=WG_width,layer=ld).put()
 nd.strt(length=300,width=WG_width,layer=ld).put()
 if flag == 1:
     f.text('Gap = '+str(GC_gap)+' um',layer=ld).put(-(250+(250-GC_gap+Gap+WG_width)/4),-GC_gap*3)   
-    f.text('L_tot = '+str((L[1]+L[2])*cycles)+' um',layer=ld).put(-300+sum(L)*cycles+bus1+3*WG_radius+Lc[i],-GC_gap*3)
+    f.text('L_tot = '+str((L[1]+L[2])*cycles)+' um',layer=ld).put(-350+sum(L)*cycles+bus1+3*WG_radius,-GC_gap*3)
 else:
     f.text('Gap = '+str(GC_gap)+' um',layer=ld).put(-(250+(250-GC_gap+Gap+WG_width)/4),-GC_gap*3)   
 
