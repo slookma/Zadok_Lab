@@ -124,11 +124,11 @@ def mzi(cell, mzi1_top, mzi1_bot, coupling_length, coupling_dis=0.3, wg_dis=30, 
     cell.add(mzi1_bot)
     cell.add(mzi1_top)
 
-    mzi1_top_length = mzi1_top.length
-    mzi1_bot_length = mzi1_bot.length
-    print(mzi1_top_length)
-    print(mzi1_bot_length)
-    print('d_L = ' + str(abs(mzi1_bot_length-mzi1_top_length)))
+    # mzi1_top_length = mzi1_top.length
+    # mzi1_bot_length = mzi1_bot.length
+    # print(mzi1_top_length)
+    # print(mzi1_bot_length)
+    # print('d_L = ' + str(abs(mzi1_bot_length-mzi1_top_length)))
 def create_ring(cell, path1, coupling_dis, wg_width, bend_radius, top_bot=True):
     if top_bot:
         direction = "ll"
