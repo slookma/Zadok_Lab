@@ -20,7 +20,7 @@ coupling_dis = 0.3
 wg_width = 1
 # layer
 layer_wg = {"layer": 174, "datatype": 0}
-
+# RADIUS = 80
 
 # creating s_bend from David Trop
 def sbendPath(wgsbend, L=L_sbend, H=H_sbend, layer_1=layer_wg):
@@ -104,10 +104,19 @@ def mzi(cell, mzi1_top, mzi1_bot, coupling_length, coupling_dis=0.3, wg_dis=30, 
     # coupler
     coupler1 = s_coupler(cell, mzi1_top, mzi1_bot, coupling_length)
     # length difrence
+    # mzi1_top.turn(RADIUS, 'll', **layer_wg).segment(20, **layer_wg).turn(RADIUS, 'rr', **layer_wg)#.segment(20, **layer_wg).turn(RADIUS, 'rr', **layer_wg).turn(RADIUS, 'll', **layer_wg)
+    # mzi1_bot.segment(2*RADIUS+20, **layer_wg)#.turn(RADIUS, 'l', **layer_wg).turn(RADIUS, 'r', **layer_wg)
     for t in range(17):
         mzi1_bot.segment(2*L_sbend, **layer_wg)
         mzi1_top = sbendPathM(coupler1[1])
         mzi1_top = sbendPath(coupler1[1])
+    # distance measure
+    mzi1_top_length = mzi1_top.length
+    mzi1_bot_length = mzi1_bot.length
+    print(mzi1_top_length)
+    print(mzi1_bot_length)
+    print('d_L = ' + str(abs(mzi1_bot_length-mzi1_top_length)))
+
     # coupler 2
     coupler2 = s_coupler(cell, mzi1_top, mzi1_bot, coupling_length)
     mzi1_bot = sbendPath(mzi1_bot, 2.5*(2*Hsbend-wg_dis+wg_width+coupling_dis), 2*Hsbend-wg_dis+wg_width+coupling_dis)
@@ -124,11 +133,7 @@ def mzi(cell, mzi1_top, mzi1_bot, coupling_length, coupling_dis=0.3, wg_dis=30, 
     cell.add(mzi1_bot)
     cell.add(mzi1_top)
 
-    # mzi1_top_length = mzi1_top.length
-    # mzi1_bot_length = mzi1_bot.length
-    # print(mzi1_top_length)
-    # print(mzi1_bot_length)
-    # print('d_L = ' + str(abs(mzi1_bot_length-mzi1_top_length)))
+
 def create_ring(cell, path1, coupling_dis, wg_width, bend_radius, top_bot=True):
     if top_bot:
         direction = "ll"
@@ -177,7 +182,7 @@ for i in range(len(CL)):
     mzi(cell, mzi_top, mzi_bot, CL[i], wg_dis=wg_dis, size=4980)
     start_y = start_y-1*wg_dis
     j += 1
-lib.write_gds('mzi1064.gds')
+lib.write_gds('mzi_1064.gds')
 
 gdspy.current_library = gdspy.GdsLibrary()
 
