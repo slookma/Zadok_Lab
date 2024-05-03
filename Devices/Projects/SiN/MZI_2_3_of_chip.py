@@ -20,7 +20,7 @@ coupling_dis = 0.3
 wg_width = 1
 # layer
 layer_wg = {"layer": 174, "datatype": 0}
-RADIUS = 130
+RADIUS = 80
 
 # creating s_bend from David Trop
 def sbendPath(wgsbend, L=L_sbend, H=H_sbend, layer_1=layer_wg):
@@ -104,18 +104,18 @@ def mzi(cell, mzi1_top, mzi1_bot, coupling_length, coupling_dis=0.3, wg_dis=30, 
     # coupler
     coupler1 = s_coupler(cell, mzi1_top, mzi1_bot, coupling_length)
     # length difrence
-    mzi1_top.turn(RADIUS, 'l', **layer_wg).turn(RADIUS, 'rr', **layer_wg).turn(RADIUS, 'll', **layer_wg).turn(RADIUS, 'r', **layer_wg).segment(10, **layer_wg)
-    mzi1_bot.segment(4*RADIUS+10, **layer_wg).turn(RADIUS, 'l', **layer_wg).turn(RADIUS, 'r', **layer_wg)
+    mzi1_top.turn(RADIUS, 'l', **layer_wg).turn(RADIUS, 'rr', **layer_wg).turn(RADIUS, 'll', **layer_wg).turn(RADIUS, 'r', **layer_wg)
+    mzi1_bot.segment(4*RADIUS, **layer_wg).turn(RADIUS, 'l', **layer_wg).turn(RADIUS, 'r', **layer_wg)
     # for t in range(17):
     #     mzi1_bot.segment(2*L_sbend, **layer_wg)
     #     mzi1_top = sbendPathM(coupler1[1])
     #     mzi1_top = sbendPath(coupler1[1])
     # # distance measure
-    # mzi1_top_length = mzi1_top.length
-    # mzi1_bot_length = mzi1_bot.length
-    # print(mzi1_top_length)
-    # print(mzi1_bot_length)
-    # print('d_L = ' + str(abs(mzi1_bot_length-mzi1_top_length)))
+    mzi1_top_length = mzi1_top.length
+    mzi1_bot_length = mzi1_bot.length
+    print(mzi1_top_length)
+    print(mzi1_bot_length)
+    print('d_L = ' + str(abs(mzi1_bot_length-mzi1_top_length)))
 
     # coupler 2
     coupler2 = s_coupler(cell, mzi1_top, mzi1_bot, coupling_length)
