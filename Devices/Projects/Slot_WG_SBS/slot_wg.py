@@ -13,9 +13,9 @@ slab_width = 0.15  # Width of the slab
 taper_start_width = 0.7  # Width of the starting taper region
 taper_length = 5  # Length of the taper region
 small_taper_length = 1 #  small taper length
-layer_number = 100  # Example layer number
-length = 8000
-clad_width = 6.7
+layer_number = 101  # Example layer number
+length = 4400 - 12
+clad_width = 4.7
 
 def create_slot_waveguide_with_tapers(gap, slab_width, taper_start_width, taper_length, small_taper_length, layer_number, length):
     """
@@ -52,10 +52,10 @@ def create_slot_waveguide_with_tapers(gap, slab_width, taper_start_width, taper_
 create_slot_waveguide_with_tapers(gap_width, slab_width, taper_start_width, taper_length, small_taper_length, layer_number, length).put()
 nd.strt(length=2*small_taper_length+2*taper_length+length,width=clad_width,layer=200).put()
 
-# calling the GC
-GC = nd.load_gds("C:/Users/slookma/WIFI_GC.gds", cellname="grating")
-GC.put(0,0.001)
-GC.put(2+2*taper_length+length,0.001,flop=True)
+# # calling the GC
+# GC = nd.load_gds("WIFI_GC.gds", cellname="grating")
+# GC.put(0,0.001)
+# GC.put(2+2*taper_length+length,flop=True)
 
 # Create GDS file
 nd.export_gds(filename="slot_wg.gds")
