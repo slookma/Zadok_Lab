@@ -8,14 +8,17 @@ Created on Wed Apr 10 17:42:43 2024
 import nazca as nd
 
 # Example usage
-gap_width = 0.06*2
-slab_width = 0.15  # Width of the slab
+gap_width = 0.06*2 # do double, doeesn't work otherwise
+slab_width = 0.1  # Width of the slab
 taper_start_width = 0.7  # Width of the starting taper region
 taper_length = 5  # Length of the taper region
 small_taper_length = 1 #  small taper length
 layer_number = 101  # Example layer number
+layer_clad = 201
 length = 4400 - 12
 clad_width = 4.7
+gaps = [2*0.03,2*0.04,2*0.05,2*0.06]
+f = nd.Font('cousine')
 
 def create_slot_waveguide_with_tapers(gap, slab_width, taper_start_width, taper_length, small_taper_length, layer_number, length):
     """
@@ -48,20 +51,21 @@ def create_slot_waveguide_with_tapers(gap, slab_width, taper_start_width, taper_
 
     return slot
 
-# creating the slot
-create_slot_waveguide_with_tapers(gap_width, slab_width, taper_start_width, taper_length, small_taper_length, layer_number, length).put()
-nd.strt(length=2*small_taper_length+2*taper_length+length,width=clad_width,layer=200).put()
-
-# # calling the GC
-# GC = nd.load_gds("WIFI_GC.gds", cellname="grating")
-# GC.put(0,0.001)
-# GC.put(2+2*taper_length+length,flop=True)
+for i in range(len(gaps)):
+    # creating the slot
+    create_slot_waveguide_with_tapers(gaps[i], slab_width, taper_start_width, taper_length, small_taper_length, layer_number, length).put(0,i*500)
+    nd.strt(length=2*small_taper_length+2*taper_length+length,width=clad_width,layer=layer_clad).put()
+    f.text('Slot  Gap = '+str(int(gaps[i]*500))+' nm  width = '+str(int(slab_width*1000)),layer=layer_number).put(0,500*i + 50)
+    nd.strt(length=1000,width=100,layer=layer_clad).put(-10,500*i + 85)
+        
 
 # Create GDS file
 nd.export_gds(filename="slot_wg.gds")
 
-
-
  
+# # calling the GC
+# GC = nd.load_gds("WIFI_GC.gds", cellname="grating")
+# GC.put(0,0.001)
+# GC.put(2+2*taper_length+length,flop=True)
 
 
