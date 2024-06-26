@@ -1,6 +1,6 @@
 %% Read U_All (in case the acoustic modes are saved in a single file)
-folderName  = 'Data\Ideal_TM_40nm_gap_300nm_SOI_fin_150nm';
-destName    = 'Data\Ideal_TM_40nm_gap_300nm_SOI_fin_150nm\All_modes';
+folderName  = 'Data\Non-ideal_TM_SOI_400nm_gap_40nm_fin_100nm_delta_60nm';
+destName    = 'Data\Non-ideal_TM_SOI_400nm_gap_40nm_fin_100nm_delta_60nm\All_modes';
 fileName    = 'Uz_anti.txt';
 writeXYZ    = 1;
 

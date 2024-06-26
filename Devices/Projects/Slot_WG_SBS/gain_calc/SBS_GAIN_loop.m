@@ -9,7 +9,7 @@ Nmodes  = 1;
 
 
 %% Read electric fields + displacement fields once (save tons of time)
-EDFieldsFolder = 'Data\Ideal_TM_40nm_gap_300nm_SOI_fin_150nm'; 
+EDFieldsFolder = 'Data\Non-ideal_TM_SOI_400nm_gap_40nm_fin_100nm_delta_60nm'; 
 Ex = comsol2matlab_c(fullfile(EDFieldsFolder, 'Ex.txt'), Npoints, 1, 0); % Electric field [V*m^-1]
 Ey = comsol2matlab_c(fullfile(EDFieldsFolder, 'Ey.txt'), Npoints, 1, 0); % Electric field [V*m^-1]
 Ez = comsol2matlab_c(fullfile(EDFieldsFolder, 'Ez.txt'), Npoints, 1, 0); % Electric field [V*m^-1]
@@ -19,7 +19,7 @@ Dy = comsol2matlab_c(fullfile(EDFieldsFolder, 'Dy.txt'), Npoints, 1, 0); % Elect
 Dz = comsol2matlab_c(fullfile(EDFieldsFolder, 'Dz.txt'), Npoints, 1, 0); % Electric displacement field [C*m^-2]
 
 %% Run SBS_GAIN_func in a loop (in case the acoustic modes are saved in multiple files)
-folderName = 'Data\Ideal_TM_40nm_gap_300nm_SOI_fin_150nm\All_modes';
+folderName = 'Data\Non-ideal_TM_SOI_400nm_gap_40nm_fin_100nm_delta_60nm\All_modes';
 sym_or_anti = 'anti';
 fac = table2array(readtable(fullfile(folderName, ['fac_' sym_or_anti '.txt'])));
 Ind = table2array(readtable(fullfile(folderName, 'Index.txt'))); % Reading the index file

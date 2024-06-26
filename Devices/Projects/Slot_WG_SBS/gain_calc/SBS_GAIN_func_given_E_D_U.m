@@ -38,8 +38,9 @@ end
 %% Physical constants
 omega = 2*pi*fac;
 
-SOI = 300;
-width = 150;
+SOI = 400;
+width = 100;
+delta_W = 60;
 gap = 40;
 
 e0   = 8.854e-12;   % Vacuum permittivity  [F*m^-1]
@@ -96,8 +97,10 @@ rho_m(1:dc/2, :) = rho_SiO2;
 
 
 % Si (left)
-Wg_loc = [-(gap/2 + width/2), SOI/2]; % location of center of wg [x,y] (220nm RIB)
-dim = [width,SOI];   % wg dimension [dx,dy] (220nm RIB)
+Wg_loc = [-(gap/2 + (width-delta_W/2)/2), SOI/2]; % location of center of wg [x,y] (220nm RIB)
+% Wg_loc = [-(gap/2 + width/2), SOI/2]; % location of center of wg [x,y] (220nm RIB)
+dim = [width-(delta_W/2),SOI];   % wg dimension [dx,dy] (220nm RIB)
+% dim = [width,SOI];   % wg dimension [dx,dy] (220nm RIB)
 xR = Wg_loc(1) - dim(1)/2 + dc/2 + 1;
 yD = Wg_loc(2) - dim(2)/2 + dc/2;
 
@@ -108,8 +111,10 @@ n_m(yD:yD+dim(2)+1,   xR:xR+dim(1)) = n_Si;
 rho_m(yD:yD+dim(2)+1, xR:xR+dim(1)) = rho_Si;
 
 % Si (right)
-Wg_loc = [(gap/2 + width/2), SOI/2]; % location of center of wg [x,y] (220nm RIB)
-dim = [width,SOI];   % wg dimension [dx,dy] (220nm RIB)
+Wg_loc = [(gap/2 + (width+delta_W/2)/2), SOI/2]; % location of center of wg [x,y] (220nm RIB)
+% Wg_loc = [(gap/2 + width/2), SOI/2]; % location of center of wg [x,y] (220nm RIB)
+dim = [width+(delta_W/2),SOI];   % wg dimension [dx,dy] (220nm RIB)
+% dim = [width,SOI];   % wg dimension [dx,dy] (220nm RIB)
 xR = Wg_loc(1) - dim(1)/2 + dc/2 + 1;
 yD = Wg_loc(2) - dim(2)/2 + dc/2;
 
