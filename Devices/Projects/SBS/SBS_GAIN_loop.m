@@ -15,34 +15,42 @@ Nmodes  = 1;
 % neff = 2.7199;
 % ng   = 3.67315;
 
-% For TM 220nm Rib:
-neff = 1.6813;
-ng   = 2.9842;
+% % For TM 220nm Rib:
+% neff = 1.6813;
+% ng   = 2.9842;
+
+% For TE 300nm Wide Rib:
+neff = 2.9861;
+ng   = 3.7611;
 
 %% Read electric fields + displacement fields once (save tons of time)
-EDFieldsFolder = 'TE_220nm_Efields'; % 'verification\275nm_Efields'; % 'TM_220nm_rib_Efields'; % 'TM_400nm_rib_Efields'; % 'TE_220nm_Efields';
-Ex = comsol2matlab_c(fullfile(EDFieldsFolder, 'Ex.txt'), Npoints, 1, 0); % Electric field [V*m^-1]
-Ey = comsol2matlab_c(fullfile(EDFieldsFolder, 'Ey.txt'), Npoints, 1, 0); % Electric field [V*m^-1]
-Ez = comsol2matlab_c(fullfile(EDFieldsFolder, 'Ez.txt'), Npoints, 1, 0); % Electric field [V*m^-1]
+EDFieldsFolder = fullfile('New_sims', 'TE_700nm_mesa_300nm_device'); % 'TE_220nm_Efields'; % 'verification\275nm_Efields'; % 'TM_220nm_rib_Efields'; % 'TM_400nm_rib_Efields'; % 'TE_220nm_Efields';
+Ex = comsol2matlab_c(fullfile(EDFieldsFolder, 'Exgrid.txt'), Npoints, 1, 0); % Electric field [V*m^-1]
+Ey = comsol2matlab_c(fullfile(EDFieldsFolder, 'Eygrid.txt'), Npoints, 1, 0); % Electric field [V*m^-1]
+Ez = comsol2matlab_c(fullfile(EDFieldsFolder, 'Ezgrid.txt'), Npoints, 1, 0); % Electric field [V*m^-1]
 
-Dx = comsol2matlab_c(fullfile(EDFieldsFolder, 'Dx.txt'), Npoints, 1, 0); % Electric displacement field [C*m^-2]
-Dy = comsol2matlab_c(fullfile(EDFieldsFolder, 'Dy.txt'), Npoints, 1, 0); % Electric displacement field [C*m^-2]
-Dz = comsol2matlab_c(fullfile(EDFieldsFolder, 'Dz.txt'), Npoints, 1, 0); % Electric displacement field [C*m^-2]
+Dx = comsol2matlab_c(fullfile(EDFieldsFolder, 'Dxgrid.txt'), Npoints, 1, 0); % Electric displacement field [C*m^-2]
+Dy = comsol2matlab_c(fullfile(EDFieldsFolder, 'Dygrid.txt'), Npoints, 1, 0); % Electric displacement field [C*m^-2]
+Dz = comsol2matlab_c(fullfile(EDFieldsFolder, 'Dzgrid.txt'), Npoints, 1, 0); % Electric displacement field [C*m^-2]
 
 
 %% Run SBS_GAIN_func in a loop (in case the acoustic modes are saved in multiple files)
 tic
-folderName = 'TE_220nm_ridge_thick'; % 'verification\275nm_Ufields'; % 'TM_220nm_rib_thick\New'; % 'TM_220nm_rib_thick'; % 'TM_400nm_rib';
-fac = str2double(table2array(readtable(fullfile(folderName, 'All_modes', 'fac.txt'))));
+folderName = fullfile('New_sims', 'TE_700nm_mesa_300nm_device'); % 'TE_220nm_ridge_thick'; % 'verification\275nm_Ufields'; % 'TM_220nm_rib_thick\New'; % 'TM_220nm_rib_thick'; % 'TM_400nm_rib';
+% fac = str2double(table2array(readtable(fullfile(folderName, 'All_modes', 'fac.txt'))));
+fac = table2array(readtable(fullfile(folderName, 'All_modes', 'fac.txt')));
 r   = table2array(readtable(fullfile(folderName, 'All_modes', 'XYZ.txt')));
 GAMMA = zeros(1, Nmodes);
-[~, calcIdx] = mink(abs(imag(fac)), 20);
+[~, calcIdx] = mink(abs(imag(fac)), 5);
 for i = 1:length(calcIdx)
     mode_i = calcIdx(i);
     disp(mode_i);
-    Ux  = str2double(table2array(readtable(fullfile(folderName, 'All_modes', ['Ux' num2str(mode_i) '.txt']))));
-    Uy  = str2double(table2array(readtable(fullfile(folderName, 'All_modes', ['Uy' num2str(mode_i) '.txt']))));
-    Uz  = str2double(table2array(readtable(fullfile(folderName, 'All_modes', ['Uz' num2str(mode_i) '.txt']))));
+    % Ux  = str2double(table2array(readtable(fullfile(folderName, 'All_modes', ['Ux' num2str(mode_i) '.txt']))));
+    % Uy  = str2double(table2array(readtable(fullfile(folderName, 'All_modes', ['Uy' num2str(mode_i) '.txt']))));
+    % Uz  = str2double(table2array(readtable(fullfile(folderName, 'All_modes', ['Uz' num2str(mode_i) '.txt']))));
+    Ux  = table2array(readtable(fullfile(folderName, 'All_modes', ['Ux' num2str(mode_i) '.txt'])));
+    Uy  = table2array(readtable(fullfile(folderName, 'All_modes', ['Uy' num2str(mode_i) '.txt'])));
+    Uz  = table2array(readtable(fullfile(folderName, 'All_modes', ['Uz' num2str(mode_i) '.txt'])));
     Ux  = convert_to_mat(r(:,1), r(:,2), r(:,3), Ux);
     Uy  = convert_to_mat(r(:,1), r(:,2), r(:,3), Uy);
     Uz  = convert_to_mat(r(:,1), r(:,2), r(:,3), Uz);
@@ -59,7 +67,7 @@ xticklabels(num2str(I_sorted'))
 xlim([0 513])
 grid on
 xlabel('Mode #', 'FontSize', 15)
-ylabel('\Gamma [W^{-1} \cdot m^{-1}]', 'FontSize', 15)
+ylabel('g [W^{-1} \cdot m^{-1}]', 'FontSize', 15)
 
 %% Scatter plot acoustic modes
 for mode_i = I_sorted(end-4:end)

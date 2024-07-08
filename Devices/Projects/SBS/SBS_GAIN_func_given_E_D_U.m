@@ -18,8 +18,10 @@ function GAMMA = SBS_GAIN_func_given_E_D_U(Ex_i, Ey_i, Ez_i, Dx_i, Dy_i, Dz_i, U
 %   OUTPUTS:
 %       - GAMMA:      Acoustic gain coefficient [W^-1*m^-1]
 
-verbose = false; % true <=> generate plots
-RibRidge = 1; % 0 = Ridge ; 1 = Rib
+verbose   = false; % true <=> generate plots
+RibRidge  = 2;     % 0 = Ridge ; 1 = Rib ; 2 = Mesa Rib
+RibWidth  = 1300;  % nm
+RibHeight = 300;   % nm
 
 %% Default values
 if nargin < 10
@@ -43,6 +45,10 @@ end
 % For TM 400nm (Rib):
 % neff = 2.8109;
 % ng = 4.5677;
+
+% For TE 1300nm (Rib):
+% neff = 2.9861;
+% ng   = 3.7611;
 
 omega = 2*pi*fac;
 
@@ -102,7 +108,7 @@ rho_m = rho_air * ones(size(Ez_i));
 
 
 %SiO2
-Wg_loc = [0,-700/2]; % location of center of wg [x,y]
+Wg_loc = [0,700/2]; % location of center of wg [x,y]
 dim = [1300,700];    % wg dimension [dx,dy]
 xR = max([Wg_loc(1) - dim(1)/2 + dc/2, 1]);
 yD = max([Wg_loc(2) - dim(2)/2 + dc/2, 1]);
@@ -139,7 +145,7 @@ if RibRidge == 0 % Ridge
     n_m(yD:yD+dim(2),xR:xR+dim(1))   = n_Si;
     rho_m(yD:yD+dim(2),xR:xR+dim(1)) = rho_Si;
     
-else % Rib
+elseif RibRidge == 1 % Rib
 %     Wg_loc = [0,400/2]; % location of center of wg [x,y] (400nm RIB)
 %     dim = [700,400];   % wg dimension [dx,dy] (400nm RIB)
     Wg_loc = [0,220/2]; % location of center of wg [x,y] (220nm RIB)
@@ -152,10 +158,21 @@ else % Rib
     p44_m(yD:yD+dim(2),xR:xR+dim(1)) = p44_Si;
     n_m(yD:yD+dim(2),xR:xR+dim(1))   = n_Si;
     rho_m(yD:yD+dim(2),xR:xR+dim(1)) = rho_Si;
+elseif RibRidge == 2 % Mesa Rib
+    Wg_loc = [0,700+RibHeight/2]; % location of center of wg [x,y]
+    dim = [RibWidth,RibHeight];   % wg dimension [dx,dy]
+    xR = Wg_loc(1) - dim(1)/2 + dc/2;
+    yD = Wg_loc(2) - dim(2)/2 + dc/2;
+
+    p11_m(yD:yD+dim(2),xR:xR+dim(1)) = p11_Si;
+    p12_m(yD:yD+dim(2),xR:xR+dim(1)) = p12_Si;
+    p44_m(yD:yD+dim(2),xR:xR+dim(1)) = p44_Si;
+    n_m(yD:yD+dim(2),xR:xR+dim(1))   = n_Si;
+    rho_m(yD:yD+dim(2),xR:xR+dim(1)) = rho_Si;
 end
 
 % % region 3
-Wg_loc = [0,-700-(2500-700)/2]; % location of handle [x,y]
+Wg_loc = [0,-(2500-700)/2]; % location of handle [x,y]
 dim = [5000,2500-700];          % wg dimension [dx,dy]
 xR = max([Wg_loc(1) - dim(1)/2 + dc/2, 1]);
 yD = max([Wg_loc(2) - dim(2)/2 + dc/2, 1]);
@@ -183,6 +200,26 @@ if verbose
     figure
     imagesc(n_m);
     set(gca,'YDir','normal');
+    
+    figure
+    imagesc(x*1e9,y*1e9,abs(Uy).^2)
+    set(gca, 'YDir', 'normal')
+    xlabel('x [nm]')
+    ylabel('y [nm]')
+    xlim([-1500 1500])
+    ylim([-1500, 1500])
+    title('U_y')
+    hold on
+    plot([-1,1]*2500, [1,1]*0, 'k', 'LineWidth', 1.5)
+    plot([-1,1]*650, [1,1]*700, '--', 'Color', 'k', 'LineWidth', 1.5)
+    plot([-1,1]*650, [1,1]*1000, 'k', 'LineWidth', 1.5)
+    % plot([-650,-350], [1,1]*150, 'k', 'LineWidth', 1.5)
+    % plot([350,650], [1,1]*150, 'k', 'LineWidth', 1.5)
+    
+    plot([1,1]*(-650), [0,1000], 'k', 'LineWidth', 1.5)
+    % plot([1,1]*(-350), [150,220], 'k', 'LineWidth', 1.5)
+    % plot([1,1]*350, [150,220], 'k', 'LineWidth', 1.5)
+    plot([1,1]*650, [0,1000], 'k', 'LineWidth', 1.5)
 end
 
 %% OPTICAL FORCES ES NO dev
@@ -303,4 +340,5 @@ Qm = 300 * (9e9 / fac)^2; % ERC
 GAMMA = (2 * w * Qm * abs(Qc_I)^2) / (omega^2 * (c/ng)^2 * PE^2 * PUac); % [m^-1*W^-1]
 
 end
+
 
