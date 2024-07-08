@@ -54,8 +54,8 @@ lib = gdspy.GdsLibrary()
 cell = lib.new_cell('WIFI')
 
 # Parameters
-priodicity = 1
-fill_factor = 0.2
+priodicity = 0.4
+fill_factor = 0.6
 grating_period = 5
 center = (0, 0)
 radius = 10
