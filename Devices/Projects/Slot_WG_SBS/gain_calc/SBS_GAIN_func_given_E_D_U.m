@@ -18,10 +18,8 @@ function GAMMA = SBS_GAIN_func_given_E_D_U(Ex_i, Ey_i, Ez_i, Dx_i, Dy_i, Dz_i, U
 %   OUTPUTS:
 %       - GAMMA:      Acoustic gain coefficient [W^-1*m^-1]
 
-verbose   = false; % true <=> generate plots
-RibRidge  = 2;     % 0 = Ridge ; 1 = Rib ; 2 = Mesa Rib
-RibWidth  = 1300;  % nm
-RibHeight = 300;   % nm
+verbose = false; % true <=> generate plots
+RibRidge = 0; % 0 = Ridge ; 1 = Rib
 
 %% Default values
 if nargin < 10
@@ -38,26 +36,19 @@ if nargin < 13
 end
 
 %% Physical constants
-% For TM 220nm (Ridge):
-% neff = 1.7294;
-% ng = 3.96385;
-
-% For TM 400nm (Rib):
-% neff = 2.8109;
-% ng = 4.5677;
-
-% For TE 1300nm (Rib):
-% neff = 2.9861;
-% ng   = 3.7611;
-
 omega = 2*pi*fac;
 
-e0   = 8.8e-12; % Vacuum permittivity  [F*m^-1]
-L    = 1550e-9; % Optical wavelength   [m]
-c    = 3e8;     % Speed of light       [m*s^-1]
-k0   = 2*pi/L;  % Wave number          [m^-1]
-w    = c*k0;    % Optical frequency    [s^-1]
-beta = neff*k0; % Propagation constant [m^-1]
+SOI = 400;
+width = 100;
+delta_W = 60;
+gap = 40;
+
+e0   = 8.854e-12;   % Vacuum permittivity  [F*m^-1]
+L    = 1550e-9;     % Optical wavelength   [m]
+c    = 3e8;         % Speed of light       [m*s^-1]
+k0   = 2*pi/L;      % Wave number          [m^-1]
+w    = c*k0;        % Optical frequency    [s^-1]
+beta = neff*k0;     % Propagation constant [m^-1]
 
 % Air
 p11_air = 0; % Photoelasticity  [unitless]
@@ -80,17 +71,7 @@ p44_Si = -0.051; % Photoelasticity  [unitless]
 n_Si   = 3.5;    % Refractive index [unitless]
 rho_Si = 2329;   % Mass density     [kg*m^-3]
 
-%As2S3
-%p11_As2S3 = 0.25;
-%p12_As2S3 = 0.24;
-%p44_As2S3 = 0.005;
-%n_As2S3   = 2.35;
 
-%SU8
-%p11_SU8 = 0.121;
-%p12_SU8 = 0.27;
-%p44_SU8 = -0.075;
-%n_SU8   = 1.6;
 
 %% "world" of 5umX5um in 1nm resolution
 x = (-(Npoints)/2 : (Npoints)/2) * 1e-9; % Coordinate vector x [m]
@@ -108,89 +89,57 @@ rho_m = rho_air * ones(size(Ez_i));
 
 
 %SiO2
-Wg_loc = [0,700/2]; % location of center of wg [x,y]
-dim = [1300,700];    % wg dimension [dx,dy]
-xR = max([Wg_loc(1) - dim(1)/2 + dc/2, 1]);
-yD = max([Wg_loc(2) - dim(2)/2 + dc/2, 1]);
+p11_m(1:dc/2, :) = p11_SiO2;
+p12_m(1:dc/2, :) = p12_SiO2;
+p44_m(1:dc/2, :) = p44_SiO2;
+n_m(1:dc/2,   :) = n_SiO2;
+rho_m(1:dc/2, :) = rho_SiO2;
 
-p11_m(yD:yD+dim(2),xR:xR+dim(1)) = p11_SiO2;
-p12_m(yD:yD+dim(2),xR:xR+dim(1)) = p12_SiO2;
-p44_m(yD:yD+dim(2),xR:xR+dim(1)) = p44_SiO2;
-n_m(yD:yD+dim(2),xR:xR+dim(1))   = n_SiO2;
-rho_m(yD:yD+dim(2),xR:xR+dim(1)) = rho_SiO2;
 
-% Si
-if RibRidge == 0 % Ridge
-    % % region 1
-    Wg_loc = [0,150/2]; % location of center of wg [x,y]
-    dim = [1300,150];   % wg dimension [dx,dy]
-    xR = Wg_loc(1) - dim(1)/2 + dc/2;
-    yD = Wg_loc(2) - dim(2)/2 + dc/2;
-    
-    p11_m(yD:yD+dim(2),xR:xR+dim(1)) = p11_Si;
-    p12_m(yD:yD+dim(2),xR:xR+dim(1)) = p12_Si;
-    p44_m(yD:yD+dim(2),xR:xR+dim(1)) = p44_Si;
-    n_m(yD:yD+dim(2),xR:xR+dim(1))   = n_Si;
-    rho_m(yD:yD+dim(2),xR:xR+dim(1)) = rho_Si;
-    
-    % % region 2
-    Wg_loc = [0,150+70/2]; % location of top ridge [x,y]
-    dim = [700,70];        % wg dimension [dx,dy]
-    xR = Wg_loc(1) - dim(1)/2 + dc/2;
-    yD = Wg_loc(2) - dim(2)/2 + dc/2;
-    
-    p11_m(yD:yD+dim(2),xR:xR+dim(1)) = p11_Si;
-    p12_m(yD:yD+dim(2),xR:xR+dim(1)) = p12_Si;
-    p44_m(yD:yD+dim(2),xR:xR+dim(1)) = p44_Si;
-    n_m(yD:yD+dim(2),xR:xR+dim(1))   = n_Si;
-    rho_m(yD:yD+dim(2),xR:xR+dim(1)) = rho_Si;
-    
-elseif RibRidge == 1 % Rib
-%     Wg_loc = [0,400/2]; % location of center of wg [x,y] (400nm RIB)
-%     dim = [700,400];   % wg dimension [dx,dy] (400nm RIB)
-    Wg_loc = [0,220/2]; % location of center of wg [x,y] (220nm RIB)
-    dim = [700,220];   % wg dimension [dx,dy] (220nm RIB)
-    xR = Wg_loc(1) - dim(1)/2 + dc/2;
-    yD = Wg_loc(2) - dim(2)/2 + dc/2;
-    
-    p11_m(yD:yD+dim(2),xR:xR+dim(1)) = p11_Si;
-    p12_m(yD:yD+dim(2),xR:xR+dim(1)) = p12_Si;
-    p44_m(yD:yD+dim(2),xR:xR+dim(1)) = p44_Si;
-    n_m(yD:yD+dim(2),xR:xR+dim(1))   = n_Si;
-    rho_m(yD:yD+dim(2),xR:xR+dim(1)) = rho_Si;
-elseif RibRidge == 2 % Mesa Rib
-    Wg_loc = [0,700+RibHeight/2]; % location of center of wg [x,y]
-    dim = [RibWidth,RibHeight];   % wg dimension [dx,dy]
-    xR = Wg_loc(1) - dim(1)/2 + dc/2;
-    yD = Wg_loc(2) - dim(2)/2 + dc/2;
+% Si (left)
+Wg_loc = [-(gap/2 + (width-delta_W/2)/2), SOI/2]; % location of center of wg [x,y] (220nm RIB)
+% Wg_loc = [-(gap/2 + width/2), SOI/2]; % location of center of wg [x,y] (220nm RIB)
+dim = [width-(delta_W/2),SOI];   % wg dimension [dx,dy] (220nm RIB)
+% dim = [width,SOI];   % wg dimension [dx,dy] (220nm RIB)
+xR = Wg_loc(1) - dim(1)/2 + dc/2 + 1;
+yD = Wg_loc(2) - dim(2)/2 + dc/2;
 
-    p11_m(yD:yD+dim(2),xR:xR+dim(1)) = p11_Si;
-    p12_m(yD:yD+dim(2),xR:xR+dim(1)) = p12_Si;
-    p44_m(yD:yD+dim(2),xR:xR+dim(1)) = p44_Si;
-    n_m(yD:yD+dim(2),xR:xR+dim(1))   = n_Si;
-    rho_m(yD:yD+dim(2),xR:xR+dim(1)) = rho_Si;
-end
+p11_m(yD:yD+dim(2)+1, xR:xR+dim(1)) = p11_Si;
+p12_m(yD:yD+dim(2)+1, xR:xR+dim(1)) = p12_Si;
+p44_m(yD:yD+dim(2)+1, xR:xR+dim(1)) = p44_Si;
+n_m(yD:yD+dim(2)+1,   xR:xR+dim(1)) = n_Si;
+rho_m(yD:yD+dim(2)+1, xR:xR+dim(1)) = rho_Si;
 
-% % region 3
-Wg_loc = [0,-(2500-700)/2]; % location of handle [x,y]
-dim = [5000,2500-700];          % wg dimension [dx,dy]
-xR = max([Wg_loc(1) - dim(1)/2 + dc/2, 1]);
-yD = max([Wg_loc(2) - dim(2)/2 + dc/2, 1]);
+% Si (right)
+Wg_loc = [(gap/2 + (width+delta_W/2)/2), SOI/2]; % location of center of wg [x,y] (220nm RIB)
+% Wg_loc = [(gap/2 + width/2), SOI/2]; % location of center of wg [x,y] (220nm RIB)
+dim = [width+(delta_W/2),SOI];   % wg dimension [dx,dy] (220nm RIB)
+% dim = [width,SOI];   % wg dimension [dx,dy] (220nm RIB)
+xR = Wg_loc(1) - dim(1)/2 + dc/2 + 1;
+yD = Wg_loc(2) - dim(2)/2 + dc/2;
 
-p11_m(yD:yD+dim(2),xR:xR+dim(1)) = p11_Si;
-p12_m(yD:yD+dim(2),xR:xR+dim(1)) = p12_Si;
-p44_m(yD:yD+dim(2),xR:xR+dim(1)) = p44_Si;
-n_m(yD:yD+dim(2),xR:xR+dim(1))   = n_Si;
-rho_m(yD:yD+dim(2),xR:xR+dim(1)) = rho_Si;
+p11_m(yD:yD+dim(2)+1, xR:xR+dim(1)) = p11_Si;
+p12_m(yD:yD+dim(2)+1, xR:xR+dim(1)) = p12_Si;
+p44_m(yD:yD+dim(2)+1, xR:xR+dim(1)) = p44_Si;
+n_m(yD:yD+dim(2)+1,   xR:xR+dim(1)) = n_Si;
+rho_m(yD:yD+dim(2)+1, xR:xR+dim(1)) = rho_Si;
 
-%% Zero fields wherever there is no material (appears due to interpolation in griddata)
+% Si Handle
+p11_m(1:500, :) = p11_Si;
+p12_m(1:500, :) = p12_Si;
+p44_m(1:500, :) = p44_Si;
+n_m(1:500,   :) = n_Si;
+rho_m(1:500, :) = rho_Si;
+
+
+%% Zero displacement fields wherever there is no material (appears due to interpolation in griddata)
 nonZero = double(rho_m ~= 0);
-Ex_i = Ex_i .* nonZero;
-Ey_i = Ey_i .* nonZero;
-Ez_i = Ez_i .* nonZero;
-Dx_i = Dx_i .* nonZero;
-Dy_i = Dy_i .* nonZero;
-Dz_i = Dz_i .* nonZero;
+% Ex_i = Ex_i .* nonZero;
+% Ey_i = Ey_i .* nonZero;
+% Ez_i = Ez_i .* nonZero;
+% Dx_i = Dx_i .* nonZero;
+% Dy_i = Dy_i .* nonZero;
+% Dz_i = Dz_i .* nonZero;
 Ux   = Ux   .* nonZero;
 Uy   = Uy   .* nonZero;
 Uz   = Uz   .* nonZero;
@@ -202,24 +151,21 @@ if verbose
     set(gca,'YDir','normal');
     
     figure
-    imagesc(x*1e9,y*1e9,abs(Uy).^2)
+    imagesc(x*1e9,y*1e9,abs(Ux))
     set(gca, 'YDir', 'normal')
     xlabel('x [nm]')
     ylabel('y [nm]')
-    xlim([-1500 1500])
-    ylim([-1500, 1500])
-    title('U_y')
+    xlim([-500 500])
+    ylim([-500, 500])
+    title('$\left| U_x \right|$', 'Interpreter', 'latex')
     hold on
-    plot([-1,1]*2500, [1,1]*0, 'k', 'LineWidth', 1.5)
-    plot([-1,1]*650, [1,1]*700, '--', 'Color', 'k', 'LineWidth', 1.5)
-    plot([-1,1]*650, [1,1]*1000, 'k', 'LineWidth', 1.5)
-    % plot([-650,-350], [1,1]*150, 'k', 'LineWidth', 1.5)
-    % plot([350,650], [1,1]*150, 'k', 'LineWidth', 1.5)
-    
-    plot([1,1]*(-650), [0,1000], 'k', 'LineWidth', 1.5)
-    % plot([1,1]*(-350), [150,220], 'k', 'LineWidth', 1.5)
-    % plot([1,1]*350, [150,220], 'k', 'LineWidth', 1.5)
-    plot([1,1]*650, [0,1000], 'k', 'LineWidth', 1.5)
+    plot([-1,1]*2500  , [0, 0],       'k', 'linewidth', 2)
+    plot([1 ,1]*(-170), [0, 1]*220,   'k', 'linewidth', 2)
+    plot([1 ,1]*(+170), [0, 1]*220,   'k', 'linewidth', 2)
+    plot([1 ,1]*(-20) , [0, 1]*220,   'k', 'linewidth', 2)
+    plot([1 ,1]*(+20) , [0, 1]*220,   'k', 'linewidth', 2)
+    plot([-170, -20]  , [1, 1]*220,   'k', 'linewidth', 2)
+    plot([20  , 170]  , [1, 1]*220,   'k', 'linewidth', 2)
 end
 
 %% OPTICAL FORCES ES NO dev
@@ -340,5 +286,4 @@ Qm = 300 * (9e9 / fac)^2; % ERC
 GAMMA = (2 * w * Qm * abs(Qc_I)^2) / (omega^2 * (c/ng)^2 * PE^2 * PUac); % [m^-1*W^-1]
 
 end
-
 

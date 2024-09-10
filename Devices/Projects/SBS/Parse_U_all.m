@@ -1,6 +1,6 @@
 %% Read U_All (in case the acoustic modes are saved in a single file)
-Nmodes = 8;
-folderName = 'verification\700nm_Ufields'; % 'TM_220nm_rib_thick\New'; % 'TM_220nm_rib_thick'; % 'TM_220nm_ridge_thick'; %'TM_400nm_rib';
+Nmodes = 60;
+folderName = fullfile('New_sims', 'TE_700nm_mesa_300nm_device'); % 'verification\700nm_Ufields'; % 'TM_220nm_rib_thick\New'; % 'TM_220nm_rib_thick'; % 'TM_220nm_ridge_thick'; %'TM_400nm_rib';
 T = readtable(fullfile(folderName, 'U_all.txt'));
 T1 = table2array(T(16:end,1));
 % T1 = table2array(T);
