@@ -10,12 +10,12 @@ import numpy as np
 
 # gds starting
 lib = gdspy.GdsLibrary()
-cell = lib.new_cell('mzi_1')
+cell = lib.new_cell('mzi')
 # S bend parameters
 L_sbend = 90.0
 H_sbend = 40.0
 # dis between WG when coupling
-coupling_dis = 0.3
+coupling_dis = 0.4
 # width of WG
 wg_width = 1
 # layer
@@ -157,7 +157,7 @@ j = 0
 MZI_size = 1200
 
 
-CL = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42]
+CL = list(range(0, 76, 5))
 for i in range(len(CL)):
     # starting point
     if j==1:
@@ -172,14 +172,14 @@ for i in range(len(CL)):
     mzi_top = gdspy.Path(taper, (0, start_y-i*wg_dis))
     mzi_bot = gdspy.Path(taper, (0, start_y-(i+1)*wg_dis))
     # taper
-    mzi_bot.segment(100, final_width=wg_width, **layer_wg)
-    mzi_top.segment(100, final_width=wg_width, **layer_wg)
+    mzi_bot.segment(150, final_width=wg_width, **layer_wg)
+    mzi_top.segment(150, final_width=wg_width, **layer_wg)
 
     # add wg to MZI starting point
     mzi_bot.segment(j*MZI_size, **layer_wg)
     mzi_top.segment(j * MZI_size, **layer_wg)
     #
-    mzi(cell, mzi_top, mzi_bot, CL[i], wg_dis=wg_dis, size=4980)
+    mzi(cell, mzi_top, mzi_bot, CL[i], coupling_dis=coupling_dis, wg_dis=wg_dis, size=4980)
     start_y = start_y-1*wg_dis
     j += 1
 lib.write_gds('mzi_ligentech.gds')
