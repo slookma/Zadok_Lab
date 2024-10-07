@@ -15,7 +15,6 @@ grating_width = 1.0  # Width of each grating stripe in µm
 grating_empty_space = 1.0  # Empty space between grating stripes in µm
 grating_area_size = 60.0  # Grating area size (60 µm x 60 µm)
 layer_wg = {"layer": 174, "datatype": 0}  # Waveguide and ring layer
-layer_grating = {"layer": 150, "datatype": 0}  # Grating layer
 grat_ring_dis = 5  # Horizontal displacement between grating and ring
 x_grating_start = 200.0  # Initial x-axis position of the grating
 segment_length = x_grating_start + grating_area_size  # Length of the waveguide segment
@@ -23,9 +22,12 @@ chip_size = 5000
 
 # Define the step size for shifting in both x and y directions
 y_offset_step = 30  # Y-axis offset for each new structure
-x_offset_step = 350  # X-axis offset for each new structure (same as y_offset)
-initial_ring_dis = 1.0  # Starting vertical displacement between waveguide and ring
-ring_dis_increment = 0.5  # Increment of 0.5 µm for each new structure
+x_offset_step = 320  # X-axis offset for each new structure (same as y_offset)
+
+# change as wanted
+initial_ring_dis = 0.8  # Starting vertical displacement between waveguide and ring
+ring_dis_increment = 0.05  # Increment of 0.5 µm for each new structure
+layer_grating = {"layer": 150, "datatype": 0}  # Grating layer - CHANGE TO RIGHT LAYER
 
 # Function to create a taper (inverse taper or normal taper based on 'out')
 def taper(path, layer, taper_length=150.0, taper_width=0.2, out=0):
@@ -54,7 +56,7 @@ def grating(x, y, layer, width=1.0, empty_space=1.0, size=60.0):
 
 # Create multiple waveguide-grating-ring structures with both x-axis and y-axis offsets
 ring_dis = initial_ring_dis  # Initialize ring_dis
-for i in range(5):  # Number of structures to create
+for i in range(13):  # Number of structures to create
     y_offset = -i * y_offset_step  # Calculate the y-axis shift for each structure
     x_offset = i * x_offset_step  # Calculate the x-axis shift for each structure
 
