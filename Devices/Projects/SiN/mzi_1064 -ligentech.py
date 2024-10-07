@@ -105,7 +105,7 @@ def mzi(cell, mzi1_top, mzi1_bot, coupling_length, coupling_dis=0.3, wg_dis=30, 
     # length difrence
     # mzi1_top.turn(RADIUS, 'll', **layer_wg).segment(20, **layer_wg).turn(RADIUS, 'rr', **layer_wg)#.segment(20, **layer_wg).turn(RADIUS, 'rr', **layer_wg).turn(RADIUS, 'll', **layer_wg)
     # mzi1_bot.segment(2*RADIUS+20, **layer_wg)#.turn(RADIUS, 'l', **layer_wg).turn(RADIUS, 'r', **layer_wg)
-    for t in range(22):
+    for t in range(23):
         mzi1_bot.segment(2*L_sbend, **layer_wg)
         mzi1_top = sbendPathM(coupler1[1])
         mzi1_top = sbendPath(coupler1[1])
@@ -179,7 +179,7 @@ for i in range(len(CL)):
     mzi_bot.segment(j*MZI_size, **layer_wg)
     mzi_top.segment(j * MZI_size, **layer_wg)
     #
-    mzi(cell, mzi_top, mzi_bot, CL[i], coupling_dis=coupling_dis, wg_dis=wg_dis, size=4980)
+    mzi(cell, mzi_top, mzi_bot, CL[i], coupling_dis=coupling_dis, wg_dis=wg_dis, size=5190)
     start_y = start_y-1*wg_dis
     j += 1
 lib.write_gds('mzi_ligentech.gds')

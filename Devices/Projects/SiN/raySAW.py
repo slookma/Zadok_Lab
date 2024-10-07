@@ -18,7 +18,7 @@ layer_wg = {"layer": 174, "datatype": 0}  # Waveguide and ring layer
 grat_ring_dis = 5  # Horizontal displacement between grating and ring
 x_grating_start = 200.0  # Initial x-axis position of the grating
 segment_length = x_grating_start + grating_area_size  # Length of the waveguide segment
-chip_size = 5000
+chip_size = 5190
 
 # Define the step size for shifting in both x and y directions
 y_offset_step = 30  # Y-axis offset for each new structure
@@ -56,7 +56,7 @@ def grating(x, y, layer, width=1.0, empty_space=1.0, size=60.0):
 
 # Create multiple waveguide-grating-ring structures with both x-axis and y-axis offsets
 ring_dis = initial_ring_dis  # Initialize ring_dis
-for i in range(13):  # Number of structures to create
+for i in range(14):  # Number of structures to create
     y_offset = -i * y_offset_step  # Calculate the y-axis shift for each structure
     x_offset = i * x_offset_step  # Calculate the x-axis shift for each structure
 
