@@ -12,8 +12,8 @@ import gdspy
 import math
 
 
-overwrite   = 1 # 1 - Overwrite GDS, 0 - Don't overwrite
-add_heater  = 0
+overwrite   = 0 # 1 - Overwrite GDS, 0 - Don't overwrite
+add_heater  = 1
 lib = gdspy.GdsLibrary()
 cell = lib.new_cell('MZI_array')
 
