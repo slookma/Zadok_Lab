@@ -9,36 +9,31 @@ This is a temporary script file.
 
 import numpy
 import gdspy
-from via_array import via_array
+from via_array_Ligentec import via_array_Ligentec
+from s_bend_func import sbendPath, sbendPathM
 
-overwrite = 0 # 1 - Overwrite GDS, 0 - Don't overwrite
+overwrite = 1 # 1 - Overwrite GDS, 0 - Don't overwrite
 lib = gdspy.GdsLibrary()
 cell = lib.new_cell('Elliptical_Filter')
 
 
 # Layers:
-ld_NWG          = {"layer": 174,    "datatype": 0}
-ld_Silox        = {"layer": 9,      "datatype": 0}
-ld_taperMark    = {"layer": 118,    "datatype": 120}
-ld_GC           = {"layer": 118,    "datatype": 121}
-ld_SUS          = {"layer": 195,    "datatype": 0}
-ld_VG1          = {"layer": 192,    "datatype": 0}
-ld_TNR          = {"layer": 26,     "datatype": 0}
-ld_Contact      = {"layer": 7,      "datatype": 0}
-ld_VIA1         = {"layer": 17,     "datatype": 0}
-ld_METAL1       = {"layer": 8,      "datatype": 0}
-ld_METAL2       = {"layer": 18,     "datatype": 0}
-ld_dataExtend   = {"layer": 118,    "datatype": 134}
+ld_NWG          = {"layer": 2,      "datatype": 0}
+ld_Silox        = {"layer": 33,     "datatype": 0}
+ld_HTR          = {"layer": 30,     "datatype": 0}
+ld_Contact      = {"layer": 31,      "datatype": 0}
+ld_METAL1       = {"layer": 32,      "datatype": 0}
 
 # Parameters:
 width               = 1
-width_TNR           = 2*width
-width_M1            = 5*width
-width_M2            = 20*width
+width_HTR           = 2*width
+width_HTR_ext       = 3.52
+width_M1            = 20*width
 taper_len           = 200
 final_taper_width   = 0.3    
 bend_radius         = 80
 ring_radius         = 100
+fiber_gap           = 127
 safety_gap          = 30
 coup_gap            = 0.3
 run_x_start         = 2*bend_radius + safety_gap
@@ -46,10 +41,11 @@ vertical_50_coup    = safety_gap/2 + ring_radius - bend_radius
 vertical_out_coup   = 2 * bend_radius + coup_gap
 Lc_50_coup          = 10
 Lc_test_port        = 0
-side_M2             = 100
+side_pad            = 100
 side_silox          = 80
 pad_shift_const     = 125
-TNR_tail            = 20
+HTR_tail            = 30
+L_sbend              = 200
 # Lc_D3_vec           = [4.95, 14.15, 10.75, 19.95]
 # Lc_D4_vec           = [9.65, 18.85, 6.81, 15.9]
 # Lc_D3_vec           = [4.95,  6,  7,  8,  9, 10, 11, 12, 14.15]
@@ -58,6 +54,7 @@ Lc_D3_vec           = [4.95,  6.5,  7.5,  9.0, 10.0, 11.5, 12.5, 14.15]
 Lc_D4_vec           = [9.65, 11.0, 12.5, 13.5, 15.0, 16.0, 17.5, 18.85]
 run_x_through_coup  = 7 * bend_radius + Lc_test_port
 right_end           = 5000 - taper_len - 10 - 10
+numPads             = 16
 
 
 for idx in range(len(Lc_D3_vec)):
@@ -70,10 +67,11 @@ for idx in range(len(Lc_D3_vec)):
     
     #######################################################################
     # Start path1 (bottom track)
-    path1 = gdspy.Path(width, (taper_len, -idx * (4*bend_radius + 2*vertical_50_coup + 4*safety_gap + coup_gap)))
+    path1 = gdspy.Path(width, (taper_len, -idx * 4*fiber_gap))
     x_start = path1.x
     y_start = path1.y
-    path1.segment(run_x_start, "+x", **ld_NWG)
+    sbendPathM(path1,run_x_start, fiber_gap - safety_gap)
+    # path1.segment(run_x_start, "+x", **ld_NWG)
     # "Bump" for coupler
     path1.turn(bend_radius, "l", **ld_NWG)
     path1.segment(vertical_50_coup, **ld_NWG)
@@ -107,8 +105,8 @@ for idx in range(len(Lc_D3_vec)):
     path1.turn(bend_radius, "l", **ld_NWG)
     path1.turn(bend_radius, "rr", **ld_NWG)
     path1.segment(vertical_out_coup, **ld_NWG)
-    MZI_TNR_cover_x = path1.x
-    MZI_TNR_cover_y = path1.y
+    MZI_HTR_cover_x = path1.x
+    MZI_HTR_cover_y = path1.y
     path1.turn(bend_radius, "l", **ld_NWG)
     # Run through ring in the other arm
     path1.segment(run_x_through_ring2, **ld_NWG)
@@ -128,11 +126,10 @@ for idx in range(len(Lc_D3_vec)):
     x_50_coup2_bottom = path1.x
     y_50_coup2_bottom = path1.y
     path1.turn(bend_radius, "r", **ld_NWG)
-    path1.segment(vertical_50_coup, **ld_NWG)
     # Turn to create S shape
     path1.turn(bend_radius, "ll", **ld_NWG)
-    path1.segment(2*bend_radius + coup_gap + 2*vertical_50_coup - safety_gap, **ld_NWG)
     path1.turn(bend_radius, "r", **ld_NWG)
+    sbendPath(path1, 2*bend_radius + vertical_50_coup - 2*fiber_gap + safety_gap + coup_gap + width + L_sbend, 2*bend_radius + vertical_50_coup - 2*fiber_gap + safety_gap + coup_gap + width)
     # Continue a bit to align all
     path1.segment(right_end - path1.x, **ld_NWG)
     # Add tapers at both ends
@@ -142,28 +139,26 @@ for idx in range(len(Lc_D3_vec)):
     
     #######################################################################
     # Start path2 + path3 (bottom WG couples to bottom track)
+    path3 = gdspy.Path(width, (x_out_coup_bottom, y_out_coup_bottom - coup_gap - width))
+    path3.segment(Lc_test_port, "-x", **ld_NWG)
+    path3.turn(bend_radius, "l", **ld_NWG)
+    path3.segment(safety_gap - width, **ld_NWG)
+    path3.turn(bend_radius, "r", **ld_NWG)
+    path3.segment(20*bend_radius + 2*Lc_D3 + Lc_50_coup + Lc_test_port + run_x_start, **ld_NWG)
+    path3.segment(taper_len, final_width=final_taper_width, **ld_NWG)
+    y_bottom = path3.y
+    
     path2 = gdspy.Path(width, (x_out_coup_bottom, y_out_coup_bottom - coup_gap - width))
     path2.turn(bend_radius, "r", **ld_NWG)
-    path2.segment(coup_gap + safety_gap, **ld_NWG)
+    path2.segment(safety_gap - width, **ld_NWG)
     path2.turn(bend_radius, "l", **ld_NWG)
-    path2.segment(12*bend_radius + 2*Lc_D4 + Lc_50_coup, **ld_NWG)
-    # Turn to create S shape
-    path2.segment(bend_radius + safety_gap, **ld_NWG)
-    path2.turn(bend_radius, "l", **ld_NWG)
-    path2.segment(2*bend_radius + coup_gap + 2*vertical_50_coup - safety_gap, **ld_NWG)
-    path2.turn(bend_radius, "r", **ld_NWG)
+    path2.segment(13*bend_radius + 2*Lc_D4 + Lc_50_coup + safety_gap+100, **ld_NWG)
+    # sbend to create gap for fiber array (127um)
+    sbendPath(path2, L_sbend, 4*bend_radius + 2*vertical_50_coup - 3*fiber_gap + 2*safety_gap + coup_gap + width)
     # Continue a bit to align all
     path2.segment(right_end - path2.x, **ld_NWG)
     # Add taper
     path2.segment(taper_len, final_width=final_taper_width, **ld_NWG)
-    
-    path3 = gdspy.Path(width, (x_out_coup_bottom, y_out_coup_bottom - coup_gap - width))
-    path3.segment(Lc_test_port, "-x", **ld_NWG)
-    path3.turn(bend_radius, "l", **ld_NWG)
-    path3.segment(coup_gap + safety_gap, **ld_NWG)
-    path3.turn(bend_radius, "r", **ld_NWG)
-    path3.segment(20*bend_radius + 2*Lc_D3 + Lc_50_coup + Lc_test_port + run_x_start, **ld_NWG)
-    path3.segment(taper_len, final_width=final_taper_width, **ld_NWG)
     
     #######################################################################
     # Start path4 + path5 (Upper track) from the rightmost 50 coupler
@@ -213,14 +208,13 @@ for idx in range(len(Lc_D3_vec)):
     path4.turn(bend_radius, "r", **ld_NWG)
     path4.segment(Lc_50_coup, **ld_NWG)
     path4.turn(bend_radius, "r", **ld_NWG)
-    path4.segment(vertical_50_coup, **ld_NWG)
     # Turn to create S shape
-    path4.turn(bend_radius, "ll", **ld_NWG)
-    path4.segment(2*bend_radius + coup_gap + 2*vertical_50_coup - safety_gap, **ld_NWG)
-    path4.turn(bend_radius, "r", **ld_NWG)
-    path4.segment(run_x_start - 2*bend_radius, **ld_NWG)
+    path4.turn(bend_radius, "l", **ld_NWG)
+    path34 = gdspy.Path(width, (start_taper.x + taper_len, start_taper.y + fiber_gap))
+    sbendPath(path34, L_sbend, path4.y - (y_start + fiber_gap))
     # Add taper
-    path4.segment(taper_len, final_width=final_taper_width, **ld_NWG)
+    path35 = gdspy.Path(width, (start_taper.x + taper_len, start_taper.y + fiber_gap))
+    path35.segment(-taper_len, final_width=final_taper_width, **ld_NWG)
     
     # Complete right part of the "bump" for the right 50 coupler
     path5 = gdspy.Path(width, (x_50_coup2_bottom, y_50_coup2_bottom + coup_gap + width))
@@ -228,6 +222,8 @@ for idx in range(len(Lc_D3_vec)):
     path5.turn(bend_radius, "l", **ld_NWG)
     path5.segment(vertical_50_coup, **ld_NWG)
     path5.turn(bend_radius, "r", **ld_NWG)
+    # sbend to create gap for fiber array (127um)
+    sbendPathM(path5, fiber_gap - safety_gap + L_sbend, fiber_gap - safety_gap)
     # Continue a bit to align all
     path5.segment(right_end - path5.x, **ld_NWG)
     # Add taper
@@ -239,136 +235,142 @@ for idx in range(len(Lc_D3_vec)):
     path6 = gdspy.Path(width, (x_out_coup_top, y_out_coup_top + coup_gap + width))
     path6.segment(Lc_test_port, "-x", **ld_NWG)
     path6.turn(bend_radius, "r", **ld_NWG)
-    path6.segment(coup_gap + safety_gap, **ld_NWG)
+    path6.segment(safety_gap - width, **ld_NWG)
     path6.turn(bend_radius, "l", **ld_NWG)
-    path6.segment(13*bend_radius + Lc_D3 + Lc_D4 + Lc_50_coup + safety_gap, **ld_NWG)
-    path6.turn(bend_radius, "l", **ld_NWG)
-    path6.segment(2*bend_radius + coup_gap + 2*vertical_50_coup - safety_gap, **ld_NWG)
-    path6.turn(bend_radius, "r", **ld_NWG)
+    # path6.segment(13*bend_radius + Lc_D3 + Lc_D4 + Lc_50_coup + safety_gap, **ld_NWG)
+    path6.segment(path6.x - (taper_len + L_sbend), **ld_NWG)
+    path32 = gdspy.Path(width, (path35.x + taper_len, path35.y + fiber_gap))
+    sbendPath(path32, L_sbend, path6.y - (y_start + 2*fiber_gap))
     # Add taper
-    path6.segment(taper_len, final_width=final_taper_width, **ld_NWG)
+    path33 = gdspy.Path(width, (path35.x + taper_len, path35.y + fiber_gap))
+    path33.segment(-taper_len, final_width=final_taper_width, **ld_NWG)
     
     path7 = gdspy.Path(width, (x_out_coup_top, y_out_coup_top + coup_gap + width))
     path7.turn(bend_radius, "l", **ld_NWG)
-    path7.segment(coup_gap + safety_gap, **ld_NWG)
+    path7.segment(safety_gap - width, **ld_NWG)
     path7.turn(bend_radius, "r", **ld_NWG)
     path7.segment(20*bend_radius + Lc_D3 + Lc_D4 + Lc_50_coup + Lc_test_port, **ld_NWG)
     # Continue a bit to align all
     path7.segment(right_end - path7.x, **ld_NWG)
     # Add taper
     path7.segment(taper_len, final_width=final_taper_width, **ld_NWG)
+    y_top = path7.y
     
     
     #######################################################################
-    # Start path8+path12 (ring1 bottom) - NWG + TNR cover
+    # Start path8+path12 (ring1 bottom) - NWG + HTR cover
     path8 = gdspy.Path(width, (x_ring1_bottom, y_ring1_bottom + coup_gap + width))
     path8.turn(ring_radius, "ll", **ld_NWG)
     path8.segment(Lc_D3, **ld_NWG)
     path8.turn(ring_radius, "ll", **ld_NWG)
     path8.segment(Lc_D3, **ld_NWG)
     
-    path12 = gdspy.Path(width_TNR, (x_ring1_bottom + ring_radius, y_ring1_bottom + ring_radius + coup_gap + width))
-    path12.segment(0, '+y', **ld_TNR)
-    x_ring1_bottom_TNR1 = path12.x
-    y_ring1_bottom_TNR1 = path12.y
-    path12.turn(ring_radius, "l", **ld_TNR)
-    path12.segment(Lc_D3, **ld_TNR)
-    path12.turn(ring_radius, "l", **ld_TNR)
-    x_ring1_bottom_TNR2 = path12.x
-    y_ring1_bottom_TNR2 = path12.y
+    path12 = gdspy.Path(width_HTR, (x_ring1_bottom + ring_radius, y_ring1_bottom + ring_radius + coup_gap + width))
+    path12.segment(0, '+y', **ld_HTR)
+    x_ring1_bottom_HTR1 = path12.x
+    y_ring1_bottom_HTR1 = path12.y
+    path12.turn(ring_radius, "l", **ld_HTR)
+    path12.segment(Lc_D3, **ld_HTR)
+    path12.turn(ring_radius, "l", **ld_HTR)
+    x_ring1_bottom_HTR2 = path12.x
+    y_ring1_bottom_HTR2 = path12.y
     
     #######################################################################
-    # Start path9+path13 (ring2 bottom) - NWG + TNR cover
+    # Start path9+path13 (ring2 bottom) - NWG + HTR cover
     path9 = gdspy.Path(width, (x_ring2_bottom, y_ring2_bottom + coup_gap + width))
     path9.turn(ring_radius, "ll", **ld_NWG)
     path9.segment(Lc_D4, **ld_NWG)
     path9.turn(ring_radius, "ll", **ld_NWG)
     path9.segment(Lc_D4, **ld_NWG)
     
-    path13 = gdspy.Path(width_TNR, (x_ring2_bottom + ring_radius, y_ring2_bottom + ring_radius + coup_gap + width))
-    path13.segment(0, '+y', **ld_TNR)
-    x_ring2_bottom_TNR1 = path13.x
-    y_ring2_bottom_TNR1 = path13.y
-    path13.turn(ring_radius, "l", **ld_TNR)
-    path13.segment(Lc_D4, **ld_TNR)
-    path13.turn(ring_radius, "l", **ld_TNR)
-    x_ring2_bottom_TNR2 = path13.x
-    y_ring2_bottom_TNR2 = path13.y
+    path13 = gdspy.Path(width_HTR, (x_ring2_bottom + ring_radius, y_ring2_bottom + ring_radius + coup_gap + width))
+    path13.segment(0, '+y', **ld_HTR)
+    x_ring2_bottom_HTR1 = path13.x
+    y_ring2_bottom_HTR1 = path13.y
+    path13.turn(ring_radius, "l", **ld_HTR)
+    path13.segment(Lc_D4, **ld_HTR)
+    path13.turn(ring_radius, "l", **ld_HTR)
+    x_ring2_bottom_HTR2 = path13.x
+    y_ring2_bottom_HTR2 = path13.y
     
     #######################################################################
-    # Start path10+path14 (ring1 top) - NWG + TNR cover
+    # Start path10+path14 (ring1 top) - NWG + HTR cover
     path10 = gdspy.Path(width, (x_ring1_top, y_ring1_top - coup_gap - width))
     path10.turn(ring_radius, "rr", **ld_NWG)
     path10.segment(Lc_D3, **ld_NWG)
     path10.turn(ring_radius, "rr", **ld_NWG)
     path10.segment(Lc_D3, **ld_NWG)
     
-    path14 = gdspy.Path(width_TNR, (x_ring1_top + ring_radius, y_ring1_top - ring_radius - coup_gap - width))
-    path14.segment(0, '-y', **ld_TNR)
-    x_ring1_top_TNR1 = path14.x
-    y_ring1_top_TNR1 = path14.y
-    path14.turn(ring_radius, "r", **ld_TNR)
-    path14.segment(Lc_D3, **ld_TNR)
-    path14.turn(ring_radius, "r", **ld_TNR)
-    x_ring1_top_TNR2 = path14.x
-    y_ring1_top_TNR2 = path14.y
+    path14 = gdspy.Path(width_HTR, (x_ring1_top + ring_radius, y_ring1_top - ring_radius - coup_gap - width))
+    path14.segment(0, '-y', **ld_HTR)
+    x_ring1_top_HTR1 = path14.x
+    y_ring1_top_HTR1 = path14.y
+    path14.turn(ring_radius, "r", **ld_HTR)
+    path14.segment(Lc_D3, **ld_HTR)
+    path14.turn(ring_radius, "r", **ld_HTR)
+    x_ring1_top_HTR2 = path14.x
+    y_ring1_top_HTR2 = path14.y
     
     #######################################################################
-    # Start path11+path15 (ring2 top) - NWG + TNR cover
+    # Start path11+path15 (ring2 top) - NWG + HTR cover
     path11 = gdspy.Path(width, (x_ring2_top, y_ring2_top - coup_gap - width))
     path11.turn(ring_radius, "rr", **ld_NWG)
     path11.segment(Lc_D4, **ld_NWG)
     path11.turn(ring_radius, "rr", **ld_NWG)
     path11.segment(Lc_D4, **ld_NWG)
     
-    path15 = gdspy.Path(width_TNR, (x_ring2_top + ring_radius, y_ring2_top - ring_radius - coup_gap - width))
-    path15.segment(0, '-y', **ld_TNR)
-    x_ring2_top_TNR1 = path15.x
-    y_ring2_top_TNR1 = path15.y
-    path15.turn(ring_radius, "r", **ld_TNR)
-    path15.segment(Lc_D4, **ld_TNR)
-    path15.turn(ring_radius, "r", **ld_TNR)
-    x_ring2_top_TNR2 = path15.x
-    y_ring2_top_TNR2 = path15.y
+    path15 = gdspy.Path(width_HTR, (x_ring2_top + ring_radius, y_ring2_top - ring_radius - coup_gap - width))
+    path15.segment(0, '-y', **ld_HTR)
+    x_ring2_top_HTR1 = path15.x
+    y_ring2_top_HTR1 = path15.y
+    path15.turn(ring_radius, "r", **ld_HTR)
+    path15.segment(Lc_D4, **ld_HTR)
+    path15.turn(ring_radius, "r", **ld_HTR)
+    x_ring2_top_HTR2 = path15.x
+    y_ring2_top_HTR2 = path15.y
 
     #######################################################################
-    # TNR extensions from rings
-    path16 = gdspy.Path(width_TNR, (x_ring1_bottom_TNR1 - width, y_ring1_bottom_TNR1 + width))
-    path16.segment(TNR_tail, '+x', **ld_TNR)
+    # HTR extensions from rings
+    path16 = gdspy.Path(width_HTR_ext, (x_ring1_bottom_HTR1 - width, y_ring1_bottom_HTR1 + width_HTR_ext/2))
+    path16.segment(HTR_tail, '+x', **ld_HTR)
     
-    path17 = gdspy.Path(width_TNR, (x_ring1_bottom_TNR2 + width, y_ring1_bottom_TNR2 + width))
-    path17.segment(TNR_tail, '-x', **ld_TNR)
+    path17 = gdspy.Path(width_HTR_ext, (x_ring1_bottom_HTR2 + width, y_ring1_bottom_HTR2 + width_HTR_ext/2))
+    path17.segment(HTR_tail, '-x', **ld_HTR)
     
-    path18 = gdspy.Path(width_TNR, (x_ring2_bottom_TNR1 - width, y_ring2_bottom_TNR1 + width))
-    path18.segment(TNR_tail, '+x', **ld_TNR)
+    path18 = gdspy.Path(width_HTR_ext, (x_ring2_bottom_HTR1 - width, y_ring2_bottom_HTR1 + width_HTR_ext/2))
+    path18.segment(HTR_tail, '+x', **ld_HTR)
     
-    path19 = gdspy.Path(width_TNR, (x_ring2_bottom_TNR2 + width, y_ring2_bottom_TNR2 + width))
-    path19.segment(TNR_tail, '-x', **ld_TNR)
+    path19 = gdspy.Path(width_HTR_ext, (x_ring2_bottom_HTR2 + width, y_ring2_bottom_HTR2 + width_HTR_ext/2))
+    path19.segment(HTR_tail, '-x', **ld_HTR)
     
-    path20 = gdspy.Path(width_TNR, (x_ring1_top_TNR1 - width, y_ring1_top_TNR1 - width))
-    path20.segment(TNR_tail, '+x', **ld_TNR)
+    path20 = gdspy.Path(width_HTR_ext, (x_ring1_top_HTR1 - width, y_ring1_top_HTR1 - width_HTR_ext/2))
+    path20.segment(HTR_tail, '+x', **ld_HTR)
     
-    path21 = gdspy.Path(width_TNR, (x_ring1_top_TNR2 + width, y_ring1_top_TNR2 - width))
-    path21.segment(TNR_tail, '-x', **ld_TNR)
+    path21 = gdspy.Path(width_HTR_ext, (x_ring1_top_HTR2 + width, y_ring1_top_HTR2 - width_HTR_ext/2))
+    path21.segment(HTR_tail, '-x', **ld_HTR)
     
-    path22 = gdspy.Path(width_TNR, (x_ring2_top_TNR1 - width, y_ring2_top_TNR1 - width))
-    path22.segment(TNR_tail, '+x', **ld_TNR)
+    path22 = gdspy.Path(width_HTR_ext, (x_ring2_top_HTR1 - width, y_ring2_top_HTR1 - width_HTR_ext/2))
+    path22.segment(HTR_tail, '+x', **ld_HTR)
     
-    path23 = gdspy.Path(width_TNR, (x_ring2_top_TNR2 + width, y_ring2_top_TNR2 - width))
-    path23.segment(TNR_tail, '-x', **ld_TNR)
+    path23 = gdspy.Path(width_HTR_ext, (x_ring2_top_HTR2 + width, y_ring2_top_HTR2 - width_HTR_ext/2))
+    path23.segment(HTR_tail, '-x', **ld_HTR)
     
     #######################################################################
     # Metalic pads
     if idx == 0:
-        x_rect1 = x_ring1_bottom + 4*bend_radius
+        x_rect1 = x_ring1_bottom + 4*bend_radius - 600
     
-    y_rect1 = y_ring1_bottom + 0*ring_radius
-    offset = (side_M2 - side_silox)/2
+    y_rect1 = y_ring1_bottom + 0*ring_radius + 160
+    offset = (side_pad - side_silox)/2
     
-    for pad_col_idx in range(6):
+    pad_locs_X = []
+    
+    for pad_col_idx in range(numPads):
         pad_shift = pad_col_idx * pad_shift_const
-        rect1 = gdspy.Rectangle((x_rect1 + pad_shift         , y_rect1         ), (x_rect1 + pad_shift + side_M2            , y_rect1 + side_M2            ), **ld_METAL2)
+        rect1 = gdspy.Rectangle((x_rect1 + pad_shift         , y_rect1         ), (x_rect1 + pad_shift + side_pad           , y_rect1 + side_pad           ), **ld_METAL1)
         rect2 = gdspy.Rectangle((x_rect1 + pad_shift + offset, y_rect1 + offset), (x_rect1 + pad_shift + offset + side_silox, y_rect1 + offset + side_silox), **ld_Silox)
+        
+        pad_locs_X += [x_rect1 + pad_shift]
         
         cell.add(rect1)
         cell.add(rect2)
@@ -379,120 +381,108 @@ for idx in range(len(Lc_D3_vec)):
     # Vias parameters
     via1_type    = "Contact"
     rows1        = 4
-    columns1     = 8
-    via1_side    = 0.26
-    via1_spacing = 0.26
+    columns1     = 25
+    via1_side    = 0.36
+    via1_spacing = 0.36
     side_gap1    = 0.5
-    
-    via2_type    = "VIA1"
-    rows2        = 19
-    columns2     = 4
-    via2_side    = 0.5
-    via2_spacing = 0.5
-    side_gap2    = 0.5
     
     via1_width  = round(columns1*via1_side + (columns1 - 1)*via1_spacing + 2*side_gap1, 3)
     via1_height = round(rows1   *via1_side + (rows1 - 1)   *via1_spacing + 2*side_gap1, 3)
-    via2_width  = round(columns2*via2_side + (columns2 - 1)*via2_spacing + 2*side_gap2, 3)
-    via2_height = round(rows2   *via2_side + (rows2 - 1)   *via2_spacing + 2*side_gap2, 3)
-    # via_array(cell, via_type, via_locX, via_locY, rows, columns, via_side, via_spacing, side_gap)
+    # via_array_Ligentec(cell, via_type, via_locX, via_locY, rows, columns, via_side, via_spacing, side_gap)
     
     
     
     # # Ring 1 bottom
-    path24 = gdspy.Path(width_M1, (x_ring1_bottom_TNR1 - width_M1/2 - width_TNR/2 + TNR_tail, y_ring1_bottom_TNR1 + width_TNR))
-    path24.segment(160, '-y', **ld_METAL1)
-    via_array(cell, via1_type, x_ring1_bottom_TNR1 - width_M1/2 - width_TNR/2 + TNR_tail - via1_width/2, y_ring1_bottom_TNR1 + width_TNR - via1_height, rows1, columns1, via1_side, via1_spacing, side_gap1)
-    path25 = gdspy.Path(width_M2, (path24.x - width_M1/2, path24.y + width_M2/2))
-    path25.segment(x_rect1 - path24.x + 1*pad_shift_const + 0.5*side_M2 - width_M2/2 + width_M1/2, '+x', **ld_METAL2)
-    path25.turn(width_M2/2, 'l', **ld_METAL2)
-    path25.segment(100, **ld_METAL2)
-    via_array(cell, via2_type, path24.x - width_M1/2, path24.y + width_M2/2 - via2_height/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
+    path24 = gdspy.Path(width_M1, (x_ring1_bottom_HTR1 - width_M1/2 - width_HTR/2 + HTR_tail, y_ring1_bottom_HTR1 + width_HTR_ext))
+    path24.segment(60, '-y', **ld_METAL1)
+    path24.turn(width_M1/2, 'r', **ld_METAL1)
+    path24.segment(-(pad_locs_X[2] + side_pad/2 - (x_ring1_bottom_HTR1 + width_M1/2 + width - HTR_tail) - width_M1), '-x', **ld_METAL1)
+    path24.turn(width_M1/2, 'r', **ld_METAL1)
+    path24.segment(y_rect1 + side_pad/2 - y_ring1_bottom_HTR1 + 60, '+y', **ld_METAL1)
+    via_array_Ligentec(cell, via1_type, x_ring1_bottom_HTR1 - width_M1/2 - width_HTR/2 + HTR_tail - via1_width/2, y_ring1_bottom_HTR1 + width_HTR_ext - via1_height, rows1, columns1, via1_side, via1_spacing, side_gap1)
     
-    path26 = gdspy.Path(width_M1, (x_ring1_bottom_TNR2 + width_M1/2 + width - TNR_tail, y_ring1_bottom_TNR2))
-    path26.segment(y_rect1 + side_M2 + 120 - y_ring1_bottom_TNR2, '+y', **ld_METAL1)
-    via_array(cell, via1_type, x_ring1_bottom_TNR2 + width_M1/2 + width_TNR/2 - TNR_tail - via1_width/2, y_ring1_bottom_TNR2, rows1, columns1, via1_side, via1_spacing, side_gap1)
-    path27 = gdspy.Path(width_M2, (path26.x - width_M1/2, path26.y - width_M2/2))
-    path27.segment(x_rect1 - path26.x + 0*pad_shift_const + 0.5*side_M2 - width_M2/2, '+x', **ld_METAL2)
-    path27.turn(width_M2/2, 'r', **ld_METAL2)
-    path27.segment(120, **ld_METAL2)
-    via_array(cell, via2_type, path26.x - width_M1/2, path26.y - width_M2/2 - via2_height/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
+    path25 = gdspy.Path(width_M1, (x_ring1_bottom_HTR2 + width_M1/2 + width - HTR_tail, y_ring1_bottom_HTR2))
+    path25.segment(20, '+y', **ld_METAL1)
+    path25.turn(width_M1/2, 'r', **ld_METAL1)
+    path25.segment(pad_locs_X[1] + side_pad/2 - (x_ring1_bottom_HTR2 + width_M1/2 + width - HTR_tail) - width_M1, '+x', **ld_METAL1)
+    path25.turn(width_M1/2, 'l', **ld_METAL1)
+    path25.segment(y_rect1 + side_pad/2 - y_ring1_bottom_HTR2 - 20, '+y', **ld_METAL1)
+    via_array_Ligentec(cell, via1_type, x_ring1_bottom_HTR2 + width_M1/2 + width_HTR/2 - HTR_tail - via1_width/2, y_ring1_bottom_HTR2, rows1, columns1, via1_side, via1_spacing, side_gap1)
     
     # # Ring 2 bottom
-    path28 = gdspy.Path(width_M1, (x_ring2_bottom_TNR1 - width_M1/2 - width_TNR/2 + TNR_tail, y_ring2_bottom_TNR1 + width_TNR))
-    path28.segment(270, '-y', **ld_METAL1)
-    via_array(cell, via1_type, x_ring2_bottom_TNR1 - width_M1/2 - width_TNR/2 + TNR_tail - via1_width/2, y_ring2_bottom_TNR1 + width_TNR - via1_height, rows1, columns1, via1_side, via1_spacing, side_gap1)
-    path29 = gdspy.Path(width_M2, (path28.x + width_M1/2, path28.y + width_M2/2))
-    path29.segment(-(x_rect1 - path28.x + 3*pad_shift_const + 0.5*side_M2 + width_M2/2 - width_M1/2), '-x', **ld_METAL2)
-    path29.turn(width_M2/2, 'r', **ld_METAL2)
-    path29.segment(210, **ld_METAL2)
-    via_array(cell, via2_type, path28.x - width_M1/2, path28.y + width_M2/2 - via2_height/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
+    path26 = gdspy.Path(width_M1, (x_ring2_bottom_HTR1 - width_M1/2 - width_HTR/2 + HTR_tail, y_ring2_bottom_HTR1))
+    path26.segment(y_rect1 + side_pad/2 - y_ring2_bottom_HTR1 - width_M1 + 2*width_HTR_ext, '+y', **ld_METAL1)
+    path26.turn(width_M1/2, 'l', **ld_METAL1)
+    path26.segment(-(pad_locs_X[15] + side_pad/2 - (x_ring2_bottom_HTR1 + width_M1/2 + width - HTR_tail)), '-x', **ld_METAL1)
+    via_array_Ligentec(cell, via1_type, x_ring2_bottom_HTR1 - width_M1/2 - width_HTR/2 + HTR_tail - via1_width/2, y_ring2_bottom_HTR1 + width_HTR_ext - via1_height, rows1, columns1, via1_side, via1_spacing, side_gap1)
     
-    path30 = gdspy.Path(width_M1, (x_ring2_bottom_TNR2 + width_M1/2 + width - TNR_tail, y_ring2_bottom_TNR2))
-    path30.segment(y_rect1 + side_M2 + 120 - y_ring2_bottom_TNR2, '+y', **ld_METAL1)
-    via_array(cell, via1_type, x_ring2_bottom_TNR2 + width_M1/2 + width_TNR/2 - TNR_tail - via1_width/2, y_ring2_bottom_TNR2, rows1, columns1, via1_side, via1_spacing, side_gap1)
-    path31 = gdspy.Path(width_M2, (path30.x + width_M1/2, path30.y - width_M2/2))
-    path31.segment(-(x_rect1 - path30.x + 0*pad_shift_const + 0.5*side_M2 - width_M2/2), '-x', **ld_METAL2)
-    via_array(cell, via2_type, path30.x - width_M1/2, path30.y - width_M2/2 - via2_height/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
+    path27 = gdspy.Path(width_M1, (x_ring2_bottom_HTR2 + width_M1/2 + width - HTR_tail, y_ring2_bottom_HTR2 + width_HTR_ext))
+    path27.segment(70, '-y', **ld_METAL1)
+    path27.turn(width_M1/2, 'r', **ld_METAL1)
+    path27.segment(-(pad_locs_X[14] + side_pad/2 - (x_ring2_bottom_HTR2 + width_M1/2 + width - HTR_tail) + width_M1), '-x', **ld_METAL1)
+    path27.turn(width_M1/2, 'r', **ld_METAL1)
+    path27.segment(y_rect1 + side_pad/2 - y_ring2_bottom_HTR2 + 70, '+y', **ld_METAL1)
+    via_array_Ligentec(cell, via1_type, x_ring2_bottom_HTR2 + width_M1/2 + width_HTR/2 - HTR_tail - via1_width/2, y_ring2_bottom_HTR2, rows1, columns1, via1_side, via1_spacing, side_gap1)
     
     # # Ring 1 top
-    path32 = gdspy.Path(width_M1, (x_ring1_top_TNR1 - width_M1/2 - width + TNR_tail, y_ring1_top_TNR1))
-    path32.segment(100, '-y', **ld_METAL1)
-    via_array(cell, via1_type, x_ring1_top_TNR1 - width_M1/2 - width_TNR/2 + TNR_tail - via1_width/2, y_ring1_top_TNR1 - via1_height, rows1, columns1, via1_side, via1_spacing, side_gap1)
-    path33 = gdspy.Path(width_M2, (path32.x - width_M1/2, path32.y + width_M2/2))
-    path33.segment(x_rect1 - path32.x + 2*pad_shift_const + 0.5*side_M2 - width_M2/2 + width_M1/2, '+x', **ld_METAL2)
-    path33.turn(width_M2/2, 'l', **ld_METAL2)
-    path33.segment(150, **ld_METAL2)
-    via_array(cell, via2_type, path32.x - width_M1/2, path32.y + width_M2/2 - via2_height/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
+    path28 = gdspy.Path(width_M1, (x_ring1_top_HTR1 - width_M1/2 - width + HTR_tail, y_ring1_top_HTR1 - width_HTR_ext))
+    path28.segment(70, '+y', **ld_METAL1)
+    path28.segment(2, '+x', **ld_METAL1)
+    path28.segment((y_ring1_bottom_HTR2 + width_HTR_ext) - (y_ring1_top_HTR1 - width_HTR_ext) - 70, '+y', **ld_METAL1)
+    via_array_Ligentec(cell, via1_type, x_ring1_top_HTR1 - width_M1/2 - width_HTR/2 + HTR_tail - via1_width/2, y_ring1_top_HTR1 - via1_height, rows1, columns1, via1_side, via1_spacing, side_gap1)
     
-    path34 = gdspy.Path(width_M1, (x_ring1_top_TNR2 + width_M1/2 + width - TNR_tail, y_ring1_top_TNR2 - width_TNR))
-    path34.segment(y_rect1 + side_M2 + 120 - y_ring1_top_TNR2 + width_TNR, '+y', **ld_METAL1)
-    via_array(cell, via1_type, x_ring1_top_TNR2 + width_M1/2 + width_TNR/2 - TNR_tail - via1_width/2, y_ring1_top_TNR2 - width_TNR, rows1, columns1, via1_side, via1_spacing, side_gap1)
-    path35 = gdspy.Path(width_M2, (path34.x - width_M1/2, path34.y - width_M2/2))
-    path35.segment(x_rect1 - path34.x + 0*pad_shift_const + 0.5*side_M2, '+x', **ld_METAL2)
-    via_array(cell, via2_type, path34.x - width_M1/2, path34.y - width_M2/2 - via2_height/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
+    path29 = gdspy.Path(width_M1, (x_ring1_top_HTR2 + width_M1/2 + width - HTR_tail, y_ring1_top_HTR2 - width_HTR_ext))
+    path29.segment(y_rect1 + side_pad/2 - y_ring1_top_HTR2 - 140, '+y', **ld_METAL1)
+    path29.turn(width_M1/2, 'r', **ld_METAL1)
+    path29.segment(pad_locs_X[0] + side_pad/2 - (x_ring1_top_HTR2 + width_M1/2 + width - HTR_tail) - width_M1, '+x', **ld_METAL1)
+    path29.turn(width_M1/2, 'l', **ld_METAL1)
+    path29.segment(140, '+y', **ld_METAL1)
+    via_array_Ligentec(cell, via1_type, x_ring1_top_HTR2 + width_M1/2 + width_HTR/2 - HTR_tail - via1_width/2, y_ring1_top_HTR2 - width_HTR_ext, rows1, columns1, via1_side, via1_spacing, side_gap1)
     
     # # Ring 2 top
-    path36 = gdspy.Path(width_M1, (x_ring2_top_TNR1 - width_M1/2 - width + TNR_tail, y_ring2_top_TNR1))
-    path36.segment(80, '-y', **ld_METAL1)
-    via_array(cell, via1_type, x_ring2_top_TNR1 - width_M1/2 - width_TNR/2 + TNR_tail - via1_width/2, y_ring2_top_TNR1 - via1_height, rows1, columns1, via1_side, via1_spacing, side_gap1)
-    path37 = gdspy.Path(width_M2, (path36.x + width_M1/2, path36.y + width_M2/2))
-    path37.segment(-(x_rect1 - path36.x + 4*pad_shift_const + 0.5*side_M2 + width_M2/2 - width_M1/2), '-x', **ld_METAL2)
-    path37.turn(width_M2/2, 'r', **ld_METAL2)
-    path37.segment(130, **ld_METAL2)
-    via_array(cell, via2_type, path36.x - width_M1/2, path36.y + width_M2/2 - via2_height/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
+    path30 = gdspy.Path(width_M1, (x_ring2_top_HTR1 - width_M1/2 - width + HTR_tail, y_ring2_top_HTR1 - width_HTR_ext))
+    path30.segment(20, '+y', **ld_METAL1)
+    path30.turn(width_M1/2, 'l', **ld_METAL1)
+    path30.segment(2.7 - width_M1, '-x', **ld_METAL1)
+    path30.turn(width_M1/2, 'r', **ld_METAL1)
+    path30.segment((y_ring2_bottom_HTR2 + width_HTR_ext) - (y_ring2_top_HTR1 - width_HTR_ext) - 20 - 70 - width_M1, '+y', **ld_METAL1)
+    via_array_Ligentec(cell, via1_type, x_ring2_top_HTR1 - width_M1/2 - width_HTR/2 + HTR_tail - via1_width/2, y_ring2_top_HTR1 - via1_height, rows1, columns1, via1_side, via1_spacing, side_gap1)
     
-    path38 = gdspy.Path(width_M1, (x_ring2_top_TNR2 + width_M1/2 + width - TNR_tail, y_ring2_top_TNR2 - width_TNR))
-    path38.segment(y_rect1 + side_M2 + 120 - y_ring2_top_TNR2 + width_TNR, '+y', **ld_METAL1)
-    via_array(cell, via1_type, x_ring2_top_TNR2 + width_M1/2 + width_TNR/2 - TNR_tail - via1_width/2, y_ring2_top_TNR2 - width_TNR, rows1, columns1, via1_side, via1_spacing, side_gap1)
-    path39 = gdspy.Path(width_M2, (path38.x + width_M1/2, path38.y - width_M2/2))
-    path39.segment(-(x_rect1 - path38.x + 0*pad_shift_const + 0.5*side_M2 - width_M2/2), '-x', **ld_METAL2)
-    via_array(cell, via2_type, path38.x - width_M1/2, path38.y - width_M2/2 - via2_height/2, rows2, columns2, via2_side, via2_spacing, side_gap2)
+    path31 = gdspy.Path(width_M1, (x_ring2_top_HTR2 + width_M1/2 + width - HTR_tail, y_ring2_top_HTR2 - width_HTR_ext))
+    path31.segment(70, '+y', **ld_METAL1)
+    path31.turn(width_M1/2, 'l', **ld_METAL1)
+    path31.segment(-(pad_locs_X[13] + side_pad/2 - (x_ring2_top_HTR2 + width_M1/2 - HTR_tail) + width_M1), '-x', **ld_METAL1)
+    path31.turn(width_M1/2, 'r', **ld_METAL1)
+    path31.segment(y_rect1 + side_pad/2 - y_ring2_top_HTR2 - 70, '+y', **ld_METAL1)
+    via_array_Ligentec(cell, via1_type, x_ring2_top_HTR2 + width_M1/2 + width_HTR/2 - HTR_tail - via1_width/2, y_ring2_top_HTR2 - width_HTR_ext, rows1, columns1, via1_side, via1_spacing, side_gap1)
     
     #######################################################################
-    # Create TNR cover on MZI arm
-    TNR_path_MZI = gdspy.Path(width_TNR, (MZI_TNR_cover_x - TNR_tail, MZI_TNR_cover_y))
-    TNR_path_MZI.segment(TNR_tail - width_TNR/2, '+x', **ld_TNR)
-    TNR_path_MZI.turn(width_TNR/2, 'l', **ld_TNR)
-    TNR_path_MZI.segment(vertical_out_coup, '+y', **ld_TNR)
-    TNR_path_MZI.turn(width_TNR/2, 'r', **ld_TNR)
-    TNR_path_MZI.segment(TNR_tail - width_TNR/2, '+x', **ld_TNR)
-    MZI_TNR_cover_end_x = TNR_path_MZI.x
-    MZI_TNR_cover_end_y = TNR_path_MZI.y
+    # Create HTR cover on MZI arm
+    HTR_path_MZI = gdspy.Path(width_HTR, (MZI_HTR_cover_x - HTR_tail, MZI_HTR_cover_y))
+    HTR_path_MZI.segment(HTR_tail - width_HTR/2, '+x', **ld_HTR)
+    HTR_path_MZI.turn(width_HTR/2, 'l', **ld_HTR)
+    HTR_path_MZI.segment(vertical_out_coup, '+y', **ld_HTR)
+    HTR_path_MZI.turn(width_HTR/2, 'r', **ld_HTR)
+    HTR_path_MZI.segment(HTR_tail - width_HTR/2, '+x', **ld_HTR)
+    MZI_HTR_cover_end_x = HTR_path_MZI.x
+    MZI_HTR_cover_end_y = HTR_path_MZI.y
     
-    M1_path_MZI1 = gdspy.Path(width_M1, (MZI_TNR_cover_x - TNR_tail + width_M1/2, MZI_TNR_cover_y - width_TNR/2))
-    M1_path_MZI1.segment(-(MZI_TNR_cover_y - y_rect1 - side_M2/2 - width_M2/2), '+y', **ld_METAL1)
-    via_array(cell, via1_type, MZI_TNR_cover_x - TNR_tail + width_M1/2 - via1_width/2, MZI_TNR_cover_y - width_TNR/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
-    M2_path_MZI1 = gdspy.Path(width_M2, (M1_path_MZI1.x + width_M1/2, M1_path_MZI1.y - width_M2/2))
-    M2_path_MZI1.segment(-(x_rect1 - M1_path_MZI1.x + 5*pad_shift_const + 0.5*side_M2), '-x', **ld_METAL2)
-    via_array(cell, via2_type, M1_path_MZI1.x + width_M1/2 - via2_width, M1_path_MZI1.y - width_M2, rows2, columns2, via2_side, via2_spacing, side_gap2)
+    M1_path_MZI1 = gdspy.Path(width_M1, (MZI_HTR_cover_x - HTR_tail + width_M1/2, MZI_HTR_cover_y - width_HTR/2))
+    M1_path_MZI1.segment(30, '+y', **ld_METAL1)
+    M1_path_MZI1.turn(width_M1/2, 'l', **ld_METAL1)
+    M1_path_MZI1.segment(-(pad_locs_X[11] + side_pad/2 - (MZI_HTR_cover_x - width_M1/2) + width_M1), '-x', **ld_METAL1)
+    M1_path_MZI1.turn(width_M1/2, 'r', **ld_METAL1)
+    M1_path_MZI1.segment(y_rect1 + side_pad/2 - MZI_HTR_cover_y - 30, '+y', **ld_METAL1)
+    via_array_Ligentec(cell, via1_type, MZI_HTR_cover_x - HTR_tail + width_M1/2 - via1_width/2, MZI_HTR_cover_y - width_HTR/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
+
     
-    M1_path_MZI2 = gdspy.Path(width_M1, (MZI_TNR_cover_end_x - width_M1/2, MZI_TNR_cover_end_y - width_TNR/2))
-    M1_path_MZI2.segment(y_rect1 + side_M2 + 120 - MZI_TNR_cover_end_y + width_TNR/2, '+y', **ld_METAL1)
-    via_array(cell, via1_type, MZI_TNR_cover_end_x - width_M1/2 - via1_width/2, MZI_TNR_cover_end_y - width_TNR/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
-    M2_path_MZI2 = gdspy.Path(width_M2, (M1_path_MZI2.x + width_M1/2, M1_path_MZI2.y - width_M2/2))
-    M2_path_MZI2.segment(-(x_rect1 - M1_path_MZI2.x + 5*pad_shift_const + 0.5*side_M2), '-x', **ld_METAL2)
-    via_array(cell, via2_type, M1_path_MZI2.x + width_M1/2 - via2_width, M1_path_MZI2.y - width_M2, rows2, columns2, via2_side, via2_spacing, side_gap2)
+    M1_path_MZI2 = gdspy.Path(width_M1, (MZI_HTR_cover_end_x - width_M1/2, MZI_HTR_cover_end_y - width_HTR/2))
+    M1_path_MZI2.segment(30, '+y', **ld_METAL1)
+    M1_path_MZI2.turn(width_M1/2, 'l', **ld_METAL1)
+    M1_path_MZI2.segment(-(pad_locs_X[12] + side_pad/2 - (MZI_HTR_cover_end_x - width_M1/2) + width_M1), '-x', **ld_METAL1)
+    M1_path_MZI2.turn(width_M1/2, 'r', **ld_METAL1)
+    M1_path_MZI2.segment(y_rect1 + side_pad/2 - MZI_HTR_cover_end_y - 30, '+y', **ld_METAL1)
+    via_array_Ligentec(cell, via1_type, MZI_HTR_cover_end_x - width_M1/2 - via1_width/2, MZI_HTR_cover_end_y - width_HTR/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
     
     #######################################################################
     # Add all paths
@@ -531,20 +521,14 @@ for idx in range(len(Lc_D3_vec)):
     cell.add(path33)
     cell.add(path34)
     cell.add(path35)
-    cell.add(path36)
-    cell.add(path37)
-    cell.add(path38)
-    cell.add(path39)
-    cell.add(TNR_path_MZI)
+    cell.add(HTR_path_MZI)
     cell.add(M1_path_MZI1)
-    cell.add(M2_path_MZI1)
     cell.add(M1_path_MZI2)
-    cell.add(M2_path_MZI2)
     cell.add(start_taper)
 
 gdspy.LayoutViewer(lib)
 if overwrite == 1:
-    lib.write_gds("elliptical.gds")
+    lib.write_gds("elliptical_Ligentec.gds")
 
 gdspy.current_library = gdspy.GdsLibrary()
 
