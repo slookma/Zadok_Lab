@@ -46,8 +46,8 @@ side_silox          = 80
 pad_shift_const     = 125
 HTR_tail            = 30
 L_sbend             = 200
-Lc_D3_vec           = [0, 0, 0, 0, 0, 0, 0, 0]
-Lc_D4_vec           = [0, 0, 0, 0, 0, 0, 0, 0]
+coup_gap_ring12_vec = [0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75]
+coup_gap_ring34_vec = [0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55]
 run_x_through_coup  = 7 * bend_radius + Lc_test_port
 right_end           = 4870
 numPads             = 16
@@ -55,10 +55,10 @@ Yjunc_x             = 180
 Yjunc_y             = 24.54
 
 
-for idx in range(len(Lc_D3_vec)):
+for idx in range(len(coup_gap_ring12_vec)):
     # Sweep parameters
-    Lc_D3 = Lc_D3_vec[idx]
-    Lc_D4 = Lc_D4_vec[idx]
+    coup_gap_ring12 = coup_gap_ring12_vec[idx]
+    coup_gap_ring34 = coup_gap_ring34_vec[idx]
     
     #######################################################################
     # Start path1 (bottom track)
@@ -132,27 +132,27 @@ for idx in range(len(Lc_D3_vec)):
     
     # ring 1
     ring1_loc_x = taper_len + Yjunc_x + ring_radius + safety_gap - Yjunc_y/2 + L_sbend + ring_radius - 50
-    ring1_loc_y = -idx * 3*fiber_gap + ring_radius + safety_gap - width - coup_gap
+    ring1_loc_y = -idx * 3*fiber_gap + ring_radius + safety_gap - width - coup_gap_ring12
     ring1 = gdspy.Path(width, (ring1_loc_x, ring1_loc_y))
     ring1.turn(ring_radius, "rr", **ld_NWG)
     ring1.turn(ring_radius, "rr", **ld_NWG)
     
     # ring 2
     ring2_loc_x = taper_len + Yjunc_x + ring_radius + 2*safety_gap - Yjunc_y/2 + L_sbend + 3*ring_radius + 40
-    ring2_loc_y = -idx * 3*fiber_gap - ring_radius - safety_gap + width + coup_gap
+    ring2_loc_y = -idx * 3*fiber_gap - ring_radius - safety_gap + width + coup_gap_ring12
     ring2 = gdspy.Path(width, (ring2_loc_x, ring2_loc_y))
     ring2.turn(ring_radius, 2*numpy.pi, **ld_NWG)
     
     # ring 3
     ring3_loc_x = taper_len + Yjunc_x + 6*ring_radius + 2*safety_gap - Yjunc_y/2 + L_sbend + 16*bend_radius - 50
-    ring3_loc_y = -idx * 3*fiber_gap + ring_radius + safety_gap - width - coup_gap
+    ring3_loc_y = -idx * 3*fiber_gap + ring_radius + safety_gap - width - coup_gap_ring34
     ring3 = gdspy.Path(width, (ring3_loc_x, ring3_loc_y))
     ring3.turn(ring_radius, "rr", **ld_NWG)
     ring3.turn(ring_radius, "rr", **ld_NWG)
     
     # ring 4
     ring4_loc_x = taper_len + Yjunc_x + 8*ring_radius + 3*safety_gap - Yjunc_y/2 + L_sbend + 16*bend_radius + 40
-    ring4_loc_y = -idx * 3*fiber_gap - ring_radius - safety_gap + width + coup_gap
+    ring4_loc_y = -idx * 3*fiber_gap - ring_radius - safety_gap + width + coup_gap_ring34
     ring4 = gdspy.Path(width, (ring4_loc_x, ring4_loc_y))
     ring4.turn(ring_radius, 2*numpy.pi, **ld_NWG)
     
