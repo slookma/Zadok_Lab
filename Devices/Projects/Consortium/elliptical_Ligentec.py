@@ -12,7 +12,7 @@ import gdspy
 from via_array_Ligentec import via_array_Ligentec
 from s_bend_func import sbendPath, sbendPathM
 
-overwrite = 1 # 1 - Overwrite GDS, 0 - Don't overwrite
+overwrite = 0 # 1 - Overwrite GDS, 0 - Don't overwrite
 lib = gdspy.GdsLibrary()
 cell = lib.new_cell('Elliptical_Filter')
 
@@ -29,8 +29,8 @@ width               = 1
 width_HTR           = 2*width
 width_HTR_ext       = 3.52
 width_M1            = 20*width
-taper_len           = 200
-final_taper_width   = 0.3    
+taper_len           = 150
+final_taper_width   = 0.2    
 bend_radius         = 80
 ring_radius         = 100
 fiber_gap           = 127
@@ -38,7 +38,7 @@ safety_gap          = 30
 coup_gap            = 0.3
 run_x_start         = 2*bend_radius + safety_gap
 vertical_50_coup    = safety_gap/2 + ring_radius - bend_radius
-vertical_out_coup   = 2 * bend_radius + coup_gap
+vertical_out_coup   = safety_gap
 Lc_50_coup          = 10
 Lc_test_port        = 0
 side_pad            = 100
@@ -46,14 +46,12 @@ side_silox          = 80
 pad_shift_const     = 125
 HTR_tail            = 30
 L_sbend              = 200
-# Lc_D3_vec           = [4.95, 14.15, 10.75, 19.95]
-# Lc_D4_vec           = [9.65, 18.85, 6.81, 15.9]
-# Lc_D3_vec           = [4.95,  6,  7,  8,  9, 10, 11, 12, 14.15]
-# Lc_D4_vec           = [9.65, 11, 12, 13, 14, 15, 16, 17, 18.85]
-Lc_D3_vec           = [4.95,  6.5,  7.5,  9.0, 10.0, 11.5, 12.5, 14.15]
-Lc_D4_vec           = [9.65, 11.0, 12.5, 13.5, 15.0, 16.0, 17.5, 18.85]
+#Lc_D3_vec           = [4.95,  6.5,  7.5,  9.0, 10.0, 11.5, 12.5, 14.15]
+#Lc_D4_vec           = [9.65, 11.0, 12.5, 13.5, 15.0, 16.0, 17.5, 18.85]
+Lc_D3_vec           = [0, 0, 0, 0, 0, 0, 0, 0]
+Lc_D4_vec           = [0, 0, 0, 0, 0, 0, 0, 0]
 run_x_through_coup  = 7 * bend_radius + Lc_test_port
-right_end           = 5000 - taper_len - 10 - 10
+right_end           = 4870 - taper_len
 numPads             = 16
 
 
@@ -85,39 +83,39 @@ for idx in range(len(Lc_D3_vec)):
     # Run through ring in the other arm
     path1.segment(run_x_through_ring1, **ld_NWG)
     # "Bump" for ring
-    path1.turn(bend_radius, "l", **ld_NWG)
-    path1.turn(bend_radius, "r", **ld_NWG)
+    path1.segment(bend_radius, **ld_NWG) #path1.turn(bend_radius, "l", **ld_NWG)
+    path1.segment(bend_radius, **ld_NWG) #path1.turn(bend_radius, "r", **ld_NWG)
     path1.segment(Lc_D3, **ld_NWG)
     x_ring1_bottom = path1.x
     y_ring1_bottom = path1.y
-    path1.turn(bend_radius, "r", **ld_NWG)
-    path1.turn(bend_radius, "l", **ld_NWG)
+    path1.segment(bend_radius, **ld_NWG) #path1.turn(bend_radius, "r", **ld_NWG)
+    path1.segment(bend_radius, **ld_NWG) #path1.turn(bend_radius, "l", **ld_NWG)
     # Run through coupler in the other arm
     path1.segment(run_x_through_coup, **ld_NWG)
     # Double "bump" for coupler
     path1.turn(bend_radius, "l", **ld_NWG)
-    path1.segment(vertical_out_coup, **ld_NWG)
     path1.turn(bend_radius, "rr", **ld_NWG)
+    path1.segment(vertical_out_coup, **ld_NWG)
     path1.turn(bend_radius, "l", **ld_NWG)
     path1.segment(Lc_test_port, **ld_NWG)
     x_out_coup_bottom = path1.x
     y_out_coup_bottom = path1.y
     path1.turn(bend_radius, "l", **ld_NWG)
-    path1.turn(bend_radius, "rr", **ld_NWG)
     path1.segment(vertical_out_coup, **ld_NWG)
+    path1.turn(bend_radius, "rr", **ld_NWG)
     MZI_HTR_cover_x = path1.x
     MZI_HTR_cover_y = path1.y
     path1.turn(bend_radius, "l", **ld_NWG)
     # Run through ring in the other arm
     path1.segment(run_x_through_ring2, **ld_NWG)
     # "Bump" for ring
-    path1.turn(bend_radius, "l", **ld_NWG)
-    path1.turn(bend_radius, "r", **ld_NWG)
+    path1.segment(bend_radius, **ld_NWG) #path1.turn(bend_radius, "l", **ld_NWG)
+    path1.segment(bend_radius, **ld_NWG) #path1.turn(bend_radius, "r", **ld_NWG)
     path1.segment(Lc_D4, **ld_NWG)
     x_ring2_bottom = path1.x
     y_ring2_bottom = path1.y
-    path1.turn(bend_radius, "r", **ld_NWG)
-    path1.turn(bend_radius, "l", **ld_NWG)
+    path1.segment(bend_radius, **ld_NWG) #path1.turn(bend_radius, "r", **ld_NWG)
+    path1.segment(bend_radius, **ld_NWG) #path1.turn(bend_radius, "l", **ld_NWG)
     # "Bump" for coupler
     path1.turn(bend_radius, "l", **ld_NWG)
     path1.segment(vertical_50_coup, **ld_NWG)
@@ -141,17 +139,17 @@ for idx in range(len(Lc_D3_vec)):
     # Start path2 + path3 (bottom WG couples to bottom track)
     path3 = gdspy.Path(width, (x_out_coup_bottom, y_out_coup_bottom - coup_gap - width))
     path3.segment(Lc_test_port, "-x", **ld_NWG)
-    path3.turn(bend_radius, "l", **ld_NWG)
-    path3.segment(safety_gap - width, **ld_NWG)
-    path3.turn(bend_radius, "r", **ld_NWG)
+    path3.segment(bend_radius, **ld_NWG) #path3.turn(bend_radius, "l", **ld_NWG)
+    #path3.segment(safety_gap - width, **ld_NWG)
+    path3.segment(bend_radius, **ld_NWG) #path3.turn(bend_radius, "r", **ld_NWG)
     path3.segment(20*bend_radius + 2*Lc_D3 + Lc_50_coup + Lc_test_port + run_x_start, **ld_NWG)
     path3.segment(taper_len, final_width=final_taper_width, **ld_NWG)
     y_bottom = path3.y
     
     path2 = gdspy.Path(width, (x_out_coup_bottom, y_out_coup_bottom - coup_gap - width))
-    path2.turn(bend_radius, "r", **ld_NWG)
-    path2.segment(safety_gap - width, **ld_NWG)
-    path2.turn(bend_radius, "l", **ld_NWG)
+    path2.segment(bend_radius, **ld_NWG) #path2.turn(bend_radius, "r", **ld_NWG)
+    #path2.segment(safety_gap - width, **ld_NWG)
+    path2.segment(bend_radius, **ld_NWG) #path2.turn(bend_radius, "l", **ld_NWG)
     path2.segment(13*bend_radius + 2*Lc_D4 + Lc_50_coup + safety_gap+100, **ld_NWG)
     # sbend to create gap for fiber array (127um)
     sbendPath(path2, L_sbend, 4*bend_radius + 2*vertical_50_coup - 3*fiber_gap + 2*safety_gap + coup_gap + width)
@@ -171,37 +169,37 @@ for idx in range(len(Lc_D3_vec)):
     # Run through ring in the other arm
     path4.segment(run_x_through_ring1, **ld_NWG)
     # "Bump" for ring
-    path4.turn(bend_radius, "l", **ld_NWG)
-    path4.turn(bend_radius, "r", **ld_NWG)
+    path4.segment(bend_radius, **ld_NWG) #path4.turn(bend_radius, "l", **ld_NWG)
+    path4.segment(bend_radius, **ld_NWG) #path4.turn(bend_radius, "r", **ld_NWG)
     x_ring2_top = path4.x
     y_ring2_top = path4.y
     path4.segment(Lc_D4, **ld_NWG)
-    path4.turn(bend_radius, "r", **ld_NWG)
-    path4.turn(bend_radius, "l", **ld_NWG)
+    path4.segment(bend_radius, **ld_NWG) #path4.turn(bend_radius, "r", **ld_NWG)
+    path4.segment(bend_radius, **ld_NWG) #path4.turn(bend_radius, "l", **ld_NWG)
     # Run through coupler in the other arm
     path4.segment(run_x_through_coup, **ld_NWG)
     # Double "bump" for coupler
     path4.turn(bend_radius, "l", **ld_NWG)
-    path4.segment(vertical_out_coup, **ld_NWG)
     path4.turn(bend_radius, "rr", **ld_NWG)
+    path4.segment(vertical_out_coup, **ld_NWG)
     path4.turn(bend_radius, "l", **ld_NWG)
     x_out_coup_top = path4.x
     y_out_coup_top = path4.y
     path4.segment(Lc_test_port, **ld_NWG)
     path4.turn(bend_radius, "l", **ld_NWG)
-    path4.turn(bend_radius, "rr", **ld_NWG)
     path4.segment(vertical_out_coup, **ld_NWG)
+    path4.turn(bend_radius, "rr", **ld_NWG)
     path4.turn(bend_radius, "l", **ld_NWG)
     # Run through ring in the other arm
     path4.segment(run_x_through_ring2, **ld_NWG)
     # "Bump" for ring
-    path4.turn(bend_radius, "l", **ld_NWG)
-    path4.turn(bend_radius, "r", **ld_NWG)
+    path4.segment(bend_radius, **ld_NWG) #path4.turn(bend_radius, "l", **ld_NWG)
+    path4.segment(bend_radius, **ld_NWG) #path4.turn(bend_radius, "r", **ld_NWG)
     x_ring1_top = path4.x
     y_ring1_top = path4.y
     path4.segment(Lc_D3, **ld_NWG)
-    path4.turn(bend_radius, "r", **ld_NWG)
-    path4.turn(bend_radius, "l", **ld_NWG)
+    path4.segment(bend_radius, **ld_NWG) #path4.turn(bend_radius, "r", **ld_NWG)
+    path4.segment(bend_radius, **ld_NWG) #path4.turn(bend_radius, "l", **ld_NWG)
     # "Bump" for coupler
     path4.turn(bend_radius, "l", **ld_NWG)
     path4.segment(vertical_50_coup, **ld_NWG)
@@ -234,9 +232,9 @@ for idx in range(len(Lc_D3_vec)):
     # Start path6 + path7 (top WG couples to top track)
     path6 = gdspy.Path(width, (x_out_coup_top, y_out_coup_top + coup_gap + width))
     path6.segment(Lc_test_port, "-x", **ld_NWG)
-    path6.turn(bend_radius, "r", **ld_NWG)
-    path6.segment(safety_gap - width, **ld_NWG)
-    path6.turn(bend_radius, "l", **ld_NWG)
+    path6.segment(bend_radius, **ld_NWG) #path6.turn(bend_radius, "r", **ld_NWG)
+    #path6.segment(safety_gap - width, **ld_NWG)
+    path6.segment(bend_radius, **ld_NWG) #path6.turn(bend_radius, "l", **ld_NWG)
     # path6.segment(13*bend_radius + Lc_D3 + Lc_D4 + Lc_50_coup + safety_gap, **ld_NWG)
     path6.segment(path6.x - (taper_len + L_sbend), **ld_NWG)
     path32 = gdspy.Path(width, (path35.x + taper_len, path35.y + fiber_gap))
@@ -246,9 +244,9 @@ for idx in range(len(Lc_D3_vec)):
     path33.segment(-taper_len, final_width=final_taper_width, **ld_NWG)
     
     path7 = gdspy.Path(width, (x_out_coup_top, y_out_coup_top + coup_gap + width))
-    path7.turn(bend_radius, "l", **ld_NWG)
-    path7.segment(safety_gap - width, **ld_NWG)
-    path7.turn(bend_radius, "r", **ld_NWG)
+    path7.segment(bend_radius, **ld_NWG) #path7.turn(bend_radius, "l", **ld_NWG)
+    #path7.segment(safety_gap - width, **ld_NWG)
+    path7.segment(bend_radius, **ld_NWG) #path7.turn(bend_radius, "r", **ld_NWG)
     path7.segment(20*bend_radius + Lc_D3 + Lc_D4 + Lc_50_coup + Lc_test_port, **ld_NWG)
     # Continue a bit to align all
     path7.segment(right_end - path7.x, **ld_NWG)
