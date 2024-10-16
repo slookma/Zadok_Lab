@@ -68,7 +68,7 @@ for idx in range(len(coup_gap_ring12_vec)):
     path1 = gdspy.Path(width, (taper_len + Yjunc_x, -idx * 3*fiber_gap - Yjunc_y/2))
     sbendPathM(path1, ring_radius + safety_gap - Yjunc_y/2 + L_sbend, ring_radius + safety_gap - Yjunc_y/2)
     # Run through ring + Couple to ring
-    path1.segment(4*ring_radius + safety_gap, **ld_NWG)
+    path1.segment(4*ring_radius + safety_gap + 70, **ld_NWG)
     # Double "bump" for coupler
     path1.turn(bend_radius, "l", **ld_NWG)
     path1.turn(bend_radius, "rr", **ld_NWG)
@@ -88,7 +88,7 @@ for idx in range(len(coup_gap_ring12_vec)):
     path2 = gdspy.Path(width, (taper_len + Yjunc_x, -idx * 3*fiber_gap + Yjunc_y/2))
     sbendPath(path2, ring_radius + safety_gap - Yjunc_y/2 + L_sbend, ring_radius + safety_gap - Yjunc_y/2)
     # Run through ring + Couple to ring + run through double bump
-    path2.segment(4*ring_radius + safety_gap + 8*bend_radius, **ld_NWG)
+    path2.segment(4*ring_radius + safety_gap + 8*bend_radius - 70, **ld_NWG)
     # Double "bump" for coupler
     path2.turn(bend_radius, "r", **ld_NWG)
     path2.turn(bend_radius, "ll", **ld_NWG)
@@ -101,8 +101,8 @@ for idx in range(len(coup_gap_ring12_vec)):
     path2.turn(bend_radius, "ll", **ld_NWG)
     path2.turn(bend_radius, "r", **ld_NWG)
     # Run through ring + Couple to ring
-    path2.segment(4*ring_radius + safety_gap, **ld_NWG)
-    sbendPathM(path2, ring_radius + safety_gap - Yjunc_y/2 + L_sbend, ring_radius + safety_gap - Yjunc_y/2)
+    path2.segment(4*ring_radius + safety_gap + 70, **ld_NWG)
+    sbendPathM(path2, path1.x - path2.x, ring_radius + safety_gap - Yjunc_y/2)
     
     # Start path3 (top WG couples to top track)
     start_taper2 = gdspy.Path(width, (taper_len, -idx * 3*fiber_gap + fiber_gap))
@@ -158,23 +158,67 @@ for idx in range(len(coup_gap_ring12_vec)):
     
     # Heater on ring 1
     HTR_ring1 = gdspy.Path(width_HTR, (ring1_loc_x - ring_radius, ring1_loc_y - ring_radius))
+    HTR_ring1_ext_left = gdspy.Path(width_HTR_ext, (HTR_ring1.x + width_HTR/2, HTR_ring1.y))
+    HTR_ring1_ext_left.segment(HTR_tail, '-x', **ld_HTR)
     HTR_ring1.segment(0, '-y', **ld_HTR)
     HTR_ring1.turn(ring_radius, "ll", **ld_HTR)
+    HTR_ring1_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring1.x - width_HTR/2, HTR_ring1.y))
+    HTR_ring1_ext_right.segment(HTR_tail, '+x', **ld_HTR)
     
     # Heater on ring 2
     HTR_ring2 = gdspy.Path(width_HTR, (ring2_loc_x + ring_radius, ring2_loc_y + ring_radius))
+    HTR_ring2_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring2.x + width_HTR/2, HTR_ring2.y))
+    HTR_ring2_ext_right.segment(HTR_tail, '-x', **ld_HTR)
     HTR_ring2.segment(0, '+y', **ld_HTR)
     HTR_ring2.turn(ring_radius, "ll", **ld_HTR)
+    HTR_ring2_ext_left = gdspy.Path(width_HTR_ext, (HTR_ring2.x + width_HTR/2, HTR_ring2.y))
+    HTR_ring2_ext_left.segment(HTR_tail, '-x', **ld_HTR)
     
     # Heater on ring 3
     HTR_ring3 = gdspy.Path(width_HTR, (ring3_loc_x - ring_radius, ring3_loc_y - ring_radius))
+    HTR_ring3_ext_left = gdspy.Path(width_HTR_ext, (HTR_ring3.x - width_HTR/2, HTR_ring3.y))
+    HTR_ring3_ext_left.segment(HTR_tail, '+x', **ld_HTR)
     HTR_ring3.segment(0, '-y', **ld_HTR)
     HTR_ring3.turn(ring_radius, "ll", **ld_HTR)
+    HTR_ring3_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring3.x - width_HTR/2, HTR_ring3.y))
+    HTR_ring3_ext_right.segment(HTR_tail, '+x', **ld_HTR)
     
     # Heater on ring 4
     HTR_ring4 = gdspy.Path(width_HTR, (ring4_loc_x + ring_radius, ring4_loc_y + ring_radius))
+    HTR_ring4_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring4.x - width_HTR/2, HTR_ring4.y))
+    HTR_ring4_ext_right.segment(HTR_tail, '+x', **ld_HTR)
     HTR_ring4.segment(0, '+y', **ld_HTR)
     HTR_ring4.turn(ring_radius, "ll", **ld_HTR)
+    HTR_ring4_ext_left = gdspy.Path(width_HTR_ext, (HTR_ring4.x + width_HTR/2, HTR_ring4.y))
+    HTR_ring4_ext_left.segment(HTR_tail, '-x', **ld_HTR)
+    
+    #######################################################################
+    # Vias
+    
+    # Vias parameters
+    via1_type    = "Contact"
+    rows1        = 4
+    columns1     = 25
+    via1_side    = 0.36
+    via1_spacing = 0.36
+    side_gap1    = 0.5
+    
+    via1_width  = round(columns1*via1_side + (columns1 - 1)*via1_spacing + 2*side_gap1, 3)
+    via1_height = round(rows1   *via1_side + (rows1 - 1)   *via1_spacing + 2*side_gap1, 3)
+    
+    
+    # ring 1
+    via_array_Ligentec(cell, via1_type, HTR_ring1_ext_right.x - via1_width, HTR_ring1_ext_right.y - width_HTR_ext/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
+    via_array_Ligentec(cell, via1_type, HTR_ring1_ext_left.x              , HTR_ring1_ext_left.y  - width_HTR_ext/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
+    # ring 2
+    via_array_Ligentec(cell, via1_type, HTR_ring2_ext_right.x             , HTR_ring2_ext_right.y - width_HTR_ext/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
+    via_array_Ligentec(cell, via1_type, HTR_ring2_ext_left.x              , HTR_ring2_ext_left.y  - width_HTR_ext/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
+    # ring 3
+    via_array_Ligentec(cell, via1_type, HTR_ring3_ext_right.x - via1_width, HTR_ring3_ext_right.y - width_HTR_ext/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
+    via_array_Ligentec(cell, via1_type, HTR_ring3_ext_left.x  - via1_width, HTR_ring3_ext_left.y  - width_HTR_ext/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
+    # ring 4
+    via_array_Ligentec(cell, via1_type, HTR_ring4_ext_right.x - via1_width, HTR_ring4_ext_right.y - width_HTR_ext/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
+    via_array_Ligentec(cell, via1_type, HTR_ring4_ext_left.x              , HTR_ring4_ext_left.y  - width_HTR_ext/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
     
     # #######################################################################
     # Add all paths
@@ -194,6 +238,14 @@ for idx in range(len(coup_gap_ring12_vec)):
     cell.add(HTR_ring2)
     cell.add(HTR_ring3)
     cell.add(HTR_ring4)
+    cell.add(HTR_ring1_ext_left)
+    cell.add(HTR_ring1_ext_right)
+    cell.add(HTR_ring2_ext_left)
+    cell.add(HTR_ring2_ext_right)
+    cell.add(HTR_ring3_ext_left)
+    cell.add(HTR_ring3_ext_right)
+    cell.add(HTR_ring4_ext_left)
+    cell.add(HTR_ring4_ext_right)
 
 gdspy.LayoutViewer(lib)
 if overwrite == 1:
