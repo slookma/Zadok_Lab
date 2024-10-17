@@ -35,7 +35,7 @@ bend_radius         = 80
 ring_radius         = 100
 fiber_gap           = 127
 safety_gap          = 30
-coup_gap            = 1
+coup_gap            = 0.8
 run_x_start         = 2*bend_radius + safety_gap
 vertical_50_coup    = safety_gap/2 + ring_radius - bend_radius
 vertical_out_coup   = safety_gap - width - coup_gap
@@ -46,13 +46,14 @@ side_silox          = 80
 pad_shift_const     = 125
 HTR_tail            = 30
 L_sbend             = 200
-coup_gap_ring12_vec = [0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75]
-coup_gap_ring34_vec = [0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55]
+coup_gap_ring12_vec = [0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80]
+coup_gap_ring34_vec = [0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60]
 run_x_through_coup  = 7 * bend_radius + Lc_test_port
 right_end           = 4870
 numPads             = 16
-Yjunc_x             = 180
+Yjunc_x             = 180 - 2*5
 Yjunc_y             = 24.54
+HTR_MZI_len         = 300
 
 
 for idx in range(len(coup_gap_ring12_vec)):
@@ -156,6 +157,18 @@ for idx in range(len(coup_gap_ring12_vec)):
     ring4 = gdspy.Path(width, (ring4_loc_x, ring4_loc_y))
     ring4.turn(ring_radius, 2*numpy.pi, **ld_NWG)
     
+    # Heater on MZI arm
+    HTR_MZI = gdspy.Path(width_HTR, (x_out_coup_bottom + 4*bend_radius, y_out_coup_bottom + vertical_out_coup))
+    HTR_MZI_ext_left = gdspy.Path(width_HTR_ext, (HTR_MZI.x + width_HTR_ext/2, HTR_MZI.y - width_HTR/2))
+    HTR_MZI_ext_left.segment(HTR_tail, '+y', **ld_HTR)
+    HTR_MZI_ext_left.turn(width_HTR_ext/2, 'r', **ld_HTR)
+    HTR_MZI_ext_left.segment(HTR_tail, '+x', **ld_HTR)
+    HTR_MZI.segment(HTR_MZI_len, '+x', **ld_HTR)
+    HTR_MZI_ext_right = gdspy.Path(width_HTR_ext, (HTR_MZI.x - width_HTR_ext/2, HTR_MZI.y - width_HTR/2))
+    HTR_MZI_ext_right.segment(HTR_tail, '+y', **ld_HTR)
+    HTR_MZI_ext_right.turn(width_HTR_ext/2, 'l', **ld_HTR)
+    HTR_MZI_ext_right.segment(HTR_tail, '-x', **ld_HTR)
+    
     # Heater on ring 1
     HTR_ring1 = gdspy.Path(width_HTR, (ring1_loc_x - ring_radius, ring1_loc_y - ring_radius))
     HTR_ring1_ext_left = gdspy.Path(width_HTR_ext, (HTR_ring1.x + width_HTR/2, HTR_ring1.y))
@@ -206,7 +219,9 @@ for idx in range(len(coup_gap_ring12_vec)):
     via1_width  = round(columns1*via1_side + (columns1 - 1)*via1_spacing + 2*side_gap1, 3)
     via1_height = round(rows1   *via1_side + (rows1 - 1)   *via1_spacing + 2*side_gap1, 3)
     
-    
+    # MZI
+    via_array_Ligentec(cell, via1_type, HTR_MZI_ext_right.x               , HTR_MZI_ext_right.y   - width_HTR_ext/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
+    via_array_Ligentec(cell, via1_type, HTR_MZI_ext_left.x    - via1_width, HTR_MZI_ext_left.y    - width_HTR_ext/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
     # ring 1
     via_array_Ligentec(cell, via1_type, HTR_ring1_ext_right.x - via1_width, HTR_ring1_ext_right.y - width_HTR_ext/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
     via_array_Ligentec(cell, via1_type, HTR_ring1_ext_left.x              , HTR_ring1_ext_left.y  - width_HTR_ext/2, rows1, columns1, via1_side, via1_spacing, side_gap1)
@@ -234,6 +249,9 @@ for idx in range(len(coup_gap_ring12_vec)):
     cell.add(ring2)
     cell.add(ring3)
     cell.add(ring4)
+    cell.add(HTR_MZI)
+    cell.add(HTR_MZI_ext_left)
+    cell.add(HTR_MZI_ext_right)
     cell.add(HTR_ring1)
     cell.add(HTR_ring2)
     cell.add(HTR_ring3)
