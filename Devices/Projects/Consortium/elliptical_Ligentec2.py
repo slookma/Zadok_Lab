@@ -51,8 +51,9 @@ coup_gap_ring34_vec = [0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60]
 run_x_through_coup  = 7 * bend_radius + Lc_test_port
 right_end           = 4870
 numPads             = 16
-Yjunc_x             = 180 - 2*5
+Yjunc_x             = 180
 Yjunc_y             = 24.54
+Yjunc_x_DRC_ext     = 5
 HTR_MZI_len         = 300
 
 
@@ -63,10 +64,12 @@ for idx in range(len(coup_gap_ring12_vec)):
     
     #######################################################################
     # Start path1 (bottom track)
-    start_taper1 = gdspy.Path(width, (taper_len, -idx * 3*fiber_gap))
+    start_taper1 = gdspy.Path(width, (taper_len + Yjunc_x_DRC_ext, -idx * 3*fiber_gap))
+    start_taper1.segment(Yjunc_x_DRC_ext, "-x", **ld_NWG)
     start_taper1.segment(taper_len, "-x", final_width=final_taper_width, **ld_NWG)
     
-    path1 = gdspy.Path(width, (taper_len + Yjunc_x, -idx * 3*fiber_gap - Yjunc_y/2))
+    path1 = gdspy.Path(width, (taper_len + Yjunc_x - Yjunc_x_DRC_ext, -idx * 3*fiber_gap - Yjunc_y/2))
+    path1.segment(Yjunc_x_DRC_ext, **ld_NWG)
     sbendPathM(path1, ring_radius + safety_gap - Yjunc_y/2 + L_sbend, ring_radius + safety_gap - Yjunc_y/2)
     # Run through ring + Couple to ring
     path1.segment(4*ring_radius + safety_gap + 70, **ld_NWG)
@@ -84,9 +87,11 @@ for idx in range(len(coup_gap_ring12_vec)):
     # Run through ring + Couple to ring + run through double bump
     path1.segment(4*ring_radius + safety_gap + 8*bend_radius, **ld_NWG)
     sbendPath(path1, ring_radius + safety_gap - Yjunc_y/2 + L_sbend, ring_radius + safety_gap - Yjunc_y/2)
+    path1.segment(Yjunc_x_DRC_ext, **ld_NWG)
     
     # Start path2 (top track)
-    path2 = gdspy.Path(width, (taper_len + Yjunc_x, -idx * 3*fiber_gap + Yjunc_y/2))
+    path2 = gdspy.Path(width, (taper_len + Yjunc_x - Yjunc_x_DRC_ext, -idx * 3*fiber_gap + Yjunc_y/2))
+    path2.segment(Yjunc_x_DRC_ext, **ld_NWG)
     sbendPath(path2, ring_radius + safety_gap - Yjunc_y/2 + L_sbend, ring_radius + safety_gap - Yjunc_y/2)
     # Run through ring + Couple to ring + run through double bump
     path2.segment(4*ring_radius + safety_gap + 8*bend_radius - 70, **ld_NWG)
@@ -103,7 +108,8 @@ for idx in range(len(coup_gap_ring12_vec)):
     path2.turn(bend_radius, "r", **ld_NWG)
     # Run through ring + Couple to ring
     path2.segment(4*ring_radius + safety_gap + 70, **ld_NWG)
-    sbendPathM(path2, path1.x - path2.x, ring_radius + safety_gap - Yjunc_y/2)
+    sbendPathM(path2, path1.x - path2.x - Yjunc_x_DRC_ext, ring_radius + safety_gap - Yjunc_y/2)
+    path2.segment(Yjunc_x_DRC_ext, **ld_NWG)
     
     # Start path3 (top WG couples to top track)
     start_taper2 = gdspy.Path(width, (taper_len, -idx * 3*fiber_gap + fiber_gap))
@@ -126,7 +132,7 @@ for idx in range(len(coup_gap_ring12_vec)):
     path4.segment(taper_len, final_width=final_taper_width, **ld_NWG)
     
     # Start path5 (Combined top and bottom tracks)
-    path5 = gdspy.Path(width, (path1.x + Yjunc_x, path1.y + Yjunc_y/2))
+    path5 = gdspy.Path(width, (path1.x + Yjunc_x - 2*Yjunc_x_DRC_ext, path1.y + Yjunc_y/2))
     path5.segment(right_end - taper_len - path5.x, **ld_NWG)
     path5.segment(taper_len, final_width=final_taper_width, **ld_NWG)
     
@@ -171,38 +177,38 @@ for idx in range(len(coup_gap_ring12_vec)):
     
     # Heater on ring 1
     HTR_ring1 = gdspy.Path(width_HTR, (ring1_loc_x - ring_radius, ring1_loc_y - ring_radius))
-    HTR_ring1_ext_left = gdspy.Path(width_HTR_ext, (HTR_ring1.x + width_HTR/2, HTR_ring1.y))
+    HTR_ring1_ext_left  = gdspy.Path(width_HTR_ext, (HTR_ring1.x + width_HTR/2, HTR_ring1.y + width_HTR_ext/2))
     HTR_ring1_ext_left.segment(HTR_tail, '-x', **ld_HTR)
     HTR_ring1.segment(0, '-y', **ld_HTR)
     HTR_ring1.turn(ring_radius, "ll", **ld_HTR)
-    HTR_ring1_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring1.x - width_HTR/2, HTR_ring1.y))
+    HTR_ring1_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring1.x - width_HTR/2, HTR_ring1.y + width_HTR_ext/2))
     HTR_ring1_ext_right.segment(HTR_tail, '+x', **ld_HTR)
     
     # Heater on ring 2
     HTR_ring2 = gdspy.Path(width_HTR, (ring2_loc_x + ring_radius, ring2_loc_y + ring_radius))
-    HTR_ring2_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring2.x + width_HTR/2, HTR_ring2.y))
+    HTR_ring2_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring2.x + width_HTR/2, HTR_ring2.y - width_HTR_ext/2))
     HTR_ring2_ext_right.segment(HTR_tail, '-x', **ld_HTR)
     HTR_ring2.segment(0, '+y', **ld_HTR)
     HTR_ring2.turn(ring_radius, "ll", **ld_HTR)
-    HTR_ring2_ext_left = gdspy.Path(width_HTR_ext, (HTR_ring2.x + width_HTR/2, HTR_ring2.y))
+    HTR_ring2_ext_left  = gdspy.Path(width_HTR_ext, (HTR_ring2.x + width_HTR/2, HTR_ring2.y - width_HTR_ext/2))
     HTR_ring2_ext_left.segment(HTR_tail, '-x', **ld_HTR)
     
     # Heater on ring 3
     HTR_ring3 = gdspy.Path(width_HTR, (ring3_loc_x - ring_radius, ring3_loc_y - ring_radius))
-    HTR_ring3_ext_left = gdspy.Path(width_HTR_ext, (HTR_ring3.x - width_HTR/2, HTR_ring3.y))
+    HTR_ring3_ext_left  = gdspy.Path(width_HTR_ext, (HTR_ring3.x - width_HTR/2, HTR_ring3.y + width_HTR_ext/2))
     HTR_ring3_ext_left.segment(HTR_tail, '+x', **ld_HTR)
     HTR_ring3.segment(0, '-y', **ld_HTR)
     HTR_ring3.turn(ring_radius, "ll", **ld_HTR)
-    HTR_ring3_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring3.x - width_HTR/2, HTR_ring3.y))
+    HTR_ring3_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring3.x - width_HTR/2, HTR_ring3.y + width_HTR_ext/2))
     HTR_ring3_ext_right.segment(HTR_tail, '+x', **ld_HTR)
     
     # Heater on ring 4
     HTR_ring4 = gdspy.Path(width_HTR, (ring4_loc_x + ring_radius, ring4_loc_y + ring_radius))
-    HTR_ring4_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring4.x - width_HTR/2, HTR_ring4.y))
+    HTR_ring4_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring4.x - width_HTR/2, HTR_ring4.y - width_HTR_ext/2))
     HTR_ring4_ext_right.segment(HTR_tail, '+x', **ld_HTR)
     HTR_ring4.segment(0, '+y', **ld_HTR)
     HTR_ring4.turn(ring_radius, "ll", **ld_HTR)
-    HTR_ring4_ext_left = gdspy.Path(width_HTR_ext, (HTR_ring4.x + width_HTR/2, HTR_ring4.y))
+    HTR_ring4_ext_left  = gdspy.Path(width_HTR_ext, (HTR_ring4.x + width_HTR/2, HTR_ring4.y - width_HTR_ext/2))
     HTR_ring4_ext_left.segment(HTR_tail, '-x', **ld_HTR)
     
     #######################################################################
