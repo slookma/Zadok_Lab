@@ -26,7 +26,9 @@ ld_METAL1       = {"layer": 32,      "datatype": 0}
 
 # Parameters:
 width               = 1
-width_HTR           = 2*width
+P1P_separation      = 7.5
+width_HTR_outer     = P1P_separation + 2*0.8
+width_HTR           = P1P_separation
 width_HTR_ext       = 3.52
 width_M1            = 20*width
 taper_len           = 150
@@ -165,51 +167,70 @@ for idx in range(len(coup_gap_ring12_vec)):
     
     # Heater on MZI arm
     HTR_MZI = gdspy.Path(width_HTR, (x_out_coup_bottom + 4*bend_radius, y_out_coup_bottom + vertical_out_coup))
-    HTR_MZI_ext_left = gdspy.Path(width_HTR_ext, (HTR_MZI.x + width_HTR_ext/2, HTR_MZI.y - width_HTR/2))
+    HTR_MZI_ext_left = gdspy.Path(width_HTR_ext, (HTR_MZI.x + width_HTR_ext/2, HTR_MZI.y - width_HTR_outer/2))
     HTR_MZI_ext_left.segment(HTR_tail, '+y', **ld_HTR)
     HTR_MZI_ext_left.turn(width_HTR_ext/2, 'r', **ld_HTR)
     HTR_MZI_ext_left.segment(HTR_tail, '+x', **ld_HTR)
     HTR_MZI.segment(HTR_MZI_len, '+x', **ld_HTR)
-    HTR_MZI_ext_right = gdspy.Path(width_HTR_ext, (HTR_MZI.x - width_HTR_ext/2, HTR_MZI.y - width_HTR/2))
+    HTR_MZI_ext_right = gdspy.Path(width_HTR_ext, (HTR_MZI.x - width_HTR_ext/2, HTR_MZI.y - width_HTR_outer/2))
     HTR_MZI_ext_right.segment(HTR_tail, '+y', **ld_HTR)
     HTR_MZI_ext_right.turn(width_HTR_ext/2, 'l', **ld_HTR)
     HTR_MZI_ext_right.segment(HTR_tail, '-x', **ld_HTR)
+    HTR_MZI_outer = gdspy.Path(width_HTR_outer, (x_out_coup_bottom + 4*bend_radius, y_out_coup_bottom + vertical_out_coup))
+    HTR_MZI_outer.segment(HTR_MZI_len, '+x', **ld_HTR)
+    HTR_MZI = gdspy.boolean(HTR_MZI_outer, HTR_MZI, "not", **ld_HTR)
     
     # Heater on ring 1
     HTR_ring1 = gdspy.Path(width_HTR, (ring1_loc_x - ring_radius, ring1_loc_y - ring_radius))
-    HTR_ring1_ext_left  = gdspy.Path(width_HTR_ext, (HTR_ring1.x + width_HTR/2, HTR_ring1.y + width_HTR_ext/2))
+    HTR_ring1_ext_left  = gdspy.Path(width_HTR_ext, (HTR_ring1.x + width_HTR_outer/2, HTR_ring1.y + width_HTR_ext/2))
     HTR_ring1_ext_left.segment(HTR_tail, '-x', **ld_HTR)
     HTR_ring1.segment(0, '-y', **ld_HTR)
     HTR_ring1.turn(ring_radius, "ll", **ld_HTR)
-    HTR_ring1_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring1.x - width_HTR/2, HTR_ring1.y + width_HTR_ext/2))
+    HTR_ring1_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring1.x - width_HTR_outer/2, HTR_ring1.y + width_HTR_ext/2))
     HTR_ring1_ext_right.segment(HTR_tail, '+x', **ld_HTR)
+    HTR_ring1_outer = gdspy.Path(width_HTR_outer, (ring1_loc_x - ring_radius, ring1_loc_y - ring_radius))
+    HTR_ring1_outer.segment(0, '-y', **ld_HTR)
+    HTR_ring1_outer.turn(ring_radius, "ll", **ld_HTR)
+    HTR_ring1 = gdspy.boolean(HTR_ring1_outer, HTR_ring1, "not", **ld_HTR)
     
     # Heater on ring 2
     HTR_ring2 = gdspy.Path(width_HTR, (ring2_loc_x + ring_radius, ring2_loc_y + ring_radius))
-    HTR_ring2_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring2.x + width_HTR/2, HTR_ring2.y - width_HTR_ext/2))
+    HTR_ring2_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring2.x + width_HTR_outer/2, HTR_ring2.y - width_HTR_ext/2))
     HTR_ring2_ext_right.segment(HTR_tail, '-x', **ld_HTR)
     HTR_ring2.segment(0, '+y', **ld_HTR)
     HTR_ring2.turn(ring_radius, "ll", **ld_HTR)
-    HTR_ring2_ext_left  = gdspy.Path(width_HTR_ext, (HTR_ring2.x + width_HTR/2, HTR_ring2.y - width_HTR_ext/2))
+    HTR_ring2_ext_left  = gdspy.Path(width_HTR_ext, (HTR_ring2.x + width_HTR_outer/2, HTR_ring2.y - width_HTR_ext/2))
     HTR_ring2_ext_left.segment(HTR_tail, '-x', **ld_HTR)
+    HTR_ring2_outer = gdspy.Path(width_HTR_outer, (ring2_loc_x + ring_radius, ring2_loc_y + ring_radius))
+    HTR_ring2_outer.segment(0, '+y', **ld_HTR)
+    HTR_ring2_outer.turn(ring_radius, "ll", **ld_HTR)
+    HTR_ring2 = gdspy.boolean(HTR_ring2_outer, HTR_ring2, "not", **ld_HTR)
     
     # Heater on ring 3
     HTR_ring3 = gdspy.Path(width_HTR, (ring3_loc_x - ring_radius, ring3_loc_y - ring_radius))
-    HTR_ring3_ext_left  = gdspy.Path(width_HTR_ext, (HTR_ring3.x - width_HTR/2, HTR_ring3.y + width_HTR_ext/2))
+    HTR_ring3_ext_left  = gdspy.Path(width_HTR_ext, (HTR_ring3.x - width_HTR_outer/2, HTR_ring3.y + width_HTR_ext/2))
     HTR_ring3_ext_left.segment(HTR_tail, '+x', **ld_HTR)
     HTR_ring3.segment(0, '-y', **ld_HTR)
     HTR_ring3.turn(ring_radius, "ll", **ld_HTR)
-    HTR_ring3_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring3.x - width_HTR/2, HTR_ring3.y + width_HTR_ext/2))
+    HTR_ring3_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring3.x - width_HTR_outer/2, HTR_ring3.y + width_HTR_ext/2))
     HTR_ring3_ext_right.segment(HTR_tail, '+x', **ld_HTR)
+    HTR_ring3_outer = gdspy.Path(width_HTR_outer, (ring3_loc_x - ring_radius, ring3_loc_y - ring_radius))
+    HTR_ring3_outer.segment(0, '-y', **ld_HTR)
+    HTR_ring3_outer.turn(ring_radius, "ll", **ld_HTR)
+    HTR_ring3 = gdspy.boolean(HTR_ring3_outer, HTR_ring3, "not", **ld_HTR)
     
     # Heater on ring 4
     HTR_ring4 = gdspy.Path(width_HTR, (ring4_loc_x + ring_radius, ring4_loc_y + ring_radius))
-    HTR_ring4_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring4.x - width_HTR/2, HTR_ring4.y - width_HTR_ext/2))
+    HTR_ring4_ext_right = gdspy.Path(width_HTR_ext, (HTR_ring4.x - width_HTR_outer/2, HTR_ring4.y - width_HTR_ext/2))
     HTR_ring4_ext_right.segment(HTR_tail, '+x', **ld_HTR)
     HTR_ring4.segment(0, '+y', **ld_HTR)
     HTR_ring4.turn(ring_radius, "ll", **ld_HTR)
-    HTR_ring4_ext_left  = gdspy.Path(width_HTR_ext, (HTR_ring4.x + width_HTR/2, HTR_ring4.y - width_HTR_ext/2))
+    HTR_ring4_ext_left  = gdspy.Path(width_HTR_ext, (HTR_ring4.x + width_HTR_outer/2, HTR_ring4.y - width_HTR_ext/2))
     HTR_ring4_ext_left.segment(HTR_tail, '-x', **ld_HTR)
+    HTR_ring4_outer = gdspy.Path(width_HTR_outer, (ring4_loc_x + ring_radius, ring4_loc_y + ring_radius))
+    HTR_ring4_outer.segment(0, '+y', **ld_HTR)
+    HTR_ring4_outer.turn(ring_radius, "ll", **ld_HTR)
+    HTR_ring4 = gdspy.boolean(HTR_ring4_outer, HTR_ring4, "not", **ld_HTR)
     
     #######################################################################
     # Vias
