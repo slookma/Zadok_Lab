@@ -27,7 +27,7 @@ ld_METAL1       = {"layer": 32,      "datatype": 0}
 # Parameters:
 width               = 1
 P1P_separation      = 7.5
-width_HTR_outer     = P1P_separation + 2*0.8
+width_HTR_outer     = P1P_separation + 2*0.81
 width_HTR           = P1P_separation
 width_HTR_ext       = 3.52
 width_M1            = 20*width
