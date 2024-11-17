@@ -8,9 +8,12 @@ Created on Mon Nov 11 11:15:46 2024
 import numpy as np
 import gdspy
 from grating import create_grating_path 
+import sys
+sys.path.insert(0, '../Consortium')
+from s_bend_func import sbendPath, sbendPathM
 
 periods         = list(np.asarray(np.arange(-0.02, 0.025, 0.005)) + 0.558)
-fill_frac       = 0.5
+fill_fracs      = list([0.5, 0.6])
 GC_len          = 60
 taper_len       = 30
 focus_distance  = GC_len + taper_len
@@ -44,43 +47,99 @@ direction = 0
 LAYER_WG  = {"layer": layer1, "datatype": datatype}
 LAYER_NEG = {"layer": layer2, "datatype": datatype}
 
-for idx, period in enumerate(periods):
-    center = (0, -idx*vertical_gap)
-    # Call the function to create the grating path
-    path1 = create_grating_path(cell, period, fill_frac, teeth, center, radius, angle, WG_WIDTH, direction, LAYER_WG={"layer": layer1, "datatype": datatype})
-    path1.segment(WG_length, **LAYER_WG)
-    cell.add(path1)
-    create_grating_path(cell, period, fill_frac, teeth, (path1.x + WG_WIDTH / (2*np.tan((1 - angle) * np.pi)), path1.y), radius, angle,WG_WIDTH, 1, LAYER_WG={"layer": layer1, "datatype": datatype})
-    
-    # temp1 = gdspy.boolean(cell, cell, "and")
-    
-    if negative:
-        initial_angle = (1 - angle) * np.pi
-        final_angle   = (1 + angle) * np.pi
-        arc = gdspy.Round((center[0]+trench/np.sin(angle*np.pi), center[1]), radius + trench + trench/np.sin(angle*np.pi),  initial_angle=initial_angle, final_angle=final_angle, tolerance=0.0001, **LAYER_NEG).rotate(direction*np.pi, center)
+for idx_DC, fill_frac in enumerate(fill_fracs):
+    for idx_per, period in enumerate(periods):
+        center = (0, -(idx_per + idx_DC*len(periods))*vertical_gap)
+        # Call the function to create the grating path
+        path1 = create_grating_path(cell, period, fill_frac, teeth, center, radius, angle, WG_WIDTH, direction, LAYER_WG=LAYER_WG)
+        path1.segment(WG_length/2, **LAYER_WG)
+        sbendPath(path1, 1000, 100, LAYER_WG)
+        path1.segment(WG_length/2 - 1000, **LAYER_WG)
+        cell.add(path1)
+        create_grating_path(cell, period, fill_frac, teeth, (path1.x + WG_WIDTH / (2*np.tan((1 - angle) * np.pi)), path1.y), radius, angle,WG_WIDTH, 1, LAYER_WG=LAYER_WG)
         
-        path_trench = gdspy.Path(WG_WIDTH + trench*2, (center[0]-1, center[1]))
-        path_trench.segment(WG_length+6.5, '+x', **LAYER_NEG)
+        # temp1 = gdspy.boolean(cell, cell, "and")
         
-        arc2 = gdspy.copy(arc)
-        arc2.translate(WG_length, 0)
-        arc2.rotate(np.pi, (path1.x, path1.y))
-        
-        cell_neg.add(arc).add(path_trench).add(arc2)
-        
-        # temp2 = gdspy.boolean(cell_neg, cell_neg, "and")
-        
-        # negative_mask = gdspy.boolean(temp2, temp1, "not")
-        
-        # cell_final.add(negative_mask)
+        if negative:
+            initial_angle = (1 - angle) * np.pi
+            final_angle   = (1 + angle) * np.pi
+            arc = gdspy.Round((center[0]+trench/np.sin(angle*np.pi), center[1]), radius + trench + trench/np.sin(angle*np.pi),  initial_angle=initial_angle, final_angle=final_angle, tolerance=0.0001, **LAYER_NEG).rotate(direction*np.pi, center)
+            
+            path_trench = gdspy.Path(WG_WIDTH + trench*2, (center[0]-1, center[1]))
+            path_trench.segment(WG_length/2, '+x', **LAYER_NEG)
+            sbendPath(path_trench, 1000, 100, LAYER_NEG)
+            path_trench.segment(WG_length/2 - 1000 + 6.5, '+x', **LAYER_NEG)
+            
+            arc2 = gdspy.copy(arc)
+            arc2.translate(WG_length, 100)
+            arc2.rotate(np.pi, (path1.x, path1.y))
+            
+            cell_neg.add(arc).add(path_trench).add(arc2)
+            
+            # temp2 = gdspy.boolean(cell_neg, cell_neg, "and")
+            
+            # negative_mask = gdspy.boolean(temp2, temp1, "not")
+            
+            # cell_final.add(negative_mask)
 
 # Plot
 gdspy.LayoutViewer(lib)
 
 # Write to GDS file
-lib.write_gds('Shai_SBS.gds')
+#lib.write_gds('Shai_SBS.gds')
 
 # Enable running on the same kernel
 gdspy.current_library = gdspy.GdsLibrary()
+
+
+
+
+
+
+
+
+# lib = gdspy.GdsLibrary()
+# cell_text = lib.new_cell('text')
+
+# htext = gdspy.Text("DC = 50%, Period = 538nm", 20, (0,0))
+# cell_text.add(htext)
+# htext = gdspy.Text("DC = 50%, Period = 543nm", 20, (0,-500*1))
+# cell_text.add(htext)
+# htext = gdspy.Text("DC = 50%, Period = 548nm", 20, (0,-500*2))
+# cell_text.add(htext)
+# htext = gdspy.Text("DC = 50%, Period = 553nm", 20, (0,-500*3))
+# cell_text.add(htext)
+# htext = gdspy.Text("DC = 50%, Period = 558nm", 20, (0,-500*4))
+# cell_text.add(htext)
+# htext = gdspy.Text("DC = 50%, Period = 563nm", 20, (0,-500*5))
+# cell_text.add(htext)
+# htext = gdspy.Text("DC = 50%, Period = 568nm", 20, (0,-500*6))
+# cell_text.add(htext)
+# htext = gdspy.Text("DC = 50%, Period = 573nm", 20, (0,-500*7))
+# cell_text.add(htext)
+# htext = gdspy.Text("DC = 50%, Period = 578nm", 20, (0,-500*8))
+# cell_text.add(htext)
+
+# htext = gdspy.Text("DC = 60%, Period = 538nm", 20, (1000,0))
+# cell_text.add(htext)
+# htext = gdspy.Text("DC = 60%, Period = 543nm", 20, (1000,-500*1))
+# cell_text.add(htext)
+# htext = gdspy.Text("DC = 60%, Period = 548nm", 20, (1000,-500*2))
+# cell_text.add(htext)
+# htext = gdspy.Text("DC = 60%, Period = 553nm", 20, (1000,-500*3))
+# cell_text.add(htext)
+# htext = gdspy.Text("DC = 60%, Period = 558nm", 20, (1000,-500*4))
+# cell_text.add(htext)
+# htext = gdspy.Text("DC = 60%, Period = 563nm", 20, (1000,-500*5))
+# cell_text.add(htext)
+# htext = gdspy.Text("DC = 60%, Period = 568nm", 20, (1000,-500*6))
+# cell_text.add(htext)
+# htext = gdspy.Text("DC = 60%, Period = 573nm", 20, (1000,-500*7))
+# cell_text.add(htext)
+# htext = gdspy.Text("DC = 60%, Period = 578nm", 20, (1000,-500*8))
+# cell_text.add(htext)
+
+
+
 
 
