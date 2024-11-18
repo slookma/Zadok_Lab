@@ -6,22 +6,42 @@ Created on Mon Nov 11 11:15:46 2024
 """
 
 import gdspy
+import numpy as np
 
-# Create GDS library and cell
 lib = gdspy.GdsLibrary()
-cell = lib.new_cell('Text')
+cell_text = lib.new_cell('text')
 
-text1 = gdspy.Text("X = -4500 um, Y = 4500 um", 15, (-4500 - 170,  4500 + 65))
-text2 = gdspy.Text("X = -4500 um, Y = -4500 um", 15, (-4500 - 170, -4500 + 65))
-text3 = gdspy.Text("X = 4500 um, Y = -4500 um", 15, ( 4500 - 170, -4500 + 65))
-text4 = gdspy.Text("X = 4500 um, Y = 4500 um", 15, ( 4500 - 170,  4500 + 65))
-cell.add(text1).add(text2).add(text3).add(text4)
+periods      = list(np.asarray(np.arange(-0.02, 0.025, 0.005)) + 0.558)
+DCs          = list([50, 60])
+vertical_gap = 200
+text_size    = 40
+
+for idx_DC, DC in enumerate(DCs):
+    for idx_per, period in enumerate(periods):
+        X = -3500
+        Y = -vertical_gap*(idx_DC*len(periods) + idx_per
+        htext = gdspy.Text("DC = " + str(DC) + "%, Period = " + str(round(period*1000)) + "nm", text_size, (X,Y)))
+        cell_text.add(htext)
+        
+        X = -3500 + 6100
+        Y = 100 - vertical_gap*(idx_DC*len(periods) + idx_per
+        htext = gdspy.Text("DC = " + str(DC) + "%, Period = " + str(round(period*1000)) + "nm", text_size, (X,Y)))
+        cell_text.add(htext)
+        
+htext = gdspy.Text("X = -4000, Y = 4000", text_size, (-4000 - 330,  4000 + 80))
+cell_text.add(htext)
+htext = gdspy.Text("X = 4000, Y = 4000", text_size, ( 4000 - 330,  4000 + 80))
+cell_text.add(htext)
+htext = gdspy.Text("X = -4000, Y = -4000", text_size, (-4000 - 330, -4000 + 80))
+cell_text.add(htext)
+htext = gdspy.Text("X = 4000, Y = -4000", text_size, ( 4000 - 330, -4000 + 80))
+cell_text.add(htext)
 
 # Plot
 gdspy.LayoutViewer(lib)
 
 # Write to GDS file
-lib.write_gds('Text.gds')
+# lib.write_gds('Text.gds')
 
 # Enable running on the same kernel
 gdspy.current_library = gdspy.GdsLibrary()

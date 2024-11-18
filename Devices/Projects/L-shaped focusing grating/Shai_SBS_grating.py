@@ -30,7 +30,7 @@ negative        = True
 trench          = 2
 WG_length       = 7000
 copies          = 5
-vertical_gap    = 500
+vertical_gap    = 200
 
 
 # Create GDS library and cell
@@ -86,59 +86,10 @@ for idx_DC, fill_frac in enumerate(fill_fracs):
 gdspy.LayoutViewer(lib)
 
 # Write to GDS file
-#lib.write_gds('Shai_SBS.gds')
+lib.write_gds('Shai_SBS.gds')
 
 # Enable running on the same kernel
 gdspy.current_library = gdspy.GdsLibrary()
-
-
-
-
-
-
-
-
-# lib = gdspy.GdsLibrary()
-# cell_text = lib.new_cell('text')
-
-# htext = gdspy.Text("DC = 50%, Period = 538nm", 20, (0,0))
-# cell_text.add(htext)
-# htext = gdspy.Text("DC = 50%, Period = 543nm", 20, (0,-500*1))
-# cell_text.add(htext)
-# htext = gdspy.Text("DC = 50%, Period = 548nm", 20, (0,-500*2))
-# cell_text.add(htext)
-# htext = gdspy.Text("DC = 50%, Period = 553nm", 20, (0,-500*3))
-# cell_text.add(htext)
-# htext = gdspy.Text("DC = 50%, Period = 558nm", 20, (0,-500*4))
-# cell_text.add(htext)
-# htext = gdspy.Text("DC = 50%, Period = 563nm", 20, (0,-500*5))
-# cell_text.add(htext)
-# htext = gdspy.Text("DC = 50%, Period = 568nm", 20, (0,-500*6))
-# cell_text.add(htext)
-# htext = gdspy.Text("DC = 50%, Period = 573nm", 20, (0,-500*7))
-# cell_text.add(htext)
-# htext = gdspy.Text("DC = 50%, Period = 578nm", 20, (0,-500*8))
-# cell_text.add(htext)
-
-# htext = gdspy.Text("DC = 60%, Period = 538nm", 20, (1000,0))
-# cell_text.add(htext)
-# htext = gdspy.Text("DC = 60%, Period = 543nm", 20, (1000,-500*1))
-# cell_text.add(htext)
-# htext = gdspy.Text("DC = 60%, Period = 548nm", 20, (1000,-500*2))
-# cell_text.add(htext)
-# htext = gdspy.Text("DC = 60%, Period = 553nm", 20, (1000,-500*3))
-# cell_text.add(htext)
-# htext = gdspy.Text("DC = 60%, Period = 558nm", 20, (1000,-500*4))
-# cell_text.add(htext)
-# htext = gdspy.Text("DC = 60%, Period = 563nm", 20, (1000,-500*5))
-# cell_text.add(htext)
-# htext = gdspy.Text("DC = 60%, Period = 568nm", 20, (1000,-500*6))
-# cell_text.add(htext)
-# htext = gdspy.Text("DC = 60%, Period = 573nm", 20, (1000,-500*7))
-# cell_text.add(htext)
-# htext = gdspy.Text("DC = 60%, Period = 578nm", 20, (1000,-500*8))
-# cell_text.add(htext)
-
 
 
 
