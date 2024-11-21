@@ -12,7 +12,7 @@ import sys
 sys.path.insert(0, '../Consortium')
 from s_bend_func import sbendPath, sbendPathM
 
-periods         = list(np.asarray(np.arange(-0.02, 0.025, 0.005)) + 0.558)
+periods         = list(np.asarray(np.arange(-0.02, 0.025, 0.005)) + 0.540)
 fill_fracs      = list([0.5, 0.6])
 GC_len          = 60
 taper_len       = 30
@@ -86,7 +86,7 @@ for idx_DC, fill_frac in enumerate(fill_fracs):
 gdspy.LayoutViewer(lib)
 
 # Write to GDS file
-lib.write_gds('Shai_SBS.gds')
+# lib.write_gds('Shai_SBS.gds')
 
 # Enable running on the same kernel
 gdspy.current_library = gdspy.GdsLibrary()
