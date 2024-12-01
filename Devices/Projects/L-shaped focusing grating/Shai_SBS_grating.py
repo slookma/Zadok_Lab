@@ -28,7 +28,7 @@ layer2          = 49
 datatype        = 0
 negative        = True
 trench          = 2
-WG_length       = 7000
+WG_length       = 1100
 copies          = 5
 vertical_gap    = 200
 
@@ -52,9 +52,9 @@ for idx_DC, fill_frac in enumerate(fill_fracs):
         center = (0, -(idx_per + idx_DC*len(periods))*vertical_gap)
         # Call the function to create the grating path
         path1 = create_grating_path(cell, period, fill_frac, teeth, center, radius, angle, WG_WIDTH, direction, LAYER_WG=LAYER_WG)
-        path1.segment(WG_length/2, **LAYER_WG)
+        path1.segment(WG_length/2 - 500, **LAYER_WG)
         sbendPath(path1, 1000, 100, LAYER_WG)
-        path1.segment(WG_length/2 - 1000, **LAYER_WG)
+        path1.segment(WG_length/2 - 500, **LAYER_WG)
         cell.add(path1)
         create_grating_path(cell, period, fill_frac, teeth, (path1.x + WG_WIDTH / (2*np.tan((1 - angle) * np.pi)), path1.y), radius, angle,WG_WIDTH, 1, LAYER_WG=LAYER_WG)
         
@@ -66,9 +66,9 @@ for idx_DC, fill_frac in enumerate(fill_fracs):
             arc = gdspy.Round((center[0]+trench/np.sin(angle*np.pi), center[1]), radius + trench + trench/np.sin(angle*np.pi),  initial_angle=initial_angle, final_angle=final_angle, tolerance=0.0001, **LAYER_NEG).rotate(direction*np.pi, center)
             
             path_trench = gdspy.Path(WG_WIDTH + trench*2, (center[0]-1, center[1]))
-            path_trench.segment(WG_length/2, '+x', **LAYER_NEG)
+            path_trench.segment(WG_length/2 - 500, '+x', **LAYER_NEG)
             sbendPath(path_trench, 1000, 100, LAYER_NEG)
-            path_trench.segment(WG_length/2 - 1000 + 6.5, '+x', **LAYER_NEG)
+            path_trench.segment(WG_length/2 - 500 + 6.5, '+x', **LAYER_NEG)
             
             arc2 = gdspy.copy(arc)
             arc2.translate(WG_length, 100)
