@@ -70,4 +70,5 @@ path1.segment(10, **LAYER_WG)
 cell.add(path1)
 create_grating_path(cell, priodicity,fill_factor,grating_period,(path1.x + WG_WIDTH / (2*np.tan((1 - angle) * np.pi)), path1.y), radius, angle,WG_WIDTH, 1)
 # Write to GDS file
-lib.write_gds('wifi.gds')
+#gdspy.LayoutViewer(lib)
+#lib.write_gds('wifi.gds')
