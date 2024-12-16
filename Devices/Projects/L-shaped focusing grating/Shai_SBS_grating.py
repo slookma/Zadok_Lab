@@ -12,6 +12,7 @@ import sys
 sys.path.insert(0, '../Consortium')
 from s_bend_func import sbendPath, sbendPathM
 
+overwrite       = 0 # 0 - Don't write GDS, 1 - Write GDS
 periods         = list(np.asarray(np.arange(-0.02, 0.025, 0.005)) + 0.540)
 fill_fracs      = list([0.5, 0.6])
 GC_len          = 60
@@ -34,10 +35,10 @@ vertical_gap    = 200
 
 
 # Create GDS library and cell
-lib = gdspy.GdsLibrary()
-cell        = lib.new_cell('Shai_WIFI')
-cell_neg    = lib.new_cell('Shai_WIFI_negative')
-cell_final  = lib.new_cell('Shai_WIFI_final')
+lib        = gdspy.GdsLibrary()
+cell       = lib.new_cell('Shai_WIFI')
+cell_neg   = lib.new_cell('Shai_WIFI_negative')
+cell_final = lib.new_cell('Shai_WIFI_final')
 
 # Parameters
 teeth = 90
@@ -86,11 +87,8 @@ for idx_DC, fill_frac in enumerate(fill_fracs):
 gdspy.LayoutViewer(lib)
 
 # Write to GDS file
-# lib.write_gds('Shai_SBS.gds')
+if overwrite:
+    lib.write_gds('Shai_SBS.gds')
 
 # Enable running on the same kernel
 gdspy.current_library = gdspy.GdsLibrary()
-
-# TEST TEST TEST
-
-
