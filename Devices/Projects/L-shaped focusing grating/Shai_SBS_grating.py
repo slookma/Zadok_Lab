@@ -86,7 +86,7 @@ for idx_DC, fill_frac in enumerate(fill_fracs):
 gdspy.LayoutViewer(lib)
 
 # Write to GDS file
-#lib.write_gds('Shai_SBS.gds')
+lib.write_gds('Shai_SBS.gds')
 
 # Enable running on the same kernel
 gdspy.current_library = gdspy.GdsLibrary()
