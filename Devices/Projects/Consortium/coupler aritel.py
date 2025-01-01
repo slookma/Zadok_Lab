@@ -117,6 +117,7 @@ print(tau2)
 # coupler
 create_sbend_sequence(top, bot, lc, H_sbend, layer_wg, heater_w, layer_heater, design)
 # taper out
+sbendPath_x(top, 2*L_sbend, array_dis-(top.y-bot.y), layer_wg)
 top.segment(chip_size-top.x-taper_length, **layer_wg).segment(taper_length, final_width=taper, **layer_wg)
 bot.segment(chip_size-bot.x-taper_length, **layer_wg).segment(taper_length, final_width=taper, **layer_wg)
 design.add(top).add(bot)
