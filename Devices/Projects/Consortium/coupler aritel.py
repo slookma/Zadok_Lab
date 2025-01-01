@@ -10,15 +10,15 @@ layer_wg = {"layer": 350, "datatype": 0}
 layer_heater = {"layer": 800, "datatype": 0}
 
 # Parameters
-L_sbend = 120
-H_sbend = 40
+rad = 80
+H_sbend = rad/2
+L_sbend = 3*H_sbend
 lc = 400
 taper = 0.3
 chip_size = 4980
 coupling_dis = 0.2
 wg_width = 1
 taper_length = 300
-rad = 80
 heater_w = 5
 heater_l = 300
 test_length = 5
@@ -126,32 +126,16 @@ test1.segment(taper_length, final_width=wg_width, **layer_wg).segment(heater1_en
 sbendPath_x(test1, 0.5*L_sbend, H_sbend, layer_wg)
 test1.segment(test_length, **layer_wg)
 sbendPathM_x(test1, 0.5*L_sbend, H_sbend, layer_wg)
+test1.segment(chip_size-test1.x-taper_length, **layer_wg).segment(taper_length, final_width=taper, **layer_wg)
 
-test2 = gdspy.Path(taper, (0, bot.y-(2*H_sbend+ coupling_dis + wg_width)))
-test2.segment(taper_length, final_width=wg_width, **layer_wg).segment(heater2_end-taper_length, **layer_wg)
-sbendPath_x(test2, 0.5*L_sbend, H_sbend, layer_wg)
-sbendPath_x(test2, 0.5*L_sbend, H_sbend, layer_wg)
-test2.segment(test_length, **layer_wg)
-sbendPathM_x(test2, 0.5*L_sbend, H_sbend, layer_wg)
-sbendPathM_x(test2, 0.5*L_sbend, H_sbend, layer_wg)
-test2.segment(chip_size-test2.x-taper_length, **layer_wg).segment(taper_length, final_width=taper, **layer_wg)
-
-test3 = gdspy.Path(taper, (0, top.y+(H_sbend+ coupling_dis + wg_width+2.5*rad)))
-test3.segment(taper_length, final_width=wg_width, **layer_wg).segment(heater1_end-taper_length, **layer_wg)
-sbendPathM_x(test3, 0.5*L_sbend, H_sbend, layer_wg)
-test3.segment(test_length, **layer_wg)
-sbendPath_x(test3, 0.5*L_sbend, H_sbend, layer_wg)
-
-test4 = gdspy.Path(taper, (0, top.y+(2*H_sbend+ coupling_dis + wg_width+2.5*rad)))
+test4 = gdspy.Path(taper, (0, top.y+(H_sbend+ coupling_dis + wg_width+2.5*rad)))
 test4.segment(taper_length, final_width=wg_width, **layer_wg).segment(heater2_end-taper_length, **layer_wg)
 sbendPathM_x(test4, 0.5*L_sbend, H_sbend, layer_wg)
-sbendPathM_x(test4, 0.5*L_sbend, H_sbend, layer_wg)
 test4.segment(test_length, **layer_wg)
-sbendPath_x(test4, 0.5*L_sbend, H_sbend, layer_wg)
 sbendPath_x(test4, 0.5*L_sbend, H_sbend, layer_wg)
 test4.segment(chip_size-test4.x-taper_length, **layer_wg).segment(taper_length, final_width=taper, **layer_wg)
 
 
 
-design.add(test1).add(test2).add(test3).add(test4)
+design.add(test1).add(test4)
 lib.write_gds('ariel_coupler.gds')
