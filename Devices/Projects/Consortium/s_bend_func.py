@@ -13,7 +13,7 @@ coupling_dis = 0.3
 # width of WG
 wg_width = 1
 # layer
-layer_wg = {"layer": 174, "datatype": 0}
+layer_wg = {"layer": 2, "datatype": 0}
 
 
 # creating s_bend from David Trop

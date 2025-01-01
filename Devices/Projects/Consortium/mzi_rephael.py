@@ -171,4 +171,6 @@ for i in range(len(CL)):
     mzi(cell, mzi_top, mzi_bot, CL[i], wg_dis=wg_dis, size=4980)
     start_y = start_y-1*wg_dis
     j += 1
-lib.write_gds('mzi1064.gds')
+#lib.write_gds('mzi1064.gds')
+gdspy.LayoutViewer(lib)
+gdspy.current_library = gdspy.GdsLibrary()

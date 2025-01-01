@@ -45,6 +45,7 @@ run_x_start         = 2*bend_radius + safety_gap
 vertical_50_coup    = safety_gap/2 + ring_radius - bend_radius
 vertical_out_coup   = 2 * bend_radius + coup_gap
 Lc_50_coup          = 10
+Lc_test_port        = 10
 side_M2             = 100
 side_silox          = 80
 pad_shift_const     = 127
@@ -55,7 +56,7 @@ TNR_tail            = 20
 # Lc_D4_vec           = [9.65, 11, 12, 13, 14, 15, 16, 17, 18.85]
 Lc_D3_vec           = [4.95,  6.5,  7.5,  9.0, 10.0, 11.5, 12.5, 14.15]
 Lc_D4_vec           = [9.65, 11.0, 12.5, 13.5, 15.0, 16.0, 17.5, 18.85]
-run_x_through_coup  = 7 * bend_radius + Lc_50_coup
+run_x_through_coup  = 7 * bend_radius + Lc_test_port
 right_end           = 5000 - taper_len - 10 - 10
 
 
@@ -100,7 +101,7 @@ for idx in range(len(Lc_D3_vec)):
     path1.segment(vertical_out_coup, **ld_NWG)
     path1.turn(bend_radius, "rr", **ld_NWG)
     path1.turn(bend_radius, "l", **ld_NWG)
-    path1.segment(Lc_50_coup, **ld_NWG)
+    path1.segment(Lc_test_port, **ld_NWG)
     x_out_coup_bottom = path1.x
     y_out_coup_bottom = path1.y
     path1.turn(bend_radius, "l", **ld_NWG)
@@ -157,11 +158,11 @@ for idx in range(len(Lc_D3_vec)):
     path2.segment(taper_len, final_width=final_taper_width, **ld_NWG)
     
     path3 = gdspy.Path(width, (x_out_coup_bottom, y_out_coup_bottom - coup_gap - width))
-    path3.segment(Lc_50_coup, "-x", **ld_NWG)
+    path3.segment(Lc_test_port, "-x", **ld_NWG)
     path3.turn(bend_radius, "l", **ld_NWG)
     path3.segment(coup_gap + safety_gap, **ld_NWG)
     path3.turn(bend_radius, "r", **ld_NWG)
-    path3.segment(20*bend_radius + 2*Lc_D3 + 2*Lc_50_coup + run_x_start, **ld_NWG)
+    path3.segment(20*bend_radius + 2*Lc_D3 + Lc_50_coup + Lc_test_port + run_x_start, **ld_NWG)
     path3.segment(taper_len, final_width=final_taper_width, **ld_NWG)
     
     #######################################################################
@@ -191,7 +192,7 @@ for idx in range(len(Lc_D3_vec)):
     path4.turn(bend_radius, "l", **ld_NWG)
     x_out_coup_top = path4.x
     y_out_coup_top = path4.y
-    path4.segment(Lc_50_coup, **ld_NWG)
+    path4.segment(Lc_test_port, **ld_NWG)
     path4.turn(bend_radius, "l", **ld_NWG)
     path4.turn(bend_radius, "rr", **ld_NWG)
     path4.segment(vertical_out_coup, **ld_NWG)
@@ -236,7 +237,7 @@ for idx in range(len(Lc_D3_vec)):
     #######################################################################
     # Start path6 + path7 (top WG couples to top track)
     path6 = gdspy.Path(width, (x_out_coup_top, y_out_coup_top + coup_gap + width))
-    path6.segment(Lc_50_coup, "-x", **ld_NWG)
+    path6.segment(Lc_test_port, "-x", **ld_NWG)
     path6.turn(bend_radius, "r", **ld_NWG)
     path6.segment(coup_gap + safety_gap, **ld_NWG)
     path6.turn(bend_radius, "l", **ld_NWG)
@@ -251,7 +252,7 @@ for idx in range(len(Lc_D3_vec)):
     path7.turn(bend_radius, "l", **ld_NWG)
     path7.segment(coup_gap + safety_gap, **ld_NWG)
     path7.turn(bend_radius, "r", **ld_NWG)
-    path7.segment(20*bend_radius + Lc_D3 + Lc_D4 + 2*Lc_50_coup, **ld_NWG)
+    path7.segment(20*bend_radius + Lc_D3 + Lc_D4 + Lc_50_coup + Lc_test_port, **ld_NWG)
     # Continue a bit to align all
     path7.segment(right_end - path7.x, **ld_NWG)
     # Add taper
