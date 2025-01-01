@@ -6,8 +6,8 @@ lib = gdspy.GdsLibrary()
 design = lib.new_cell('coupler')
 
 # Layer definitions
-layer_wg = {"layer": 350, "datatype": 0}
-layer_heater = {"layer": 800, "datatype": 0}
+layer_wg = {"layer": 174, "datatype": 0}
+layer_heater = {"layer": 26, "datatype": 0}
 
 # Parameters
 rad = 80
@@ -22,6 +22,7 @@ taper_length = 300
 heater_w = 5
 heater_l = 300
 test_length = 5
+array_dis = 127
 # S-bend functions
 def sbendPath_x(wgsbend, L=L_sbend, H=H_sbend, layer_1=layer_wg):
     def sbend(t):
@@ -78,7 +79,7 @@ def rotations(path, rotations_array, rad, layer):
 
 
 def create_and_add_heater(top, bot, rad, heater_w, layer_wg, layer_heater, cell, opt="A"):
-    rotations_array_A = ["ll", "l", "r", lc, "r", rad / 2, "r", 2.5*lc + 2.5 * rad, "r", rad / 2, "l"]
+    rotations_array_A = ["ll", "l", "r", lc, "r", rad / 2, "r", 1.5*lc + 2.5 * rad, "r", rad / 2, "l"]
     rotations_array_B = rotations_array_A[::-1]
     heater = gdspy.Path(heater_w, initial_point=(bot.x, bot.y))
     if opt == "A":
@@ -121,18 +122,19 @@ bot.segment(chip_size-bot.x-taper_length, **layer_wg).segment(taper_length, fina
 design.add(top).add(bot)
 
 # test ports
-test1 = gdspy.Path(taper, (0, bot.y-(H_sbend+ coupling_dis + wg_width)))
-test1.segment(taper_length, final_width=wg_width, **layer_wg).segment(heater1_end-taper_length, **layer_wg)
-sbendPath_x(test1, 0.5*L_sbend, H_sbend, layer_wg)
+test1 = gdspy.Path(taper, (0, top.y-(array_dis+ coupling_dis)))
+test1.segment(taper_length, final_width=wg_width, **layer_wg).segment(heater2_end-taper_length, **layer_wg)
+sbendPath_x(test1, 0.5*L_sbend, bot.y - (test1.y + coupling_dis), layer_wg)
 test1.segment(test_length, **layer_wg)
 sbendPathM_x(test1, 0.5*L_sbend, H_sbend, layer_wg)
 test1.segment(chip_size-test1.x-taper_length, **layer_wg).segment(taper_length, final_width=taper, **layer_wg)
 
-test4 = gdspy.Path(taper, (0, top.y+(H_sbend+ coupling_dis + wg_width+2.5*rad)))
-test4.segment(taper_length, final_width=wg_width, **layer_wg).segment(heater2_end-taper_length, **layer_wg)
-sbendPathM_x(test4, 0.5*L_sbend, H_sbend, layer_wg)
+test4 = gdspy.Path(taper, (0, bot.y+3*array_dis + coupling_dis))
+test4.segment(taper_length, final_width=wg_width, **layer_wg).segment(heater1_end-2*lc, **layer_wg)
+test4_dis = test4.y-(top.y+2.5*rad+coupling_dis+wg_width)
+sbendPathM_x(test4, L_sbend, test4_dis, layer_wg)
 test4.segment(test_length, **layer_wg)
-sbendPath_x(test4, 0.5*L_sbend, H_sbend, layer_wg)
+sbendPath_x(test4, L_sbend, test4_dis, layer_wg)
 test4.segment(chip_size-test4.x-taper_length, **layer_wg).segment(taper_length, final_width=taper, **layer_wg)
 
 
