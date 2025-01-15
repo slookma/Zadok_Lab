@@ -11,8 +11,8 @@ import numpy as np
 lib = gdspy.GdsLibrary()
 cell_text = lib.new_cell('text')
 
-periods      = list(np.asarray(np.arange(-0.02, 0.025, 0.005)) + 0.540)
-DCs          = list([50, 60])
+periods      = list(np.asarray(np.arange(-0.02, 0.025, 0.005)) + 0.550)
+DCs          = list([0.4, 0.5, 0.6])
 vertical_gap = 200
 text_size    = 40
 
@@ -35,6 +35,31 @@ cell_text.add(htext)
 htext = gdspy.Text("X = -4000, Y = -4000", text_size, (-4000 - 330, -4000 + 80))
 cell_text.add(htext)
 htext = gdspy.Text("X = 4000, Y = -4000", text_size, ( 4000 - 330, -4000 + 80))
+cell_text.add(htext)
+
+htext = gdspy.Text("L = " + str(12) + "um", text_size, (6000,0))
+cell_text.add(htext)
+htext = gdspy.Text("L = " + str(13) + "um", text_size, (6000,-200))
+cell_text.add(htext)
+htext = gdspy.Text("L = " + str(14) + "um", text_size, (6000,-400))
+cell_text.add(htext)
+htext = gdspy.Text("L = " + str(12) + "um", text_size, (8000,400))
+cell_text.add(htext)
+htext = gdspy.Text("L = " + str(13) + "um", text_size, (8000,200))
+cell_text.add(htext)
+htext = gdspy.Text("L = " + str(14) + "um", text_size, (8000,0))
+cell_text.add(htext)
+htext = gdspy.Text("L = " + str(12) + "um", text_size, (9000,0))
+cell_text.add(htext)
+htext = gdspy.Text("L = " + str(13) + "um", text_size, (9000,-200))
+cell_text.add(htext)
+htext = gdspy.Text("L = " + str(14) + "um", text_size, (9000,-400))
+cell_text.add(htext)
+htext = gdspy.Text("L = " + str(12) + "um", text_size, (11000,400))
+cell_text.add(htext)
+htext = gdspy.Text("L = " + str(13) + "um", text_size, (11000,200))
+cell_text.add(htext)
+htext = gdspy.Text("L = " + str(14) + "um", text_size, (11000,0))
 cell_text.add(htext)
 
 # Plot
