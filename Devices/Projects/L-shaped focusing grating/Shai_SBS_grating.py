@@ -32,7 +32,7 @@ trench          = 2
 WG_length       = 6000
 copies          = 5
 vertical_gap    = 200
-L_coups         = list([12, 13, 14])
+L_coups         = list([7,8,9,10])
 R               = 200
 gap_coup        = 0.2
 
@@ -120,7 +120,7 @@ for idx_rings, L_coup in enumerate(L_coups):
         
         arc2 = gdspy.copy(arc)
         arc2.rotate(np.pi, (center[0], center[1]))
-        arc2.translate(2322.25, 2*R)
+        arc2.translate(path_trench.x - 1, 2*R)
         
         ring1_neg = gdspy.Path(WG_WIDTH + trench*2, (x_ring, y_ring))
         ring1_neg.segment(L_coup, **LAYER_NEG)
@@ -132,7 +132,7 @@ for idx_rings, L_coup in enumerate(L_coups):
     
 # Add Rings
 for idx_rings, L_coup in enumerate(L_coups):
-    center = (3000, -(len(periods)*len(fill_fracs)+1)*vertical_gap - idx_rings*vertical_gap - R)
+    center = (3200, -(len(periods)*len(fill_fracs)+1)*vertical_gap - idx_rings*vertical_gap - R)
     # Call the function to create the grating path
     path1 = create_grating_path(cell, period, fill_frac, teeth, center, radius, angle, WG_WIDTH, direction, LAYER_WG=LAYER_WG)
     path1.segment(600 + idx_rings*(2*R+L_coup+100), **LAYER_WG)
@@ -163,7 +163,7 @@ for idx_rings, L_coup in enumerate(L_coups):
         
         arc2 = gdspy.copy(arc)
         arc2.rotate(np.pi, (center[0], center[1]))
-        arc2.translate(2322.25, 2*R)
+        arc2.translate(path_trench.x - 3200 - 1, 2*R)
         
         ring1_neg = gdspy.Path(WG_WIDTH + trench*2, (x_ring, y_ring))
         ring1_neg.segment(L_coup, **LAYER_NEG)

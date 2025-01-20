@@ -29,7 +29,7 @@ trench_path     = 2
 trench_sector   = 6
 WG_length       = 6000
 vertical_gap    = 200
-L_coups         = list([12, 13, 14])
+L_coups         = list([7,8,9,10])
 R               = 200
 gap_coup        = 0.2
 WG_WIDTH        = 0.7
@@ -88,13 +88,13 @@ for idx_rings, L_coup in enumerate(L_coups):
 
     arc2 = gdspy.copy(arc)
     arc2.rotate(np.pi, (center[0], center[1]))
-    arc2.translate(2322.25, 2*R)
+    arc2.translate(path_trench.x, 2*R)
     
     cell.add(arc).add(path_trench).add(ring1_trench).add(arc2)
     
     
 for idx_rings, L_coup in enumerate(L_coups):
-    center = (3000, -(len(periods)*len(fill_fracs)+1)*vertical_gap - idx_rings*vertical_gap - R)
+    center = (3200, -(len(periods)*len(fill_fracs)+1)*vertical_gap - idx_rings*vertical_gap - R)
     
     arc = gdspy.Round((center[0]+trench_sector/np.sin(angle*np.pi), center[1]), radius + trench_sector + trench_sector/np.sin(angle*np.pi),  initial_angle=initial_angle, final_angle=final_angle, tolerance=0.0001, **LAYER_NEG).rotate(direction*np.pi, center)
     
@@ -114,7 +114,7 @@ for idx_rings, L_coup in enumerate(L_coups):
 
     arc2 = gdspy.copy(arc)
     arc2.rotate(np.pi, (center[0], center[1]))
-    arc2.translate(2322.25, 2*R)
+    arc2.translate(path_trench.x-3200, 2*R)
     
     cell.add(arc).add(path_trench).add(ring1_trench).add(arc2)
 
