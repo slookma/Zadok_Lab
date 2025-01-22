@@ -4,10 +4,18 @@ clear all
 close all
 
 %%
-filepath = '\\madrid.eng.biu.ac.il\e2012\katzmam\My Documents\PhD\SAW\APL\measurments\8Tap\081220\';
-filename = '8tap.txt';
+% filepath = '\\madrid.eng.biu.ac.il\e2012\katzmam\My Documents\PhD\SAW\APL\measurments\8Tap\081220\';
+% filename = '8tap.txt';
+filepath = '';
+filename = 'Ring_10um.txt';
 %%
-[Wavelength Frequency Loss Time Time_Domain_Amplitude] = textread([filepath,filename], '%f %f %f %f %f', 'headerlines', 8);
+% [Wavelength Frequency Loss Time Time_Domain_Amplitude] = textread([filepath,filename], '%f %f %f %f %f', 'headerlines', 8);
+T = readtable([filepath, filename]);
+Wavelength              = T.XAxis_Wavelength_nm_;
+Frequency               = T.XAxis_Frequency_GHz_;
+Loss                    = T.InsertionLoss_dB_;
+Time                    = T.GroupDelay_ps_;
+Time_Domain_Amplitude   = T.ChromaticDispersion_ps_nm_;
 
 %%
 
@@ -18,8 +26,8 @@ W_start = 1540;
 W_end = 1560;
 Wavelength = Wavelength(1:2:end);
 span  = Wavelength > W_start & Wavelength < W_end;
-R = 50e-6;
-l = 2400e-6%2*pi*R+80e-6*2;
+R = 200e-6;
+l = 2*pi*R;
 %l  = 1.3*10^-2;
 Bus_length = 0.3;%[cm]
 EDFA_power = 16;%[dBm]
@@ -44,7 +52,7 @@ Loss_norm_q = Loss_norm(1:3:end);
 
 vq = interp1(Wavelength_q,Loss_norm_q,Wavelength,'cubic');
 %[Mpeak,Lpeak,W,ER] = findpeaks(-vq,Wavelength,'MinPeakDistance',0.9);
-[Mpeak,Lpeak,W,ER] = findpeaks(-Loss_norm,Wavelength,'MinPeakDistance',0.2);
+[Mpeak,Lpeak,W,ER] = findpeaks(-Loss_norm,Wavelength,'MinPeakDistance',0.3);
 %plot(Wavelength,-vq);
 plot(Wavelength,-Loss_norm);
 hold on
@@ -98,8 +106,10 @@ Q_int = 2*Q_loaded/(1+(sqrt(-Max_ER))^-1)
 Finesse = FSR/Delta_Lambda
 n_g = (Lambda_0*10^-9)^2/(FSR*10^-9*l)
 alpha_dB = 4.34*n_g*pi*(1+sqrt((10^(Max_ER/10))))/(Lambda_0*10^-7*Q_loaded)
+% alpha_dB = 0.01*4.34*Lambda_0*10^-9/(Q_int*R*FSR*10^-9);
 
 Coupling_Loss = Loss_max + alpha_dB*Bus_length - EDFA_power
 xlabel('Wavelength[nm]','FontSize',20,'FontWeight','bold')
 ylabel('dB','FontSize',20,'FontWeight','bold')
-title({'\alpha = ' num2str(alpha_dB),'Q factor = ' num2str(Q_loaded)})
+title({'10 \mum', ['\alpha = ' num2str(alpha_dB),' ; Q factor = ' num2str(Q_loaded)]})
+grid on
