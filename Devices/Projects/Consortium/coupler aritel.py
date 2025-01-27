@@ -14,11 +14,11 @@ rad = 80
 H_sbend = rad/2
 L_sbend = 3*H_sbend
 lc = 400
-taper = 0.3
-chip_size = 4980
-coupling_dis = 0.2
+taper = 0.2
+chip_size = 5000
+coupling_dis = 0.3
 wg_width = 1
-taper_length = 300
+taper_length = 310
 heater_w = 5
 heater_l = 300
 test_length = 5
@@ -123,18 +123,16 @@ bot.segment(chip_size-bot.x-taper_length, **layer_wg).segment(taper_length, fina
 design.add(top).add(bot)
 
 # test ports
-test1 = gdspy.Path(taper, (0, top.y-(array_dis+ coupling_dis)))
+test1 = gdspy.Path(taper, (0, -(array_dis)))
 test1.segment(taper_length, final_width=wg_width, **layer_wg).segment(heater2_end-taper_length, **layer_wg)
-sbendPath_x(test1, 0.5*L_sbend, bot.y - (test1.y + coupling_dis), layer_wg)
-test1.segment(test_length, **layer_wg)
+sbendPath_x(test1, 0.5*L_sbend, bot.y - (test1.y + 0.5 + wg_width), layer_wg)
 sbendPathM_x(test1, 0.5*L_sbend, H_sbend, layer_wg)
 test1.segment(chip_size-test1.x-taper_length, **layer_wg).segment(taper_length, final_width=taper, **layer_wg)
 
 test4 = gdspy.Path(taper, (0, bot.y+3*array_dis + coupling_dis))
 test4.segment(taper_length, final_width=wg_width, **layer_wg).segment(heater1_end-2*lc, **layer_wg)
-test4_dis = test4.y-(top.y+2.5*rad+coupling_dis+wg_width)
+test4_dis = test4.y-(2.5*rad+0.37+wg_width)
 sbendPathM_x(test4, L_sbend, test4_dis, layer_wg)
-test4.segment(test_length, **layer_wg)
 sbendPath_x(test4, L_sbend, test4_dis, layer_wg)
 test4.segment(chip_size-test4.x-taper_length, **layer_wg).segment(taper_length, final_width=taper, **layer_wg)
 
