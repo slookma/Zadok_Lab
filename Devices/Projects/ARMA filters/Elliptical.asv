@@ -174,25 +174,15 @@ phit = savePhit(iii) + 0.095*pi;
 % phi4 = 0.54*pi;
 % phit = -0.85*pi;
 
-% % optimal RR
-% phi1 = 0.88*pi; % (Ring 1)
-% phi2 = -0.88*pi; % (Ring 2)
-% phi3 = -0.35*pi; % (Ring 3)
-% phi4 = 0.35*pi; % (Ring 4)
-% phit = -0.49*pi; % (MZI)
 
-% 20% DC
-phi1 =  0.01*pi; % (Ring 1)
-phi2 = -0.01*pi; % (Ring 2)
-phi3 = -0.01*pi; % (Ring 3)
-phi4 =  0.01*pi; % (Ring 4)
-phit = -0.2*pi; % (MZI)
+phi1 = 0.88*pi; % (Ring 1)
+phi2 = -0.88*pi; % (Ring 2)
+phi3 = -0.35*pi; % (Ring 3)
+phi4 = 0.35*pi; % (Ring 4)
+phit = -0.49*pi; % (MZI)
 
-
-f1 = figure('Position', [100,70,1100,550]);
-for phit = 0.8*pi:0.01*pi:0.8*pi %0.07*pi % %savePhit(iii)% + (-0.05*pi:0.001*pi:0.05*pi) + 0.095*pi
-% for phi1 = 0.88*pi + (-0.5*pi:0.01*pi:0.12*pi) %savePhit(iii)% + (-0.05*pi:0.001*pi:0.05*pi) + 0.095*pi
-%     phi2 = -phi1;
+figure
+for phit = -0.49*pi + (-0.2*pi:0.01*pi:0.2*pi) %savePhit(iii)% + (-0.05*pi:0.001*pi:0.05*pi) + 0.095*pi
 % 
 %     phi1 = 1.01*pi;
 %     phi2 = -phi1;
@@ -235,32 +225,32 @@ for phit = 0.8*pi:0.01*pi:0.8*pi %0.07*pi % %savePhit(iii)% + (-0.05*pi:0.001*pi
     
     Loss = 10*log10(abs(H11).^2);
     Loss = Loss - max(Loss);
-    % [pks, locs] = findpeaks(Loss, 'MinPeakProminence', 5);
-    % [~, sortingOrder] = sort(pks, 'descend');
-    % pks  = pks(sortingOrder);
-    % locs = locs(sortingOrder);
-    % 
-    % mainPeak = pks(1);
-    % mainPeakloc = locs(1);
-    % 
-    % scanWidth = 10;
-    % narrowLambda = lambda(max([1,(mainPeakloc-scanWidth)]):min([length(Loss), (mainPeakloc+scanWidth)]));
-    % narrowLoss   =   Loss(max([1,(mainPeakloc-scanWidth)]):min([length(Loss), (mainPeakloc+scanWidth)]));
-    % 
-    % narrowLambdaDense = linspace(narrowLambda(1), narrowLambda(end), 1e3);
-    % narrowLossDense = interp1(narrowLambda, narrowLoss, narrowLambdaDense);
-    % 
-    % [~, Imax] = min(abs(narrowLossDense - mainPeak));
-    % aux1 = narrowLossDense > -3;
-    % aux2 = find(aux1 - circshift(aux1,-1));
-    % I3dB1 = min(aux2(aux2>Imax));
-    % I3dB2 = max(aux2(aux2<Imax));
-    % I = [I3dB1, I3dB2];
-    % if isempty(I3dB1) || isempty(I3dB2)
-    %     FWHM = 10;
-    % else
-    %     FWHM = abs(narrowLambdaDense(I(2)) - narrowLambdaDense(I(1)));
-    % end
+    [pks, locs] = findpeaks(Loss, 'MinPeakProminence', 5);
+    [~, sortingOrder] = sort(pks, 'descend');
+    pks  = pks(sortingOrder);
+    locs = locs(sortingOrder);
+    
+    mainPeak = pks(1);
+    mainPeakloc = locs(1);
+    
+    scanWidth = 10;
+    narrowLambda = lambda(max([1,(mainPeakloc-scanWidth)]):min([length(Loss), (mainPeakloc+scanWidth)]));
+    narrowLoss   =   Loss(max([1,(mainPeakloc-scanWidth)]):min([length(Loss), (mainPeakloc+scanWidth)]));
+    
+    narrowLambdaDense = linspace(narrowLambda(1), narrowLambda(end), 1e3);
+    narrowLossDense = interp1(narrowLambda, narrowLoss, narrowLambdaDense);
+    
+    [~, Imax] = min(abs(narrowLossDense - mainPeak));
+    aux1 = narrowLossDense > -3;
+    aux2 = find(aux1 - circshift(aux1,-1));
+    I3dB1 = min(aux2(aux2>Imax));
+    I3dB2 = max(aux2(aux2<Imax));
+    I = [I3dB1, I3dB2];
+    if isempty(I3dB1) || isempty(I3dB2)
+        FWHM = 10;
+    else
+        FWHM = abs(narrowLambdaDense(I(2)) - narrowLambdaDense(I(1)));
+    end
     
     
     if zp_analysis
@@ -308,21 +298,20 @@ for phit = 0.8*pi:0.01*pi:0.8*pi %0.07*pi % %savePhit(iii)% + (-0.05*pi:0.001*pi
         legend('Zeros', 'Poles')
         xlim([-1,1]*1.2)
         ylim([-1,1]*1.2)
-        hold off
+        % hold off
         
         subplot(1,2,2)
         plot(lambda, Loss)
-        % title({['iii = ' num2str(iii)],['\phi_1 = ' num2str(phi1/pi) '\pi ; \phi_2 = ' num2str(phi2/pi) '\pi ; \phi_3 = ' num2str(phi3/pi) '\pi ; \phi_4 = ' num2str(phi4/pi) '\pi ; \phi_t = ' num2str(phit/pi) '\pi'], ['FWHM = ' num2str(FWHM*1e12, '%.3f') ' [pm]']})
-        title({['iii = ' num2str(iii)],['\phi_1 = ' num2str(phi1/pi) '\pi ; \phi_2 = ' num2str(phi2/pi) '\pi ; \phi_3 = ' num2str(phi3/pi) '\pi ; \phi_4 = ' num2str(phi4/pi) '\pi ; \phi_t = ' num2str(phit/pi) '\pi']})
+        title({['iii = ' num2str(iii)],['\phi_1 = ' num2str(phi1/pi) '\pi ; \phi_2 = ' num2str(phi2/pi) '\pi ; \phi_3 = ' num2str(phi3/pi) '\pi ; \phi_4 = ' num2str(phi4/pi) '\pi ; \phi_t = ' num2str(phit/pi) '\pi'], ['FWHM = ' num2str(FWHM*1e12, '%.3f') ' [pm]']})
         ylim([-50 5])
         grid on
         hold on
 %         plot(narrowLambdaDense(I(1)), narrowLossDense(I(1)), '*')
 %         plot(narrowLambdaDense(I(2)), narrowLossDense(I(2)), '*')
         plot([lambda(1) lambda(end)], [-10 -10], '--k', 'LineWidth', 1.5)
-        hold off
+        % hold off
         drawnow
-        pause(0.01)
+        pause(0.2)
     end
     
     %                     if (FWHM < 0.05e-9) && (FWHM > 5e-13)
