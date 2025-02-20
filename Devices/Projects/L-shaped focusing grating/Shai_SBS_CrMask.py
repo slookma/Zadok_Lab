@@ -21,7 +21,7 @@ from s_bend_func import sbendPath, sbendPathM
 
 overwrite       = 0 # 0 - Don't write GDS, 1 - Write GDS
 periods         = list(np.asarray(np.arange(-0.02, 0.025, 0.005)) + 0.550)
-fill_fracs      = list([0.4, 0.5, 0.6])
+fill_fracs      = list([0.5])
 layer1          = 50
 layer2          = 49
 datatype        = 0
@@ -29,10 +29,10 @@ trench_path     = 2
 trench_sector   = 6
 WG_length       = 6000
 vertical_gap    = 200
-L_coups         = list([7,8,9,10])
-R               = 200
+L_coups         = list([5,6,7,8])
 gap_coup        = 0.2
 WG_WIDTH        = 0.7
+R               = 200
 
 # Create GDS library and cell
 lib  = gdspy.GdsLibrary()
@@ -124,7 +124,7 @@ gdspy.LayoutViewer(lib)
 
 # Write to GDS file
 if overwrite:
-    lib.write_gds('Shai_SBS_CrMask_V3.gds')
+    lib.write_gds('Shai_SBS_CrMask_V4.gds')
 
 # Enable running on the same kernel
 gdspy.current_library = gdspy.GdsLibrary()
