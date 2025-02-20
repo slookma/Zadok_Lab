@@ -34,7 +34,7 @@ gap_coup        = 0.2
 WG_WIDTH        = 0.7
 R               = 200
 
-# Create GDS library and cell
+#  Create GDS library and cell
 lib  = gdspy.GdsLibrary()
 cell = lib.new_cell('Shai_WIFI')
 
