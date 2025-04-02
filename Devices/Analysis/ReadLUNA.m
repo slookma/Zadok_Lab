@@ -7,7 +7,7 @@ close all
 % filepath = '\\madrid.eng.biu.ac.il\e2012\katzmam\My Documents\PhD\SAW\APL\measurments\8Tap\081220\';
 % filename = '8tap.txt';
 filepath = '';
-filename = 'Ring_10um.txt';
+filename = 'Ring.txt';
 %%
 % [Wavelength Frequency Loss Time Time_Domain_Amplitude] = textread([filepath,filename], '%f %f %f %f %f', 'headerlines', 8);
 T = readtable([filepath, filename]);
@@ -26,7 +26,7 @@ W_start = 1540;
 W_end = 1560;
 Wavelength = Wavelength(1:2:end);
 span  = Wavelength > W_start & Wavelength < W_end;
-R = 200e-6;
+R = 100e-6;
 l = 2*pi*R;
 %l  = 1.3*10^-2;
 Bus_length = 0.3;%[cm]
@@ -52,7 +52,7 @@ Loss_norm_q = Loss_norm(1:3:end);
 
 vq = interp1(Wavelength_q,Loss_norm_q,Wavelength,'cubic');
 %[Mpeak,Lpeak,W,ER] = findpeaks(-vq,Wavelength,'MinPeakDistance',0.9);
-[Mpeak,Lpeak,W,ER] = findpeaks(-Loss_norm,Wavelength,'MinPeakDistance',0.3);
+[Mpeak,Lpeak,W,ER] = findpeaks(-Loss_norm,Wavelength,'MinPeakDistance',0.5, 'MinPeakProminence',1);
 %plot(Wavelength,-vq);
 plot(Wavelength,-Loss_norm);
 hold on
