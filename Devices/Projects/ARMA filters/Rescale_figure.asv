@@ -1,0 +1,36 @@
+fig = gcf;
+dataObjs = findobj(fig,'-property','YData');
+
+XData = zeros(350, length(dataObjs));
+YData = zeros(350, length(dataObjs));
+
+for idx = 1:length(dataObjs)
+    Detector = dataObjs(idx).YData;
+    wavelength = dataObjs(idx).XData;
+    
+    [pks, locs] = findpeaks(Detector, 'MinPeakProminence', 3);
+    locsWL = wavelength(locs);
+    pks = pks(locs>1549.8);
+    locs = locs(locs>1549.8);
+    if (length(locs) == 3)
+        df2 = (max(locs)-min(locs))*1e-9*3e8/(1550e-9)^2;
+        scaling = 2*5e9/df2;
+        wavelength = wavelength*scaling;
+        shiftWL = ;
+    else
+        scaling = 1;
+        wavelength = wavelength*scaling;
+        [~, shiftWL] = max(Detector);
+        wavelength = wavelength - (wavelength(shiftWL) - 1550);
+    end
+    
+    XData(:,idx) = wavelength;
+    YData(:,idx) = Detector;
+end
+
+figure
+plot(wavelength, Detector)
+
+figure
+plot(XData, YData)
+xlim([1549.75 1550.1])

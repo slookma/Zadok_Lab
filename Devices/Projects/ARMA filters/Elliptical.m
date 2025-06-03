@@ -50,11 +50,11 @@
 % %             (9)  4.6783  V ; 14  mA (MZI)
 % %             (11) 9.715   V ; 2   mA (Ring 2)
 % %             (12) 13.2581 V ; 3.8 mA (Ring 4)
-% % Phases:     *pi (Ring 1)
-% %             *pi (Ring 2)
-% %             *pi (Ring 3)
-% %             *pi (Ring 4)
-% %             *pi (MZI)
+% % Phases:     -0.25*pi (Ring 1)
+% %              0.25*pi (Ring 2)
+% %             -0.64*pi (Ring 3)
+% %              0.64*pi (Ring 4)
+% %              0.365*pi (MZI)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Simple MZI V4 (Best) (14.10):
 % % Voltages:   (4)  6.0092  V ; 0.9 mA (Ring 3)
@@ -133,7 +133,7 @@ zp_analysis = 1;
 alpha  = 1*100; % [dB/m]
 n      = 4.2; % [Si eff index (Matan)] % 1.9963; % [SiN refractive index]
 c      = 299792458; % [m*s^-1]
-L      = 2*pi*100e-6; % [m]
+L      = 2*pi*100e-6*5/5.5; % [m]
 T      = L*n/c; % [s]
 N      = 1000;
 lambda = linspace(1548*1e-9, 1552*1e-9, N); % [m]
@@ -224,16 +224,6 @@ for phi1 = [1] %-1*pi:0.005*pi:1*pi %0.07*pi % %savePhit(iii) + (-0.05*pi:0.001*
 %     phi3 = savePhi3(iii);
 %     phi4 = savePhi4(iii);
 %     phit = savePhit(iii);
-    
-%     phi1 = -0.25*pi;
-%     phi2 =  0.25*pi;
-%     phi3 = -0.01*pi;
-%     phi4 =  0.01*pi;
-    phi1 = -0.25*pi;
-    phi2 = -phi1;
-    phi3 = -0.64*pi;
-    phi4 = -phi3;
-    phit =  0.365*pi;
     
     
     disp({['phi_1 = ' num2str(phi1/pi, '%.3f') ' pi'],

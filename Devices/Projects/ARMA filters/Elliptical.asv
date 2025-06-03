@@ -236,6 +236,12 @@ for phi1 = [1] %-1*pi:0.005*pi:1*pi %0.07*pi % %savePhit(iii) + (-0.05*pi:0.001*
     phit =  0.365*pi;
     
     
+-0.25*pi (Ring 1)
+0.25*pi (Ring 2)
+-0.01*pi (Ring 3)
+0.01*pi (Ring 4)
+1.05*pi (MZI)
+    
     disp({['phi_1 = ' num2str(phi1/pi, '%.3f') ' pi'],
         ['phi_2 = ' num2str(phi2/pi, '%.3f') ' pi'],
         ['phi_3 = ' num2str(phi3/pi, '%.3f') ' pi'],
