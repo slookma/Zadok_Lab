@@ -116,6 +116,18 @@
 % %              0.01*pi (Ring 4)
 % %              0.01*pi (MZI)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Ring:
+% % Voltages:   (4)  V ; mA (Ring 3)
+% %             (6)  V ; mA (Ring 1)
+% %             (9)  V ; mA (MZI)
+% %             (11) V ; mA (Ring 2)
+% %             (12) V ; mA (Ring 4)
+% % Phases:     -1.000*pi (Ring 1)
+% %              1.000*pi (Ring 2)
+% %              0.975*pi (Ring 3)
+% %             -0.975*pi (Ring 4)
+% %             -0.300*pi (MZI)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 k1 = 0.942; %(Matan) % 0.1035; %(Madsen) %0.489; %(Saawan)
 k2 = 0.942; %(Matan) % 0.1035; %(Madsen) %0.489; %(Saawan)
@@ -130,7 +142,7 @@ k4 = 0.484; %(Matan) % 0.3551; %(Madsen) %0.943; %(Saawan)
 %     phit = +0.01*pi; % (Shai) % +0.0700; %(Madsen) % 1.24 %(Saawan) %[2553.81] (Matan)
 
 zp_analysis = 1;
-alpha  = 1*100; % [dB/m]
+alpha  = 356; % [dB/m]
 n      = 4.2; % [Si eff index (Matan)] % 1.9963; % [SiN refractive index]
 c      = 299792458; % [m*s^-1]
 L      = 2*pi*100e-6*5/5.5; % [m]
@@ -164,9 +176,9 @@ step = 0.05*pi;
 %                     phi4 = savePhi4(iii);
 %                     phit = savePhit(iii);
 
-
-iii = 82;
-iii = 6703;
+iii = 1;
+% iii = 82;
+% iii = 6703;
 
 phi1 = savePhi1(iii) - 0.03*pi;
 phi2 = savePhi2(iii) - 0.05*pi;
@@ -175,55 +187,22 @@ phi4 = savePhi4(iii) + 0.02*pi;
 phit = savePhit(iii) + 0.095*pi;
 
 
-% phi1 = 0.76*pi;
-% phi2 = -0.76*pi;
-% phi3 = -0.54*pi;
-% phi4 = 0.54*pi;
-% phit = -0.85*pi;
-
-% % optimal RR
-% phi1 = 0.88*pi; % (Ring 1)
-% phi2 = -0.88*pi; % (Ring 2)
-% phi3 = -0.35*pi; % (Ring 3)
-% phi4 = 0.35*pi; % (Ring 4)
-% phit = -0.49*pi; % (MZI)
-
-% 20% DC
-phi1 =  0.01*pi; % (Ring 1)
-phi2 = -0.01*pi; % (Ring 2)
-phi3 = -0.01*pi; % (Ring 3)
-phi4 =  0.01*pi; % (Ring 4)
-phit = -0.2*pi; % (MZI)
-
-
 f1 = figure('Position', [100,70,1100,550]);
-% for iii = [1]
+% for iii = 1:length(saveFWHM)
 for phi1 = [1] %-1*pi:0.005*pi:1*pi %0.07*pi % %savePhit(iii) + (-0.05*pi:0.001*pi:0.05*pi)
-%     phi1 = 1.01*pi;
-%     phi2 = -phi1;
-%     phi3 = -1.024*pi;
-%     phi4 = -phi3;
-%     phit = -0.055*pi;
-%     
-% %     OptRR
-%     phi1 = 0.88*pi;
-%     phi2 = -phi1;
-%     phi3 = -0.35*pi;
-%     phi4 = -phi3;
-%     phit = -0.49*pi;
-%     
-% %     MZI
-%     phi1 = -0.25*pi;
-%     phi2 =  0.25*pi;
-%     phi3 = -0.01*pi;
-%     phi4 =  0.01*pi;
-%     phit =  1.05*pi;
-
+% for dphi = pi*(-1:0.1:1)*0.1
+    
 %     phi1 = savePhi1(iii);
 %     phi2 = savePhi2(iii);
 %     phi3 = savePhi3(iii);
 %     phi4 = savePhi4(iii);
-%     phit = savePhit(iii);
+%     phit = savePhit(iii) + dphi;
+
+    phi1 =  0.5*pi; % (Ring 1)
+    phi2 = -0.5*pi; % (Ring 2)
+    phi3 = -0.5*pi; % (Ring 3)
+    phi4 =  0.5*pi; % (Ring 4)
+    phit =  0.495*pi + dphi*0; % (MZI)
     
     
     disp({['phi_1 = ' num2str(phi1/pi, '%.3f') ' pi'],
@@ -323,12 +302,13 @@ for phi1 = [1] %-1*pi:0.005*pi:1*pi %0.07*pi % %savePhit(iii) + (-0.05*pi:0.001*
         hold off
         
         subplot(1,2,2)
-%         plot(lambda, Loss)
-        plot(lambda*1e9, abs(H11).^2./max(abs(H11).^2))
+        plot(lambda*1e9, Loss)
+%         plot(lambda*1e9, abs(H11).^2./max(abs(H11).^2))
         % title({['iii = ' num2str(iii)],['\phi_1 = ' num2str(phi1/pi) '\pi ; \phi_2 = ' num2str(phi2/pi) '\pi ; \phi_3 = ' num2str(phi3/pi) '\pi ; \phi_4 = ' num2str(phi4/pi) '\pi ; \phi_t = ' num2str(phit/pi) '\pi'], ['FWHM = ' num2str(FWHM*1e12, '%.3f') ' [pm]']})
 %         title({['iii = ' num2str(iii)],['\phi_1 = ' num2str(phi1/pi) '\pi ; \phi_2 = ' num2str(phi2/pi) '\pi ; \phi_3 = ' num2str(phi3/pi) '\pi ; \phi_4 = ' num2str(phi4/pi) '\pi ; \phi_t = ' num2str(phit/pi) '\pi']})
         title(['\phi_1 = ' num2str(phi1/pi) '\pi ; \phi_2 = ' num2str(phi2/pi) '\pi ; \phi_3 = ' num2str(phi3/pi) '\pi ; \phi_4 = ' num2str(phi4/pi) '\pi ; \phi_t = ' num2str(phit/pi) '\pi'])
-%         ylim([-50 5])
+%         ylim([-60 2])
+%         ylim([0 1])
         grid on
         hold on
 %         plot(narrowLambdaDense(I(1)), narrowLossDense(I(1)), '*')
@@ -336,7 +316,7 @@ for phi1 = [1] %-1*pi:0.005*pi:1*pi %0.07*pi % %savePhit(iii) + (-0.05*pi:0.001*
 %         plot([lambda(1) lambda(end)], [-10 -10], '--k', 'LineWidth', 1.5)
         hold off
         drawnow
-%         pause(0.5)
+        pause(0.1)
     end
     
     %                     if (FWHM < 0.05e-9) && (FWHM > 5e-13)

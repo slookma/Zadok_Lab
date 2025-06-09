@@ -23,12 +23,12 @@ for idx = length(dataObjs):-1:1
         scaling = 2*5e9/df2 * manualScaling(idx);
         wavelength = wavelength*scaling;
         shiftWL = wavelength(locs(2));
-        wavelength = wavelength - (shiftWL - 1550) + manualShifts(idx);
+        wavelength = wavelength - (shiftWL - 1549.913) + manualShifts(idx);
     else
         scaling = 1 * manualScaling(idx);
         wavelength = wavelength*scaling;
         [~, shiftWL] = max(Detector);
-        wavelength = wavelength - (wavelength(shiftWL) - 1550) + manualShifts(idx);
+        wavelength = wavelength - (wavelength(shiftWL) - 1549.913) + manualShifts(idx);
     end
     
     XData(:,idx) = wavelength;
