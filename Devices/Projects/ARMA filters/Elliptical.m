@@ -188,23 +188,16 @@ phit = savePhit(iii) + 0.095*pi;
 
 
 f1 = figure('Position', [100,70,1100,550]);
-% for iii = 1:length(saveFWHM)
-for phi1 = [1] %-1*pi:0.005*pi:1*pi %0.07*pi % %savePhit(iii) + (-0.05*pi:0.001*pi:0.05*pi)
-% for dphi = pi*(-1:0.1:1)*0.1
-    
-%     phi1 = savePhi1(iii);
-%     phi2 = savePhi2(iii);
-%     phi3 = savePhi3(iii);
-%     phi4 = savePhi4(iii);
-%     phit = savePhit(iii) + dphi;
 
-    phi1 =  0.5*pi; % (Ring 1)
-    phi2 = -0.5*pi; % (Ring 2)
-    phi3 = -0.5*pi; % (Ring 3)
-    phi4 =  0.5*pi; % (Ring 4)
-    phit =  0.495*pi + dphi*0; % (MZI)
-    
-    
+for iii = [1]
+% for phi1 = [1] %-1*pi:0.005*pi:1*pi %0.07*pi % %savePhit(iii) + (-0.05*pi:0.001*pi:0.05*pi)
+
+    phi1 = -0.25*pi;
+    phi2 =  0.25*pi;
+    phi3 = -0.64*pi;
+    phi4 =  0.64*pi;
+    phit =  0.365*pi;
+
     disp({['phi_1 = ' num2str(phi1/pi, '%.3f') ' pi'],
         ['phi_2 = ' num2str(phi2/pi, '%.3f') ' pi'],
         ['phi_3 = ' num2str(phi3/pi, '%.3f') ' pi'],
@@ -283,7 +276,6 @@ for phi1 = [1] %-1*pi:0.005*pi:1*pi %0.07*pi % %savePhit(iii) + (-0.05*pi:0.001*
         
         subplot(1,2,1)
         zplane(b,a)
-        legend('Zeros', 'Poles')
         grid on
         % Design the figure a bit better
         ax = gca;
@@ -302,8 +294,8 @@ for phi1 = [1] %-1*pi:0.005*pi:1*pi %0.07*pi % %savePhit(iii) + (-0.05*pi:0.001*
         hold off
         
         subplot(1,2,2)
-        plot(lambda*1e9, Loss)
-%         plot(lambda*1e9, abs(H11).^2./max(abs(H11).^2))
+        % plot(lambda*1e9, Loss)
+        plot(lambda*1e9, abs(H11).^2./max(abs(H11).^2))
         % title({['iii = ' num2str(iii)],['\phi_1 = ' num2str(phi1/pi) '\pi ; \phi_2 = ' num2str(phi2/pi) '\pi ; \phi_3 = ' num2str(phi3/pi) '\pi ; \phi_4 = ' num2str(phi4/pi) '\pi ; \phi_t = ' num2str(phit/pi) '\pi'], ['FWHM = ' num2str(FWHM*1e12, '%.3f') ' [pm]']})
 %         title({['iii = ' num2str(iii)],['\phi_1 = ' num2str(phi1/pi) '\pi ; \phi_2 = ' num2str(phi2/pi) '\pi ; \phi_3 = ' num2str(phi3/pi) '\pi ; \phi_4 = ' num2str(phi4/pi) '\pi ; \phi_t = ' num2str(phit/pi) '\pi']})
         title(['\phi_1 = ' num2str(phi1/pi) '\pi ; \phi_2 = ' num2str(phi2/pi) '\pi ; \phi_3 = ' num2str(phi3/pi) '\pi ; \phi_4 = ' num2str(phi4/pi) '\pi ; \phi_t = ' num2str(phit/pi) '\pi'])
