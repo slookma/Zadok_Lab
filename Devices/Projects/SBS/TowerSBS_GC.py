@@ -20,54 +20,54 @@ gap             = 14.031
 width           = period*DC
 height          = 10
 Nstripes        = math.floor(gap/period)
-GC_coorX        = list([-3429.40,   #SWG11L
-                        -384.631,   #SWG11R
-                        570.60,     #SWG21L
-                        3615.369,   #SWG21R
-                        -3429.40,   #SWG12L
-                        -384.631,   #SWG12R 
-                        570.60,     #SWG22L
-                        3615.369,   #SWG22R
-                        -3629.4,    #Ring11L
-                        -384.631,   #Ring11R
-                        370.6,      #Ring21L
-                        3615.369,   #Ring21R
-                        -3629.4,    #Ring12L
-                        -384.631,   #Ring12R
-                        370.6,      #Ring22L
-                        3615.369,   #Ring22R
-                        -4562.4,    #LWG1
-                        -4437.635,  #LWG1
-                        -4487.824,  #LWG1
-                        4340.554,   #LWG1
-                        4340.369,   #LWG1
-                        -4562.4,    #LWG2
-                        -4437.635,  #LWG2
-                        -4487.824,  #LWG2
-                        4340.554,   #LWG2
-                        4340.369,   #LWG2
-                        -4562.4,    #LWG3
-                        -4437.635,  #LWG3
-                        -4487.824,  #LWG3
-                        4340.554,   #LWG3
-                        4340.369,   #LWG3
-                        -4562.4,    #LWG4
-                        -4437.635,  #LWG4
-                        -4487.824,  #LWG4
-                        4340.554,   #LWG4
-                        4340.369,   #LWG4
-                        -4487.4,    #LWG5
-                        4465.554,   #LWG5
-                        4465.369,   #LWG5
-                        -4486.65,   #LWG6
-                        4466.304,   #LWG6
-                        4466.119,   #LWG6
-                        -4487.4,    #LWG7
-                        4465.554,   #LWG7
-                        4465.369,   #LWG7
-                        -4487.4,    #LWG8
-                        4465.554,   #LWG8
-                        4465.369    #LWG8
+GC_coorX        = list([-3429.40  + gap,  #SWG11L
+                        -384.631  - gap,  #SWG11R
+                        570.60    + gap,  #SWG21L
+                        3615.369  - gap,  #SWG21R
+                        -3429.40  + gap,  #SWG12L
+                        -384.631  - gap,  #SWG12R 
+                        570.60    + gap,  #SWG22L
+                        3615.369  - gap,  #SWG22R
+                        -3629.4   + gap,  #Ring11L
+                        -384.631  - gap,  #Ring11R
+                        370.6     + gap,  #Ring21L
+                        3615.369  - gap,  #Ring21R
+                        -3629.4   + gap,  #Ring12L
+                        -384.631  - gap,  #Ring12R
+                        370.6     + gap,  #Ring22L
+                        3615.369  - gap,  #Ring22R
+                        -4562.4   + gap,  #LWG1
+                        -4437.635 + gap,  #LWG1
+                        -4487.824 + gap,  #LWG1
+                        4340.554  - gap,  #LWG1
+                        4340.369  - gap,  #LWG1
+                        -4562.4   + gap,  #LWG2
+                        -4437.635 + gap,  #LWG2
+                        -4487.824 + gap,  #LWG2
+                        4340.554  - gap,  #LWG2
+                        4340.369  - gap,  #LWG2
+                        -4562.4   + gap,  #LWG3
+                        -4437.635 + gap,  #LWG3
+                        -4487.824 + gap,  #LWG3
+                        4340.554  - gap,  #LWG3
+                        4340.369  - gap,  #LWG3
+                        -4562.4   + gap,  #LWG4
+                        -4437.635 + gap,  #LWG4
+                        -4487.824 + gap,  #LWG4
+                        4340.554  - gap,  #LWG4
+                        4340.369  - gap,  #LWG4
+                        -4487.4   + gap,  #LWG5
+                        4465.554  - gap,  #LWG5
+                        4465.369  - gap,  #LWG5
+                        -4486.65  + gap,  #LWG6
+                        4466.304  - gap,  #LWG6
+                        4466.119  - gap,  #LWG6
+                        -4487.4   + gap,  #LWG7
+                        4465.554  - gap,  #LWG7
+                        4465.369  - gap,  #LWG7
+                        -4487.4   + gap,  #LWG8
+                        4465.554  - gap,  #LWG8
+                        4465.369  - gap   #LWG8
                         ])
 GC_coorY        = list([4254.85,    #SWG11L
                         4254.85,    #SWG11R 
