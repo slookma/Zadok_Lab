@@ -118,6 +118,7 @@ GC_coorY        = list([4254.85,    #SWG11L
                         -3893.994,  #LWG8
                         -4095.15    #LWG8
                         ])
+GC_coorY = [x+height/2 for x in GC_coorY]
 
 # Create GDS library and cell
 lib        = gdspy.GdsLibrary()
@@ -126,7 +127,7 @@ cell       = lib.new_cell('TowerSBS_GC')
 for idxGC in range(len(GC_coorX)):
     for idxStripe in range(Nstripes):
         GCstripe = gdspy.Path(width, (GC_coorX[idxGC] + (idxStripe+1)*period, GC_coorY[idxGC]))
-        GCstripe.segment(height, '-y', **LAYER)
+        GCstripe.segment(height*2, '-y', **LAYER)
         
         cell.add(GCstripe)
     
