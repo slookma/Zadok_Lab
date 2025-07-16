@@ -4,6 +4,7 @@ Created on Thu Jun 12 12:01:06 2025
 
 @author: USER
 """
+# Fits to Tower2 design (round rings)
 
 import numpy as np
 import gdspy
@@ -15,59 +16,60 @@ datatype        = 0
 LAYER           = {"layer": layer, "datatype": datatype}
 overwrite       = 1 # 0 - Don't write GDS, 1 - Write GDS
 period          = 0.900375
+periods         = list([0.88, 0.89, 0.91, 0.92])
 DC              = 0.5
 gap             = 14.031
 width           = period*DC
 height          = 10
 Nstripes        = math.floor(gap/period)
-GC_coorX        = list([-3429.40  + gap,  #SWG11L
-                        -384.631  - gap,  #SWG11R
-                        570.60    + gap,  #SWG21L
-                        3615.369  - gap,  #SWG21R
-                        -3429.40  + gap,  #SWG12L
-                        -384.631  - gap,  #SWG12R 
-                        570.60    + gap,  #SWG22L
-                        3615.369  - gap,  #SWG22R
-                        -3629.4   + gap,  #Ring11L
-                        -384.631  - gap,  #Ring11R
-                        370.6     + gap,  #Ring21L
-                        3615.369  - gap,  #Ring21R
-                        -3629.4   + gap,  #Ring12L
-                        -384.631  - gap,  #Ring12R
-                        370.6     + gap,  #Ring22L
-                        3615.369  - gap,  #Ring22R
-                        -4562.4   + gap,  #LWG1
-                        -4437.635 + gap,  #LWG1
-                        -4487.824 + gap,  #LWG1
-                        4340.554  - gap,  #LWG1
-                        4340.369  - gap,  #LWG1
-                        -4562.4   + gap,  #LWG2
-                        -4437.635 + gap,  #LWG2
-                        -4487.824 + gap,  #LWG2
-                        4340.554  - gap,  #LWG2
-                        4340.369  - gap,  #LWG2
-                        -4562.4   + gap,  #LWG3
-                        -4437.635 + gap,  #LWG3
-                        -4487.824 + gap,  #LWG3
-                        4340.554  - gap,  #LWG3
-                        4340.369  - gap,  #LWG3
-                        -4562.4   + gap,  #LWG4
-                        -4437.635 + gap,  #LWG4
-                        -4487.824 + gap,  #LWG4
-                        4340.554  - gap,  #LWG4
-                        4340.369  - gap,  #LWG4
-                        -4487.4   + gap,  #LWG5
-                        4465.554  - gap,  #LWG5
-                        4465.369  - gap,  #LWG5
-                        -4486.65  + gap,  #LWG6
-                        4466.304  - gap,  #LWG6
-                        4466.119  - gap,  #LWG6
-                        -4487.4   + gap,  #LWG7
-                        4465.554  - gap,  #LWG7
-                        4465.369  - gap,  #LWG7
-                        -4487.4   + gap,  #LWG8
-                        4465.554  - gap,  #LWG8
-                        4465.369  - gap   #LWG8
+GC_coorX        = list([-3429.40  + gap-3,  #SWG11L
+                        -384.631  - gap,    #SWG11R
+                        570.60    + gap-3,  #SWG21L
+                        3615.369  - gap,    #SWG21R
+                        -3429.40  + gap-3,  #SWG12L
+                        -384.631  - gap,    #SWG12R 
+                        570.60    + gap-3,  #SWG22L
+                        3615.369  - gap,    #SWG22R
+                        -3629.4   + gap-3,  #Ring11L
+                        -384.631  - gap,    #Ring11R
+                        370.6     + gap-3,  #Ring21L
+                        3615.369  - gap,    #Ring21R
+                        -3629.4   + gap-3,  #Ring12L
+                        -384.631  - gap,    #Ring12R
+                        370.6     + gap-3,  #Ring22L
+                        3615.369  - gap,    #Ring22R
+                        -4562.4   + gap-3,  #LWG1
+                        -4437.635 + gap-3,  #LWG1
+                        -4487.824 + gap-3,  #LWG1
+                        4340.554  - gap,    #LWG1
+                        4340.369  - gap,    #LWG1
+                        -4562.4   + gap-3,  #LWG2
+                        -4437.635 + gap-3,  #LWG2
+                        -4487.824 + gap-3,  #LWG2
+                        4340.554  - gap,    #LWG2
+                        4340.369  - gap,    #LWG2
+                        -4562.4   + gap-3,  #LWG3
+                        -4437.635 + gap-3,  #LWG3
+                        -4487.824 + gap-3,  #LWG3
+                        4340.554  - gap,    #LWG3
+                        4340.369  - gap,    #LWG3
+                        -4562.4   + gap-3,  #LWG4
+                        -4437.635 + gap-3,  #LWG4
+                        -4487.824 + gap-3,  #LWG4
+                        4340.554  - gap,    #LWG4
+                        4340.369  - gap,    #LWG4
+                        -4487.4   + gap-3,  #LWG5
+                        4465.554  - gap,    #LWG5
+                        4465.369  - gap,    #LWG5
+                        -4486.65  + gap-3,  #LWG6
+                        4466.304  - gap,    #LWG6
+                        4466.119  - gap,    #LWG6
+                        -4487.4   + gap-3,  #LWG7
+                        4465.554  - gap,    #LWG7
+                        4465.369  - gap,    #LWG7
+                        -4487.4   + gap-3,  #LWG8
+                        4465.554  - gap,    #LWG8
+                        4465.369  - gap     #LWG8
                         ])
 GC_coorY        = list([4254.85,    #SWG11L
                         4254.85,    #SWG11R 
@@ -119,12 +121,23 @@ GC_coorY        = list([4254.85,    #SWG11L
                         -4095.15    #LWG8
                         ])
 GC_coorY = [x+height/2 for x in GC_coorY]
+gap = gap+3
 
 # Create GDS library and cell
 lib        = gdspy.GdsLibrary()
 cell       = lib.new_cell('TowerSBS_GC')
 
 for idxGC in range(len(GC_coorX)):
+    if idxGC <= 15:
+        period = periods[(idxGC//2)%4]
+    elif idxGC <= 35:
+        period = periods[((idxGC-16)//5)%4]
+    else:
+        period = periods[((idxGC-36)//3)%4]
+    
+    width           = period*DC
+    Nstripes        = math.floor(gap/period)
+    
     for idxStripe in range(Nstripes):
         GCstripe = gdspy.Path(width, (GC_coorX[idxGC] + (idxStripe+1)*period, GC_coorY[idxGC]))
         GCstripe.segment(height*2, '-y', **LAYER)
