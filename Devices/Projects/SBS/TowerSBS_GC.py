@@ -23,21 +23,21 @@ width           = period*DC
 height          = 10
 Nstripes        = math.floor(gap/period)
 GC_coorX        = list([-3429.40  + gap-3,  #SWG11L
-                        -384.631  - gap,    #SWG11R
+                        -385      - gap,    #SWG11R
                         570.60    + gap-3,  #SWG21L
-                        3615.369  - gap,    #SWG21R
+                        3615      - gap,    #SWG21R
                         -3429.40  + gap-3,  #SWG12L
-                        -384.631  - gap,    #SWG12R 
+                        -385      - gap,    #SWG12R 
                         570.60    + gap-3,  #SWG22L
-                        3615.369  - gap,    #SWG22R
+                        3615      - gap,    #SWG22R
                         -3629.4   + gap-3,  #Ring11L
-                        -384.631  - gap,    #Ring11R
+                        -385      - gap,    #Ring11R
                         370.6     + gap-3,  #Ring21L
-                        3615.369  - gap,    #Ring21R
+                        3615      - gap,    #Ring21R
                         -3629.4   + gap-3,  #Ring12L
-                        -384.631  - gap,    #Ring12R
+                        -385      - gap,    #Ring12R
                         370.6     + gap-3,  #Ring22L
-                        3615.369  - gap,    #Ring22R
+                        3615      - gap,    #Ring22R
                         -4562.4   + gap-3,  #LWG1
                         -4437.635 + gap-3,  #LWG1
                         -4487.824 + gap-3,  #LWG1
