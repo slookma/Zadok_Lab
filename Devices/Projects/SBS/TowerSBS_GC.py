@@ -14,10 +14,10 @@ import math
 layer           = 50
 datatype        = 0
 LAYER           = {"layer": layer, "datatype": datatype}
-overwrite       = 1 # 0 - Don't write GDS, 1 - Write GDS
+overwrite       = 0 # 0 - Don't write GDS, 1 - Write GDS
 period          = 0.900375
-periods         = list([0.88, 0.89, 0.91, 0.92])
-DC              = 0.5
+periods         = list([0.895, 0.9, 0.905, 0.91])
+DC              = 0.65
 gap             = 14.031
 width           = period*DC
 height          = 10
