@@ -159,9 +159,27 @@ fontsize(13,"points")
 % % % plot(t_Au_ring7_sect(2:end)*1e6, derv_ring7_sect)
 % % % hold on
 % % % 
-% % % %% Approach 4 - Frequency Domain
-% % % dt = t_Au_ring7_sect(2)-t_Au_ring7_sect(1);
-% % % Fs = 1/dt;
-% % % % figure
+%%
+% Approach 4 - Frequency Domain
+dt = t_Au_ring7_sect(2)-t_Au_ring7_sect(1);
+Fs = 1/dt;
+df = 1/(t_Au_ring7_sect(end)-t_Au_ring7_sect(1));
+f_Au_ring7_sect = -Fs/2:df:Fs/2;
 
+probe_Au_ring7_sect_freq = fftshift(fft(probe_Au_ring7_sect));
+
+figure
+loglog(f_Au_ring7_sect, abs(probe_Au_ring7_sect_freq))
+
+%%
+% Approach 4 - Frequency Domain
+dt = t_Au_ring7(2)-t_Au_ring7(1);
+Fs = 1/dt;
+df = 1/(t_Au_ring7(end)-t_Au_ring7(1));
+f_Au_ring7 = -Fs/2:df:Fs/2;
+
+probe_Au_ring7_freq = fftshift(fft(probe_Au_ring7));
+
+figure
+loglog(f_Au_ring7, abs(probe_Au_ring7_freq))
 
