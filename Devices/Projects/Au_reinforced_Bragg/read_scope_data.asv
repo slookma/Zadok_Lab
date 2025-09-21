@@ -1,20 +1,30 @@
-function [t,CH2,t_sect,CH2_sect] = read_scope_data(path,Norm,bound,CH)
-%read_scope_data Summary of this function goes here
-%   Detailed explanation goes here
+function [t,probe,t_sect,probe_sect] = read_scope_data(path,Norm,bound,CH)
+% read_scope_data Reads and processes data we took from the scope in the
+% "Au reinforced Bragg" experiment on Sep. 2025
+%   Inputs & Outputs:
+%       * path  - path to the data file, considering the code is being run
+%                 from 'GitHub\Zadok_Lab\Devices\Projects\Au_reinforced_Bragg'
+%       * Norm  - flag. 0 = don't / 1 = do normalize data
+%       * bound - flag. 0 = don't / 1 = do bound data in the horizontal
+%                 axis. Optionally: 2 = bound according to minima
+%       * CH    - Which channel 
 
 
 Data = readtable(path);
 t = Data.Var1(3:end);
-if
-CH2 = Data.Var3(3:end);
-
-if Norm
-    % CH2 = CH2/(max(CH2) - min(CH2));
-    CH2 = CH2-mean(CH2);
+if CH == 2
+    probe = Data.Var3(3:end);
+elseif CH == 3
+    probe = Data.Var2(3:end);
 end
 
-[~, locs_top] = findpeaks(CH2,"MinPeakProminence",0.5*(max(CH2) - min(CH2)));
-[~, locs_bot] = findpeaks(-CH2,"MinPeakProminence",0.5*(max(CH2) - min(CH2)));
+if Norm
+    % probe = probe/(max(probe) - min(probe));
+    probe = probe-mean(probe);
+end
+
+[~, locs_top] = findpeaks(probe,"MinPeakProminence",0.5*(max(probe) - min(probe)));
+[~, locs_bot] = findpeaks(-probe,"MinPeakProminence",0.5*(max(probe) - min(probe)));
 
 % Choose section of graph
 if bound == 1
@@ -29,11 +39,11 @@ else
 end
 
 t_sect   = t(sect_start:sect_stop);
-CH2_sect = CH2(sect_start:sect_stop);
+probe_sect = probe(sect_start:sect_stop);
 
 if Norm
-    % CH2_sect = CH2_sect/(max(CH2_sect) - min(CH2_sect));
-    CH2_sect = CH2_sect-CH2_sect(end);
+    % probe_sect = probe_sect/(max(probe_sect) - min(probe_sect));
+    probe_sect = probe_sect-probe_sect(end);
 end
 
 

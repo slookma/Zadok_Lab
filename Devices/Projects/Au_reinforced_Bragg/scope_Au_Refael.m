@@ -31,29 +31,6 @@ fitdata_Au_ring7Inv = fit(t_Au_ring7Inv_sect(30:end)*1e6, probe_Au_ring7Inv_sect
 fitdata_noAu_2 = fit(t_noAu_sect{2}*1e6, probe_noAu_sect{2}, 'exp1');
 fitdata_noAu_4 = fit(t_noAu_sect{4}*1e6, probe_noAu_sect{4}, 'exp1');
 
-%% Plot LUNA
-diode_temps = [22.895, 23.555, 23.605, 23.645, 23.875];
-OSA_WLs     = [1556.548, 1556.614, 1556.618, 1556.624, 1556.646];
-LUNA_WLs    = OSA_WLs + 0.699-0.646;
-
-LUNA_data     = readtable('noAu_Sample_180925/Refael_LUNA/ring_8_no_Au_Shai_meas.txt');
-LUNAmeas_WL   = LUNA_data.XAxis_Wavelength_nm_;
-LUNAmeas_Loss = LUNA_data.InsertionLoss_dB_;
-
-figure
-plot(LUNAmeas_WL, LUNAmeas_Loss, 'LineWidth', 1.5)
-xlim([1556.55 1556.75])
-OSA_WLs     = [1556.548, 1556.614, 1556.618, 1556.624, 1556.646];
-LUNA_WLs    = OSA_WLs + 0.699-0.646;
-xline(LUNA_WLs, 'LineWidth', 1.2)
-xlabel('Wavelength [nm]')
-ylabel('Insertion Loss [dB]')
-title({'Scope Measurements Taken vs. LUNA Curve', 'Ring 8, No Au Sample'})
-ylim([-15 -7])
-for idx = 1:5
-    text(LUNA_WLs(idx), -8.5-1.5*(idx-1), num2str(LUNA_WLs(idx)), 'HorizontalAlignment', 'left', 'VerticalAlignment', 'bottom', 'Rotation', 90)
-end
-
 %% Plot Au Sample
 figure
 subplot(2,2,[1 3])
@@ -81,38 +58,31 @@ title({'Ring \rightarrow Gold (Single Period)',['\tau = ' num2str(-1/fitdata_Au_
 
 fontsize(13,"points")
 
-%% Plot No Au Sample
+%% Plot LUNA (no Au)
+diode_temps = [22.895, 23.555, 23.605, 23.645, 23.875];
+OSA_WLs     = [1556.548, 1556.614, 1556.618, 1556.624, 1556.646];
+LUNA_WLs    = OSA_WLs + 0.699-0.646;
+
+LUNA_data     = readtable('noAu_Sample_180925/Refael_LUNA/ring_8_no_Au_Shai_meas.txt');
+LUNAmeas_WL   = LUNA_data.XAxis_Wavelength_nm_;
+LUNAmeas_Loss = LUNA_data.InsertionLoss_dB_;
+
 figure
+plot(LUNAmeas_WL, LUNAmeas_Loss, 'LineWidth', 1.5)
+xlim([1556.55 1556.75])
+OSA_WLs     = [1556.548, 1556.614, 1556.618, 1556.624, 1556.646];
+LUNA_WLs    = OSA_WLs + 0.699-0.646;
+xline(LUNA_WLs, 'LineWidth', 1.2)
+xlabel('Wavelength [nm]')
+ylabel('Insertion Loss [dB]')
+title({'Scope Measurements Taken vs. LUNA Curve', 'Ring 8, No Au Sample'})
+ylim([-15 -7])
 for idx = 1:5
-    plot(t_noAu{idx}*1e6, probe_noAu{idx} + 2e-3*(idx-1), 'LineWidth', 1.5)
-    hold on
+    text(LUNA_WLs(idx), -8.5-1.5*(idx-1), num2str(LUNA_WLs(idx)), 'HorizontalAlignment', 'left', 'VerticalAlignment', 'bottom', 'Rotation', 90)
 end
-xlabel('time [\mus]')
-legend(num2str(LUNA_WLs'))
-
-fontsize(13,"points")
-
-figure
-subplot(2,1,1)
-plot(t_noAu_sect{2}*1e6, probe_noAu_sect{2}, 'LineWidth', 1.5)
-hold on
-plot(t_noAu_sect{2}*1e6, fitdata_noAu_2.a*exp(fitdata_noAu_2.b*t_noAu_sect{2}*1e6), 'LineWidth', 1.5)
-confData = confint(fitdata_noAu_2);
-xlabel('time [\mus]')
-title({['Probe WL = ' num2str(LUNA_WLs(2)) ' nm'],['\tau = ' num2str(-1/fitdata_noAu_2.b, '%.2f') ' \mus'],['95% Confidence: ' num2str(-1/confData(1,2), '%.2f') '-' num2str(-1/confData(2,2), '%.2f') '\mus']})
-
-subplot(2,1,2)
-plot(t_noAu_sect{4}*1e6, probe_noAu_sect{4}, 'LineWidth', 1.5)
-hold on
-plot(t_noAu_sect{4}*1e6, fitdata_noAu_4.a*exp(fitdata_noAu_4.b*t_noAu_sect{4}*1e6), 'LineWidth', 1.5)
-confData = confint(fitdata_noAu_4);
-xlabel('time [\mus]')
-title({['Probe WL = ' num2str(LUNA_WLs(4)) ' nm'],['\tau = ' num2str(-1/fitdata_noAu_4.b, '%.2f') ' \mus'],['95% Confidence: ' num2str(-1/confData(1,2), '%.2f') '-' num2str(-1/confData(2,2), '%.2f') '\mus']})
-
-fontsize(13,"points")
 
 
-%%
+%% Plot no Au Data
 figure
 subplot(2,3, [1 4])
 plot(LUNAmeas_Loss, LUNAmeas_WL, 'LineWidth', 1.5)
@@ -128,6 +98,7 @@ xlim([-15 -7])
 for idx = 1:5
     text(-8.5-1.5*(idx-1), LUNA_WLs(idx), num2str(LUNA_WLs(idx)), 'HorizontalAlignment', 'left', 'VerticalAlignment', 'bottom')
 end
+
 
 subplot(2,3,[2 5])
 for idx = 5:-1:1
@@ -153,9 +124,6 @@ plot(t_noAu_sect{4}*1e6, fitdata_noAu_4.a*exp(fitdata_noAu_4.b*t_noAu_sect{4}*1e
 confData = confint(fitdata_noAu_4);
 xlabel('time [\mus]')
 title({['Probe WL = ' num2str(LUNA_WLs(4)) ' nm'],['\tau = ' num2str(-1/fitdata_noAu_4.b, '%.2f') ' \mus'],['95% Confidence: ' num2str(-1/confData(1,2), '%.2f') '-' num2str(-1/confData(2,2), '%.2f') '\mus']})
-
-
-
 
 fontsize(13,"points")
 

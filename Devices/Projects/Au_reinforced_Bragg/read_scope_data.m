@@ -1,6 +1,19 @@
 function [t,probe,t_sect,probe_sect] = read_scope_data(path,Norm,bound,CH)
-%read_scope_data Summary of this function goes here
-%   Detailed explanation goes here
+% read_scope_data Reads and processes data we took from the scope in the
+% "Au reinforced Bragg" experiment on Sep. 2025
+%   Inputs:
+%       * path  - path to the data file, considering the code is being run
+%                 from 'GitHub\Zadok_Lab\Devices\Projects\Au_reinforced_Bragg'
+%       * Norm  - flag. 0 = don't / 1 = do normalize data
+%       * bound - flag. 0 = don't / 1 = do bound data in the horizontal
+%                 axis. Optionally: 2 = bound according to minima
+%       * CH    - Which channel to read from
+% 
+%   Outputs:
+%       * t          - time vector
+%       * probe      - probe's voltage data vector
+%       * t_sect     - time vector in a specified section
+%       * probe_sect - probe's voltage data vector in a specified section
 
 
 Data = readtable(path);
