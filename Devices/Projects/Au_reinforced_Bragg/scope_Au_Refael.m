@@ -183,3 +183,26 @@ probe_Au_ring7_freq = fftshift(fft(probe_Au_ring7));
 figure
 loglog(f_Au_ring7, abs(probe_Au_ring7_freq))
 
+
+
+
+
+
+%% New Data Analysis (plot all)
+Norm  = 1;
+bound = 0;
+CH    = 2;
+
+Flist = dir('newData\*_2_*.csv');
+
+for idx = 1:length(Flist)
+    path = fullfile('newData', Flist(idx).name);
+    [t,probe,t_sect,probe_sect] = read_scope_data(path,Norm,bound,CH);
+
+    figure
+    plot(t*1e6, probe, 'LineWidth', 1.5)
+    ylim([-1 1]*8e-5)
+    title(Flist(idx).name, 'Interpreter', 'none')
+end
+
+
