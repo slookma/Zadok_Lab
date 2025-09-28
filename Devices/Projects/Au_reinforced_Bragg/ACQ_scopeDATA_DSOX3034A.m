@@ -1,65 +1,72 @@
 scope = visadev('USB0::0x0957::0x17A4::MY54232198::0::INSTR');
 idn = writeread(scope, "*IDN?");
 %%
+channels = [1 4];
+
 % Set input buffer size for waveform data
 scope.InputBufferSize = 100000;
 
 % Open connection
 fopen(scope);
 
-% Set data source to channel 4
-fprintf(scope, ':WAV:SOUR CHAN4');
+idx = 1;
+for ch = channels
 
-% Set waveform format to BYTE (1 byte per point)
-fprintf(scope, ':WAV:FORM BYTE');
+    % Set data source to selected channel
+    fprintf(scope, [':WAV:SOUR CHAN' num2str(ch)]);
 
-% Set waveform mode to RAW (all points, not just screen)
-fprintf(scope, ':WAV:MODE RAW');
+    % Set waveform format to BYTE (1 byte per point)
+    fprintf(scope, ':WAV:FORM BYTE');
 
-% Set number of points to retrieve (optional; adjust as needed)
-% fprintf(scope, ':WAV:POINTS 10000');
+    % Set waveform mode to RAW (all points, not just screen)
+    fprintf(scope, ':WAV:MODE RAW');
 
-% Query preamble to get waveform format
-fprintf(scope, ':WAV:PRE?');
-preambleBlock = fscanf(scope);
+    % Set number of points to retrieve (optional; adjust as needed)
+    % fprintf(scope, ':WAV:POINTS 10000');
 
-% Parse preamble
-preamble = str2double(strsplit(preambleBlock, ','));
-% Preamble format:
-% [format, type, points, count, x_increment, x_origin, x_reference, y_increment, y_origin, y_reference]
+    % Query preamble to get waveform format
+    fprintf(scope, ':WAV:PRE?');
+    preambleBlock = fscanf(scope);
 
-x_increment = preamble(5);
-x_origin    = preamble(6);
-x_reference = preamble(7);
-y_increment = preamble(8);
-y_origin    = preamble(9);
-y_reference = preamble(10);
+    % Parse preamble
+    preamble = str2double(strsplit(preambleBlock, ','));
+    % Preamble format:
+    % [format, type, points, count, x_increment, x_origin, x_reference, y_increment, y_origin, y_reference]
 
-% Request waveform data
-fprintf(scope, ':WAV:DATA?');
+    x_increment = preamble(5);
+    x_origin    = preamble(6);
+    x_reference = preamble(7);
+    y_increment = preamble(8);
+    y_origin    = preamble(9);
+    y_reference = preamble(10);
 
-% Read back header and waveform data
-rawData = fread(scope, scope.InputBufferSize, 'uint8');
+    % Request waveform data
+    fprintf(scope, ':WAV:DATA?');
 
-% Parse the returned waveform data
-% Skip header: find start of data (# character)
-headerOffset = find(rawData == '#', 1);
-numDigits = str2double(char(rawData(headerOffset + 1)));
-numBytes = str2double(char(rawData(headerOffset + (2:1+numDigits)))');
-dataStart = headerOffset + 1 + numDigits;
-waveformData = rawData(dataStart : dataStart + numBytes - 1);
+    % Read back header and waveform data
+    rawData = fread(scope, scope.InputBufferSize, 'uint8');
 
-% Convert to voltage values
-voltage = (waveformData - y_reference) * y_increment + y_origin;
+    % Parse the returned waveform data
+    % Skip header: find start of data (# character)
+    headerOffset = find(rawData == '#', 1);
+    numDigits = str2double(char(rawData(headerOffset + 1)));
+    numBytes = str2double(char(rawData(headerOffset + (2:1+numDigits)))');
+    dataStart = headerOffset + 1 + numDigits;
+    waveformData = rawData(dataStart : dataStart + numBytes - 1);
 
-% Time axis
-time = ((0:length(voltage)-1) - x_reference) * x_increment + x_origin;
+    % Convert to voltage values
+    voltage(:,idx) = (waveformData - y_reference) * y_increment + y_origin;
 
-% Plot waveform
-figure;
-plot(time, voltage);
-xlabel('Time (s)');
-ylabel('Voltage (V)');
-title('Waveform from Channel 4 of DSOX3034A');
-grid on;
+    % Time axis
+    time(:,idx) = ((0:length(voltage)-1) - x_reference) * x_increment + x_origin;
 
+    % Plot waveform
+    figure;
+    plot(time(:,idx), voltage(:,idx));
+    xlabel('Time (s)');
+    ylabel('Voltage (V)');
+    title(['Waveform from Channel ' num2str(ch) ' of DSOX3034A']);
+    grid on;
+
+    idx = idx + 1;
+end
