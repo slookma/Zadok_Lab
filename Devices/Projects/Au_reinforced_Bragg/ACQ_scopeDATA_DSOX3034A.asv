@@ -3,35 +3,43 @@ idn = writeread(scope, "*IDN?");
 %%
 channels = [2 4];
 
-% Set input buffer size for waveform data
-scope.InputBufferSize = 100000;
+% Set input buffer size and timeout
+scope.InputBufferSize = 1000000;
+scope.Timeout = 10;  % Increase timeout to allow full waveform read
 
 % Open connection
 fopen(scope);
 
+% === Set acquisition mode to average (once, before loop) ===
+fprintf(scope, ':ACQ:TYPE AVER');     % Averaging mode
+fprintf(scope, ':ACQ:COUN 32');       % Averaging count (adjustable)
+
 idx = 1;
 for ch = channels
 
-    % Set data source to selected channel
+    % === Set channel as waveform source ===
     fprintf(scope, [':WAV:SOUR CHAN' num2str(ch)]);
+    pause(0.2);  % Let the scope switch internally
 
-    % Set waveform format to BYTE (1 byte per point)
+    % === Force acquisition and wait ===
+    fprintf(scope, ':RUN');          % Single-shot acquisition
+    pause(5);  % Let the scope switch internally
+    fprintf(scope, ':STOP');          % Single-shot acquisition
+    fprintf(scope, '*WAI');           % Wait until acquisition is done
+
+    % === Set waveform data format and mode ===
     fprintf(scope, ':WAV:FORM BYTE');
-
-    % Set waveform mode to RAW (all points, not just screen)
     fprintf(scope, ':WAV:MODE RAW');
 
-    % Set number of points to retrieve (optional; adjust as needed)
+    pause(0.2);
+
+    % === (Optional) Reduce points if needed ===
     % fprintf(scope, ':WAV:POINTS 10000');
 
-    % Query preamble to get waveform format
+    % === Read preamble to get scaling factors ===
     fprintf(scope, ':WAV:PRE?');
     preambleBlock = fscanf(scope);
-
-    % Parse preamble
     preamble = str2double(strsplit(preambleBlock, ','));
-    % Preamble format:
-    % [format, type, points, count, x_increment, x_origin, x_reference, y_increment, y_origin, y_reference]
 
     x_increment = preamble(5);
     x_origin    = preamble(6);
@@ -40,27 +48,31 @@ for ch = channels
     y_origin    = preamble(9);
     y_reference = preamble(10);
 
-    % Request waveform data
+    % === Request waveform data ===
     fprintf(scope, ':WAV:DATA?');
-
-    % Read back header and waveform data
     rawData = fread(scope, scope.InputBufferSize, 'uint8');
 
-    % Parse the returned waveform data
-    % Skip header: find start of data (# character)
+    % === Parse waveform block header ===
     headerOffset = find(rawData == '#', 1);
     numDigits = str2double(char(rawData(headerOffset + 1)));
     numBytes = str2double(char(rawData(headerOffset + (2:1+numDigits)))');
     dataStart = headerOffset + 1 + numDigits;
+
+    % === Check if enough data was read ===
+    if length(rawData) < dataStart + numBytes - 1
+        warning('Incomplete data read from scope for channel %d.', ch);
+        continue;
+    end
+
     waveformData = rawData(dataStart : dataStart + numBytes - 1);
 
-    % Convert to voltage values
+    % === Convert to voltage ===
     voltage(:,idx) = (waveformData - y_reference) * y_increment + y_origin;
 
-    % Time axis
+    % === Create time axis ===
     time(:,idx) = ((0:length(voltage)-1) - x_reference) * x_increment + x_origin;
 
-    % Plot waveform
+    % === Plot waveform ===
     figure;
     plot(time(:,idx), voltage(:,idx));
     xlabel('Time (s)');
@@ -70,3 +82,15 @@ for ch = channels
 
     idx = idx + 1;
 end
+
+
+% % % %%
+% % % 
+% % % fprintf(scope, ":ACQuire:TYPE AVERage");
+% % % fprintf(scope, ":ACQuire:COMPlete 100");
+% % % fprintf(scope, ":ACQuire:COUNt 128");
+% % % fprintf(scope, ":DIGitize CHANnel2");
+% % % fprintf(scope, ":WAVeform:SOURce CHANnel2");
+% % % fprintf(scope, ":WAVeform:FORMat BYTE");
+% % % fprintf(scope, ":WAVeform:POINts 500");
+% % % data = fscanf(scope, ":WAVeform:DATA?");

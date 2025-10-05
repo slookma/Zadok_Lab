@@ -21,15 +21,19 @@ for ch = channels
     fprintf(scope, [':WAV:SOUR CHAN' num2str(ch)]);
     pause(0.2);  % Let the scope switch internally
 
-    % === Force acquisition and wait ===
-    fprintf(scope, ':RUN');          % Single-shot acquisition
-    pause(5);  % Let the scope switch internally
-    fprintf(scope, ':STOP');          % Single-shot acquisition
-    fprintf(scope, '*WAI');           % Wait until acquisition is done
+    % % === Force acquisition and wait ===
+    % fprintf(scope, ':RUN');          % Single-shot acquisition
+    % pause(5);  % Let the scope switch internally
+    % fprintf(scope, ':STOP');          % Single-shot acquisition
+    % fprintf(scope, '*WAI');           % Wait until acquisition is done
+
+    % pause(0.2);
 
     % === Set waveform data format and mode ===
     fprintf(scope, ':WAV:FORM BYTE');
     fprintf(scope, ':WAV:MODE RAW');
+
+    pause(0.2);
 
     % === (Optional) Reduce points if needed ===
     % fprintf(scope, ':WAV:POINTS 10000');
@@ -45,6 +49,8 @@ for ch = channels
     y_increment = preamble(8);
     y_origin    = preamble(9);
     y_reference = preamble(10);
+
+    pause(0.2);
 
     % === Request waveform data ===
     fprintf(scope, ':WAV:DATA?');

@@ -1,11 +1,11 @@
 %% Calculate coupling as a function of minimal gap, NO STRAIGHT SECTION
 % Data from COMSOL:
 % % Leroy:
-y_sim     = (0.2:0.1:1)'*1e-6; % [m]
-% neven_sim = [1.78069, 1.77824, 1.77676, 1.77585, 1.77528, 1.77491, 1.77469].';
-% nodd_sim  = [1.76867, 1.77061, 1.77190, 1.77274, 1.77329, 1.77364, 1.77388].';
-neven_sim = [1.84417, 1.84195, 1.84085, 1.84026, 1.83992, 1.83972, 1.83960, 1.83953, 1.83949].';
-nodd_sim  = [1.83667, 1.83759, 1.83823, 1.83867, 1.83895, 1.83913, 1.83924, 1.83931, 1.83935].';
+y_sim     = (0.4:0.1:1)'*1e-6; % [m]
+neven_sim = [1.78069, 1.77824, 1.77676, 1.77585, 1.77528, 1.77491, 1.77469].';
+nodd_sim  = [1.76867, 1.77061, 1.77190, 1.77274, 1.77329, 1.77364, 1.77388].';
+% neven_sim = [1.84417, 1.84195, 1.84085, 1.84026, 1.83992, 1.83972, 1.83960, 1.83953, 1.83949].';
+% nodd_sim  = [1.83667, 1.83759, 1.83823, 1.83867, 1.83895, 1.83913, 1.83924, 1.83931, 1.83935].';
 
 % Fit to exponential curve:
 feven = fit(y_sim, neven_sim - mean(neven_sim+nodd_sim)/2, 'exp1');
@@ -13,7 +13,7 @@ fodd  = fit(y_sim, nodd_sim  - mean(neven_sim+nodd_sim)/2, 'exp1');
 
 % Parameters:
 % Leroy:
-R           = 152.5*1e-6; % Radius of curvature [m]
+R           = 100*1e-6; % Radius of curvature [m]
 y0_sweep    = linspace(0.01,3,100)*1e-6; % Sweep over minimal coupler gap [m]
 alpha_sweep = linspace(0.1, 0.2, 11); % Propagation loss estimation [dB/cm]
 OUT_tot     = zeros(size(y0_sweep));
@@ -66,7 +66,7 @@ ylabel('Lc [m]')
 title('Lc VS. Z')
 
 %% Calculate coupling as a function of straight section, GIVEN GAP
-y0 = 200*1e-9; % Minimal coupler gap [m]
+y0 = 350*1e-9; % Minimal coupler gap [m]
 L_sweep = linspace(0,50,1000)*1e-6; % Sweep over straight section of coupler [m]
 OUT_tot  = zeros(size(L_sweep));
 
