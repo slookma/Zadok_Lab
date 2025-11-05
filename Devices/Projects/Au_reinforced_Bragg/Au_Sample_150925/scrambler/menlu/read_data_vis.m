@@ -8,7 +8,7 @@
 clear; clc; close all
 
 nFiles = 13;
-results = zeros(nFiles, 3); % columns: [mean, var, var/mean]
+results = zeros(nFiles, 3); % columns: [mean, std, std/mean]
 
 for k = 1:nFiles
     filename = sprintf('ring_%d.csv', k);
@@ -54,3 +54,7 @@ T = array2table(results, ...
     'RowNames', compose('ring_%d', 1:nFiles));
 disp('--- Summary ---');
 disp(T);
+
+x = 0:0.01:1;
+y = (1-x)./(sqrt(2)*(1+x));
+plot(x,y)
