@@ -65,5 +65,5 @@ ylabel('Percentage [%]', 'FontSize', 15)
 
  
 % % Save the data
-filename = sprintf('Rafael_SIN_AU_bulk_pump_TEM_probe_TEM.mat');
-save(filename, 'freqs', 'powerX', 'powerY', 'powerR');
+% filename = sprintf('Rafael_SIN_AU_bulk_pump_TE_probe_TE.mat');
+% save(filename, 'freqs', 'powerX', 'powerY', 'powerR');
