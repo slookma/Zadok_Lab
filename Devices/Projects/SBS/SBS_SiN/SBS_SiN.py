@@ -23,15 +23,15 @@ ld_SiN          = {"layer": 1,    "datatype": 0}
 width               = 1
 taper_len           = 500
 final_taper_width   = 0.3
-bend_radius         = 100
+bend_radius         = 150
 Hbend               = 200
 Lbend               = 400
 safety_gap          = 100
 coup_gap            = 0.2
-Lc_vec              = [21, 23, 25, 27, 29, 31]
+Lc_vec              = [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
 Nturns              = 5
-chip_sizeX          = 5000
-chip_sizeY          = 5000
+chip_sizeX          = 10000
+chip_sizeY          = 10000
 
 ###################################
 ## Add stripes for polishing + text
@@ -81,7 +81,7 @@ cell.add(path4)
 ## Rings
 for idx in range(len(Lc_vec)):
     Lc = Lc_vec[idx]
-    path5 = gdspy.Path(width, (-chip_sizeX/2 + taper_len, y_end - safety_gap))
+    path5 = gdspy.Path(width, (-chip_sizeX/2 + taper_len, y_end - 2*bend_radius - safety_gap + Hbend))
     x_start = path5.x
     y_start = path5.y
     sbendPathM(path5,Lbend, Hbend, ld_SiN)
