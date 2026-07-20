@@ -9,6 +9,8 @@ Created on Sun Apr 26 15:46:10 2026
 
 import gdspy
 import math
+import sys
+sys.path.insert(0, "C:/Users/USER/GitHub/Zadok_Lab/Devices/Projects/Consortium")
 from s_bend_func import sbendPath, sbendPathM
 
 overwrite   = 0 # 1 - Overwrite GDS, 0 - Don't overwrite
@@ -32,10 +34,6 @@ Lc_vec              = [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]
 Nturns              = 5
 chip_sizeX          = 10000
 chip_sizeY          = 10000
-
-###################################
-## Add stripes for polishing + text
-###################################
 
 ###################################
 ## Add markers
