@@ -80,49 +80,6 @@ y_curr = path1.y
 path2 = create_grating_path(cells[1], period, fill_frac, teeth, (x_curr, center[1]), radius, angle, WG_WIDTH, direction=1,
                                     LAYER_WG={"layer": layer1, "datatype": datatype})
 
-
-## Ring
-center = (5500,0)
-path3 = create_grating_path(cells[2], period, fill_frac, teeth, center, radius, angle, WG_WIDTH, direction=1,
-                                    LAYER_WG={"layer": layer1, "datatype": datatype})
-path3.segment(700, "+y",  **LAYER_WG)
-path3.turn(bend_radius, 'r', **LAYER_WG)
-path3.segment(15*opt_arr_gap-2*bend_radius, "+x", **LAYER_WG)
-path3.turn(bend_radius, 'r', **LAYER_WG)
-path3.segment(700, "-y",  **LAYER_WG)
-x_curr = path3.x
-y_curr = path3.y
-path4 = create_grating_path(cells[3], period, fill_frac, teeth, (x_curr, center[1]), radius, angle, WG_WIDTH, direction=1,
-                                    LAYER_WG={"layer": layer1, "datatype": datatype})
-
-path5 = gdspy.Path(WG_WIDTH, (x_curr-(15*opt_arr_gap)/2, y_curr+700+bend_radius+WG_WIDTH+coup_gap))
-path5.turn(bend_radius, 'l', **LAYER_WG)
-path5.segment(200, "+y",  **LAYER_WG)
-path5.turn(bend_radius, 'll', **LAYER_WG)
-path5.segment(200, "-y",  **LAYER_WG)
-path5.turn(bend_radius, 'l', **LAYER_WG)
-cells[2].add(path5)
-
-
-
-## long
-center = (0,-6000)
-path6 = create_grating_path(cells[4], period, fill_frac, teeth, center, radius, angle, WG_WIDTH, direction=0,
-                                    LAYER_WG={"layer": layer1, "datatype": datatype})
-path6.segment(500, "+x",  **LAYER_WG)
-path6.turn(bend_radius, 'l', **LAYER_WG)
-path6.segment(400, "+y",  **LAYER_WG)
-path6.turn(bend_radius, 'r', **LAYER_WG)
-path6.segment(7000, "+x",  **LAYER_WG)
-path6.turn(bend_radius, 'r', **LAYER_WG)
-path6.segment(600, "-y",  **LAYER_WG)
-path6.turn(bend_radius, 'l', **LAYER_WG)
-path6.segment(500, "+x",  **LAYER_WG)
-x_curr = path6.x
-y_curr = path6.y
-path7 = create_grating_path(cells[5], period, fill_frac, teeth, (x_curr-3.25, y_curr), radius, angle, WG_WIDTH, direction=2,
-                                    LAYER_WG={"layer": layer1, "datatype": datatype})
-
 # Pads
 corner = (1337.5,-600)
 side = 100
