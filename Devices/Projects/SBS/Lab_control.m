@@ -83,9 +83,9 @@ OnOff = 1;
  
 fprintf(RS,[':OUTPut:ALL:STATe ' num2str(OnOff)]);
 
-f_start     = 10e9;
-f_stop      = 12e9;
-Nf          = 201;
+f_start     = 9e9;
+f_stop      = 15e9;
+Nf          = 1201;
 Tpause      = 0.5;
 freqs       = linspace(f_start, f_stop, Nf);
 df          = (freqs(2) - freqs(1))*1e-6; % MHz
