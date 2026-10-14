@@ -83,12 +83,13 @@ OnOff = 1;
  
 fprintf(RS,[':OUTPut:ALL:STATe ' num2str(OnOff)]);
 
-f_start     = 10.5e9;
-f_stop      = 11.5e9;
+f_start     = 10e9;
+f_stop      = 12e9;
 Nf          = 201;
 Tpause      = 0.5;
 freqs       = linspace(f_start, f_stop, Nf);
 df          = (freqs(2) - freqs(1))*1e-6; % MHz
+N_av_LIA    = 25;
 powerR      = zeros(size(freqs));
 powerR_av   = zeros(size(freqs));
 powerX      = zeros(size(freqs));
@@ -99,11 +100,15 @@ powerR_arr  = zeros(N_av, length(freqs));
 powerX_arr  = zeros(N_av, length(freqs));
 powerY_arr  = zeros(N_av, length(freqs));
 Sig         = zeros(length(time), length(freqs));
+powerR_vec  = zeros(1, N_av_LIA);
+powerX_vec  = zeros(1, N_av_LIA);
+powerY_vec  = zeros(1, N_av_LIA);
 
-WB = waitbar(0,'Please wait...');
+% WB = waitbar(0,'Please wait...');
 
 Testimate = Nf*Tpause;
 Tcurrent  = 0;
+figure
 
 for idx_av = 1:N_av
     for idx = 1:Nf
@@ -114,17 +119,27 @@ for idx_av = 1:N_av
             Testimate = Tcurrent*(Nf-1)/(idx-1);
         end
         fprintf(RS,['SOURce1:FREQuency:CW ' num2str(freqs(idx), '%.2f')]);
+        pause(Tpause);
         
         % Perform Measurement
         switch Dev
             case 1
-                fprintf(LIA, '%s\n',  'SNAP? 2,0,1');
-                powerStr = fscanf(LIA);
-                powerStr_split = split(powerStr, ',');
-                powerR(idx) = double(string((powerStr_split(1))));
-                powerX(idx) = double(string((powerStr_split(2))));
-                powerY(idx) = double(string((powerStr_split(3))));
-                pause(Tpause);
+                for idx_av_LIA = 1:N_av_LIA
+                    fprintf(LIA, '%s\n',  'SNAP? 2,0,1');
+                    powerStr = fscanf(LIA);
+                    powerStr_split = split(powerStr, ',');
+                    powerR_vec(idx_av_LIA) = double(string((powerStr_split(1))));
+                    powerX_vec(idx_av_LIA) = double(string((powerStr_split(2))));
+                    powerY_vec(idx_av_LIA) = double(string((powerStr_split(3))));
+                end
+
+                powerR(idx) = mean(powerR_vec);
+                powerX(idx) = mean(powerX_vec);
+                powerY(idx) = mean(powerY_vec);
+
+                % powerR(idx) = double(string((powerStr_split(1))));
+                % powerX(idx) = double(string((powerStr_split(2))));
+                % powerY(idx) = double(string((powerStr_split(3))));
             case 2
                 fprintf(scope, ':MEASure:VPP CHAN1');   % Set measurement type
                 pause(Tpause);
@@ -150,7 +165,11 @@ for idx_av = 1:N_av
 
         end
 
-        waitbar(idx/Nf, WB, {['Please Hold, ' num2str(idx/Nf * 100, '%.2f') '% completed. Iteration: ' num2str(idx_av)], ['Approximate Time Left: ' num2str(Tcurrent, '%.2f') '/' num2str(Testimate, '%.2f') ' sec.']});
+        % waitbar(idx/Nf, WB, {['Please Hold, ' num2str(idx/Nf * 100, '%.2f') '% completed.'], ['Approx. Time Left: ' num2str(Tcurrent, '%.2f') '/' num2str(Testimate, '%.2f') ' sec. ; Freq.: ' num2str(freqs(idx)*1e-9, '%.3f') 'GHz']});
+
+        semilogy(freqs*1e-9, powerR)
+        xlabel('$f$ [GHz]', 'Interpreter' , 'latex', 'FontSize', 15)
+        ylabel('Amplitude [V]', 'FontSize', 15)
     end
     
     powerR_arr(idx_av, :) = powerR;
@@ -160,15 +179,15 @@ end
 
 powerR_av = sum(powerR_arr, 1) / N_av;
 
-close(WB)
+% close(WB)
 
 % % Output on/off:
 % OnOff = 0;
 % fprintf(RS,[':OUTPut:ALL:STATe ' num2str(OnOff)]);
 
-gL = 1.7;         % Measured every day [W^-1]
-pIn = -9.8;       % dBm at tap
-pIn = pIn + 16.8; % dBm at DUT
+gL = 0.127;         % Measured every day [W^-1]
+pIn = 7.8;           % dBm at tap of pump
+pIn = pIn + 18.4 - 10 - 3;   % dBm at DUT
 sensitivity = 1000; % in LIA [uv]
 ppm = (exp(gL*(db2pow(pIn))/1000)-1)*1e6; % Fiber
 % ppm = (exp(16.98*0.008*(db2pow(pIn-13))/1000)-1)*1e6; % Device
